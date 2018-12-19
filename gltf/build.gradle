@@ -1,0 +1,50 @@
+buildscript {
+    
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+    }
+
+}
+
+version = '0.0.1-SNAPSHOT'
+ext {
+    appName = "gdx-gltf"
+    gdxVersion = '1.9.8'
+    junitVersion = '4.12'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+}
+
+apply plugin: "eclipse"
+
+eclipse {
+    project {
+        name = appName
+    }
+}
+
+apply plugin: "idea"
+apply plugin: "java"
+
+
+dependencies {
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    
+    testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    testCompile "junit:junit:$junitVersion"
+}
+
+sourceCompatibility = 1.6
+sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.test.java.srcDirs = [ "test/" ]
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

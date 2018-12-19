@@ -1,0 +1,25 @@
+buildscript {
+    
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+    }
+    dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
+        classpath 'com.android.tools.build:gradle:2.2.0'
+        
+
+    }
+}
+
+apply plugin: "eclipse"
+
+eclipse {
+    project {
+        name = "gltf-root"
+    }
+}
+
