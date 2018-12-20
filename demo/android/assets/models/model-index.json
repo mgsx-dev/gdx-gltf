@@ -1,5 +1,13 @@
 [
   {
+    "name": "BoomBox",
+    "screenshot": "screenshot/screenshot.jpg",
+    "url": "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/BoomBox/",
+    "variants": {
+      "glTF-Binary": "BoomBox.glb"
+    }
+  },
+  {
     "name": "2CylinderEngine",
     "screenshot": "screenshot/screenshot.png",
     "url": "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/2CylinderEngine/",
@@ -29,14 +37,6 @@
     "url": "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/BarramundiFish/",
     "variants": {
       "glTF-Binary": "BarramundiFish.glb"
-    }
-  },
-  {
-    "name": "BoomBox",
-    "screenshot": "screenshot/screenshot.jpg",
-    "url": "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/BoomBox/",
-    "variants": {
-      "glTF-Binary": "BoomBox.glb"
     }
   },
   {

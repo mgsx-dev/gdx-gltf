@@ -1,6 +1,5 @@
 package net.mgsx.gltf.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -255,22 +254,26 @@ public class GLTFDemoUI extends Table {
 		Array<String> variants = entry.variants.keys().toArray(new Array<String>());
 		variants.insert(0, "");
 		variantSelector.setItems(variants);
-		variantSelector.setSelectedIndex(0);
+		
+		if(entry.variants.size == 1){
+			variantSelector.setSelectedIndex(1);
+		}else{
+			variantSelector.setSelectedIndex(0);
+		}
+		
 		
 		if(screenshotsTable.getChildren().size > 0){
 			Image imgScreenshot = (Image)screenshotsTable.getChildren().first();
 			((TextureRegionDrawable)imgScreenshot.getDrawable()).getRegion().getTexture().dispose();
 		}
 		screenshotsTable.clear();
-		if(entry.screenshot != null){
-			FileHandle file = rootFolder.child(entry.name).child(entry.screenshot);
-			if(file.exists()){
-				Image img = new Image(new Texture(file));
-				img.setScaling(Scaling.none);
-				screenshotsTable.add(img);
-			}else{
-				Gdx.app.error("DEMO UI", "file not found " + file.path());
-			}
+	}
+	
+	public void setImage(Texture texture){
+		if(texture != null){
+			Image img = new Image(texture);
+			img.setScaling(Scaling.none);
+			screenshotsTable.add(img);
 		}
 	}
 

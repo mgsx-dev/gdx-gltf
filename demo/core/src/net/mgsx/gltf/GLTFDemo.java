@@ -1,20 +1,18 @@
 package net.mgsx.gltf;
 
-import java.io.IOException;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Net.HttpMethods;
 import com.badlogic.gdx.Net.HttpRequest;
-import com.badlogic.gdx.Net.HttpResponse;
-import com.badlogic.gdx.Net.HttpResponseListener;
 import com.badlogic.gdx.assets.loaders.resolvers.ClasspathFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
@@ -34,7 +32,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import net.mgsx.gltf.demo.ModelEntry;
@@ -51,6 +48,7 @@ import net.mgsx.gltf.scene3d.SceneSkybox;
 import net.mgsx.gltf.ui.GLTFDemoUI;
 import net.mgsx.gltf.util.EnvironmentUtil;
 import net.mgsx.gltf.util.NodeUtil;
+import net.mgsx.gltf.util.SafeHttpResponseListener;
 
 /**
  * some demo models : https://github.com/KhronosGroup/glTF-Sample-Models
@@ -71,8 +69,8 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	// TODO use config file or something else ...
 	
-	private static String AUTOLOAD_ENTRY = "BoomBox"; // "BarramundiFish";
-	private static String AUTOLOAD_VARIANT = "glTF-Binary"; // XXX "glTF";
+	private static String AUTOLOAD_ENTRY = null; // "BoomBox" "BarramundiFish"
+	private static String AUTOLOAD_VARIANT = null; // "glTF-Binary"  "glTF"
 	
 	private static final boolean USE_DEFAULT_ENV_MAP = true;
 	
@@ -179,10 +177,13 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		ui.shaderSelector.setSelected(shaderMode);
 		
+		ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
+		
 		ui.entrySelector.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				ui.setEntry(ui.entrySelector.getSelected(), rootFolder);
+				setImage(ui.entrySelector.getSelected());
 			}
 		});
 		
@@ -215,6 +216,38 @@ public class GLTFDemo extends ApplicationAdapter
 		});
 	}
 	
+	protected void setImage(ModelEntry entry) {
+		if(entry.screenshot != null){
+			if(entry.url != null){
+				HttpRequest httpRequest = new HttpRequest(HttpMethods.GET);
+				httpRequest.setUrl(entry.url + entry.screenshot);
+
+				Gdx.net.sendHttpRequest(httpRequest, new SafeHttpResponseListener(){
+					@Override
+					protected void handleData(byte[] bytes) {
+						Pixmap pixmap = new Pixmap(bytes, 0, bytes.length);
+						ui.setImage(new Texture(pixmap));
+						pixmap.dispose();
+					}
+					@Override
+					protected void handleError(Throwable t) {
+						Gdx.app.error(TAG, "request error", t);
+					}
+					@Override
+					protected void handleEnd() {
+					}
+				});
+			}else{
+				FileHandle file = rootFolder.child(entry.name).child(entry.screenshot);
+				if(file.exists()){
+					ui.setImage(new Texture(file));
+				}else{
+					Gdx.app.error("DEMO UI", "file not found " + file.path());
+				}
+			}
+		}
+	}
+
 	private void setShader(ShaderMode shaderMode) {
 		sceneManager.batch.dispose();
 		sceneManager.batch = new ModelBatch(createShaderProvider(shaderMode, rootModel.maxBones));
@@ -266,53 +299,42 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 		
 		if(variant.isEmpty()) return;
+		
 		final String fileName = entry.variants.get(variant);
 		if(entry.url != null){
-			System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
+			
+			final Table waitUI = new Table(skin);
+			waitUI.add("LOADING...").expand().center();
+			waitUI.setFillParent(true);
+			stage.addActor(waitUI);
+			
 			HttpRequest httpRequest = new HttpRequest(HttpMethods.GET);
 			httpRequest.setUrl(entry.url + variant + "/" + fileName);
-			// httpRequest.
-			Gdx.net.sendHttpRequest(httpRequest, new HttpResponseListener() {
-				
+
+			Gdx.net.sendHttpRequest(httpRequest, new SafeHttpResponseListener(){
 				@Override
-				public void handleHttpResponse(HttpResponse httpResponse) {
+				protected void handleData(byte[] bytes) {
+					Gdx.app.log(TAG, "loading " + fileName);
 					
-					try {
-						final byte [] bytes = StreamUtils.copyStreamToByteArray(httpResponse.getResultAsStream());
-						Gdx.app.postRunnable(new Runnable() {
-							@Override
-							public void run() {
-								Gdx.app.log(TAG, "loading " + fileName);
-								
-								if(fileName.endsWith(".gltf")){
-									// TODO with resolver rootModel = new GLTFLoader().load(glFile, baseFolder);
-								}else if(fileName.endsWith(".glb")){
-									rootModel = new GLBLoader().load(bytes);
-								}else{
-									throw new GdxRuntimeException("unknown file extension for " + fileName);
-								}
-								
-								load();
-								
-								Gdx.app.log(TAG, "loaded " + fileName);
-							}
-						});
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return;
+					if(fileName.endsWith(".gltf")){
+						// TODO with resolver rootModel = new GLTFLoader().load(glFile, baseFolder);
+					}else if(fileName.endsWith(".glb")){
+						rootModel = new GLBLoader().load(bytes);
+					}else{
+						throw new GdxRuntimeException("unknown file extension for " + fileName);
 					}
 					
+					load();
+					
+					Gdx.app.log(TAG, "loaded " + fileName);
 				}
-				
 				@Override
-				public void failed(Throwable t) {
+				protected void handleError(Throwable t) {
 					Gdx.app.error(TAG, "request error", t);
 				}
-				
 				@Override
-				public void cancelled() {
-					Gdx.app.error(TAG, "request cancelled");
+				protected void handleEnd() {
+					waitUI.remove();
 				}
 			});
 		}else{
@@ -356,8 +378,6 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.setAnimations(rootModel.animations);
 		ui.setCameras(rootModel.cameraMap);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
-		
-		ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
 		
 		setShader(shaderMode);
 		
