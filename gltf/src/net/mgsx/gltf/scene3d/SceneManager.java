@@ -109,9 +109,11 @@ public class SceneManager {
 	}
 
 	public void updateViewport(int width, int height) {
-		camera.viewportWidth = width;
-		camera.viewportHeight = height;
-		camera.update(true);
+		if(camera != null){
+			camera.viewportWidth = width;
+			camera.viewportHeight = height;
+			camera.update(true);
+		}
 	}
 	
 }

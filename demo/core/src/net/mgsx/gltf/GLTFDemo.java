@@ -1,8 +1,14 @@
 package net.mgsx.gltf;
 
+import java.io.IOException;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Net.HttpMethods;
+import com.badlogic.gdx.Net.HttpRequest;
+import com.badlogic.gdx.Net.HttpResponse;
+import com.badlogic.gdx.Net.HttpResponseListener;
 import com.badlogic.gdx.assets.loaders.resolvers.ClasspathFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
@@ -28,6 +34,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.StreamUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import net.mgsx.gltf.demo.ModelEntry;
@@ -65,7 +72,7 @@ public class GLTFDemo extends ApplicationAdapter
 	// TODO use config file or something else ...
 	
 	private static String AUTOLOAD_ENTRY = "BoomBox"; // "BarramundiFish";
-	private static String AUTOLOAD_VARIANT = "glTF";
+	private static String AUTOLOAD_VARIANT = "glTF-Binary"; // XXX "glTF";
 	
 	private static final boolean USE_DEFAULT_ENV_MAP = true;
 	
@@ -259,22 +266,77 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 		
 		if(variant.isEmpty()) return;
-		String fileName = entry.variants.get(variant);
-		
-		Gdx.app.log(TAG, "loading " + fileName);
-		
-		FileHandle baseFolder = rootFolder.child(entry.name).child(variant);
-		
-		FileHandle glFile = baseFolder.child(fileName);
-		
-		if(glFile.extension().equals("gltf")){
-			rootModel = new GLTFLoader().load(glFile, baseFolder);
-		}else if(glFile.extension().equals("glb")){
-			rootModel = new GLBLoader().load(glFile);
+		final String fileName = entry.variants.get(variant);
+		if(entry.url != null){
+			System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
+			HttpRequest httpRequest = new HttpRequest(HttpMethods.GET);
+			httpRequest.setUrl(entry.url + variant + "/" + fileName);
+			// httpRequest.
+			Gdx.net.sendHttpRequest(httpRequest, new HttpResponseListener() {
+				
+				@Override
+				public void handleHttpResponse(HttpResponse httpResponse) {
+					
+					try {
+						final byte [] bytes = StreamUtils.copyStreamToByteArray(httpResponse.getResultAsStream());
+						Gdx.app.postRunnable(new Runnable() {
+							@Override
+							public void run() {
+								Gdx.app.log(TAG, "loading " + fileName);
+								
+								if(fileName.endsWith(".gltf")){
+									// TODO with resolver rootModel = new GLTFLoader().load(glFile, baseFolder);
+								}else if(fileName.endsWith(".glb")){
+									rootModel = new GLBLoader().load(bytes);
+								}else{
+									throw new GdxRuntimeException("unknown file extension for " + fileName);
+								}
+								
+								load();
+								
+								Gdx.app.log(TAG, "loaded " + fileName);
+							}
+						});
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return;
+					}
+					
+				}
+				
+				@Override
+				public void failed(Throwable t) {
+					Gdx.app.error(TAG, "request error", t);
+				}
+				
+				@Override
+				public void cancelled() {
+					Gdx.app.error(TAG, "request cancelled");
+				}
+			});
 		}else{
-			throw new GdxRuntimeException("unknown file extension " + glFile.extension());
+			FileHandle baseFolder = rootFolder.child(entry.name).child(variant);
+			FileHandle glFile = baseFolder.child(fileName);
+			
+			Gdx.app.log(TAG, "loading " + fileName);
+			
+			if(fileName.endsWith(".gltf")){
+				rootModel = new GLTFLoader().load(glFile, baseFolder);
+			}else if(fileName.endsWith(".glb")){
+				rootModel = new GLBLoader().load(glFile);
+			}else{
+				throw new GdxRuntimeException("unknown file extension " + glFile.extension());
+			}
+			
+			load();
+			
+			Gdx.app.log(TAG, "loaded " + glFile.path());
 		}
-
+	}
+	
+	private void load()
+	{
 		scene = new Scene(rootModel.scene, true);
 		
 		// XXX patch animation because of overload ....
@@ -300,8 +362,6 @@ public class GLTFDemo extends ApplicationAdapter
 		setShader(shaderMode);
 		
 		sceneManager.addScene(scene);
-		
-		Gdx.app.log(TAG, "loaded " + glFile.path());
 	}
 	
 	protected void setCamera(String name) 
@@ -360,9 +420,11 @@ public class GLTFDemo extends ApplicationAdapter
 		PBRShader.ScaleIBLAmbient.g = ui.specularSlider.getValue() * IBLScale;
 		
 		// XXX
-		sceneManager.camera.near = .01f;
-		sceneManager.camera.far = 100000f;
-		sceneManager.camera.update();
+		if(sceneManager.camera != null){
+			sceneManager.camera.near = .01f;
+			sceneManager.camera.far = 100000f;
+			sceneManager.camera.update();
+		}
 		
 		// dirLight.direction.nor(); //.set(-4, -64, -4).nor();
 		

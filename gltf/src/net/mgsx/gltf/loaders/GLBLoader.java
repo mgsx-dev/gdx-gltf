@@ -1,6 +1,8 @@
 package net.mgsx.gltf.loaders;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -18,15 +20,27 @@ import net.mgsx.gltf.scene3d.SceneAsset;
 public class GLBLoader extends GLTFLoaderBase {
 
 	public SceneAsset load(FileHandle file){
+		return load(file.read());
+	}
+	
+	public SceneAsset load(InputStream stream) {
+		return load(new LittleEndianInputStream(stream));
+	}
+	
+	public SceneAsset load(LittleEndianInputStream stream) {
 		try {
-			glModel = load(new LittleEndianInputStream(file.read()));
+			glModel = loadInternal(stream);
 			return loadInternal();
 		} catch (IOException e) {
 			throw new GdxRuntimeException(e);
 		}
 	}
 	
-	private GLTF load(LittleEndianInputStream stream) throws IOException {
+	public SceneAsset load(byte[] bytes) {
+		return load(new ByteArrayInputStream(bytes));
+	}
+	
+	private GLTF loadInternal(LittleEndianInputStream stream) throws IOException {
 		long magic = stream.readInt(); // & 0xFFFFFFFFL;
 		if(magic != 0x46546C67) throw new GdxRuntimeException("bad magic");
 		int version = stream.readInt();
@@ -45,7 +59,7 @@ public class GLBLoader extends GLTFLoaderBase {
 			}else if(chunkType == 0x004E4942){
 				ByteBuffer bufferData = ByteBuffer.allocate(chunkLen);
 				bufferData.order(ByteOrder.LITTLE_ENDIAN);
-				for(int j=0 ; j<chunkLen ; j++) bufferData.put(stream.readByte());
+				for(int j=0 ; j<chunkLen ; j++) bufferData.put(stream.readByte()); // TODO optimize with stream copy utils ?
 				//StreamUtils.copyStream(stream, bufferData, chunkLen);
 				bufferData.flip();
 				bufferMap.put(bufferMap.size, bufferData);
@@ -74,4 +88,6 @@ public class GLBLoader extends GLTFLoaderBase {
 			throw new GdxRuntimeException("GLB image should have bufferView");
 		}
 	}
+
+	
 }
