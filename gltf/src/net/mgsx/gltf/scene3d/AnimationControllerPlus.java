@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
 import com.badlogic.gdx.graphics.g3d.model.NodeKeyframe;
+import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -204,7 +205,7 @@ public class AnimationControllerPlus extends AnimationController
 	}
 	
 	private final static WeightVector getMorphTargetAtTime (final NodeAnimationPlus nodeAnim, final float time, final WeightVector out) {
-		if (nodeAnim.weights == null) return out.set(((NodePlus)nodeAnim.node).weights);
+		if (nodeAnim.weights == null) return out.set();
 		if (nodeAnim.weights.size == 1) return out.set(nodeAnim.weights.get(0).value);
 
 		int index = getFirstKeyframeIndexAtTime(nodeAnim.weights, time);
@@ -235,8 +236,12 @@ public class AnimationControllerPlus extends AnimationController
 		final Transform transform = getNodeAnimationTransform(nodeAnim, time);
 		transform.toMatrix4(node.localTransform);
 		if(node instanceof NodePlus){
-			if(((NodePlus)node).weights != null)
+			if(((NodePlus)node).weights != null){
 				((NodePlus)node).weights.set(transform.weights);
+				for(NodePart part : node.parts){
+					((NodePartPlus)part).morphTargets.set(transform.weights);
+				}
+			}
 		}
 	}
 

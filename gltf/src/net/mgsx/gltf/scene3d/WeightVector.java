@@ -47,8 +47,9 @@ public class WeightVector {
 		return s + ")";
 	}
 
-	public void set() {
+	public WeightVector set() {
 		this.count = 0;
+		return this;
 	}
 
 	public WeightVector cpy() {

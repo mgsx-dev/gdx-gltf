@@ -234,23 +234,11 @@ abstract public class GLTFLoaderBase implements Disposable {
 				}
 			}
 			
-			// XXX discard empty animations
-			boolean hasTRS = false;
-			for(NodeAnimation nodeAnim : animation.nodeAnimations){
-				if(nodeAnim.translation != null || nodeAnim.rotation != null || nodeAnim.scaling != null || ((NodeAnimationPlus)nodeAnim).weights != null){
-					hasTRS = true;
-				}
-			}
+			model.animations.add(animation);
 			
-			if(hasTRS){
-				model.animations.add(animation);
-				
-				// XXX don't know where the animation are ...
-				for(Model scene : model.scenes){
-					scene.animations.add(animation);
-				}
-			}else{
-				System.err.println("animation skipped (not TRS) : " + animation.id);
+			// XXX don't know where the animation are ...
+			for(Model scene : model.scenes){
+				scene.animations.add(animation);
 			}
 			
 		}

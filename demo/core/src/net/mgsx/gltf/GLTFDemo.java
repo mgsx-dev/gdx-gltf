@@ -14,9 +14,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
-import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -37,7 +35,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.mgsx.gltf.demo.ModelEntry;
 import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
-import net.mgsx.gltf.scene3d.NodeAnimationPlus;
 import net.mgsx.gltf.scene3d.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.PBRShader;
 import net.mgsx.gltf.scene3d.PBRShaderProvider;
@@ -344,21 +341,8 @@ public class GLTFDemo extends ApplicationAdapter
 	{
 		scene = new Scene(rootModel.scene, true);
 		
-		// XXX patch animation because of overload ....
-		for(Animation anim : rootModel.scene.animations){
-			Animation newAnim = new Animation();
-			newAnim.id = anim.id;
-			newAnim.duration = anim.duration;
-			for(NodeAnimation nodeAnim : anim.nodeAnimations){
-				NodeAnimationPlus newNodeAnim = new NodeAnimationPlus();
-				newNodeAnim.set(nodeAnim);
-				newAnim.nodeAnimations.add(newNodeAnim);
-			}
-			scene.modelInstance.animations.add(anim);
-		}
-		
 		ui.setMaterials(scene.modelInstance.materials);
-		ui.setAnimations(rootModel.animations);
+		ui.setAnimations(scene.modelInstance.animations);
 		ui.setCameras(rootModel.cameraMap);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
 		
