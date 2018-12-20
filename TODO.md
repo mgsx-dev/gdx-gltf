@@ -7,6 +7,10 @@ HEre is a list of known bugs with [glTF-Sample-Models examples](https://github.c
 * **AntiqueCamera** fail because of special JPEG format, a workaround is to open/save them with Gimp.
 * **SciFiHelmet** too many indices
 
+# Platforms
+
+[] Gwt : doesn't work because of Pixmap(bye[], int, int)
+
 # CLEANUP
 
 - use config debug shader

@@ -101,7 +101,7 @@ public class AnimationControllerPlus extends AnimationController
 	@Override
 	protected void apply (final Animation animation, final float time, final float weight) {
 		if (!applying) throw new GdxRuntimeException("You must call begin() before adding an animation");
-		applyAnimation(transforms, transformPool, weight, animation, time);
+		applyAnimationPlus(transforms, transformPool, weight, animation, time);
 	}
 
 	/** End applying multiple animations to the instance and update it to reflect the changes. */
@@ -121,7 +121,7 @@ public class AnimationControllerPlus extends AnimationController
 	@Override
 	protected void applyAnimation (final Animation animation, final float time) {
 		if (applying) throw new GdxRuntimeException("Call end() first");
-		applyAnimation(null, (Pool<Transform>)null, 1.f, animation, time);
+		applyAnimationPlus(null, (Pool<Transform>)null, 1.f, animation, time);
 		target.calculateTransforms();
 	}
 
@@ -267,7 +267,7 @@ public class AnimationControllerPlus extends AnimationController
 	}
 
 	/** Helper method to apply one animation to either an objectmap for blending or directly to the bones. */
-	protected static void applyAnimation (final ObjectMap<Node, Transform> out, final Pool<Transform> pool, final float alpha,
+	protected static void applyAnimationPlus (final ObjectMap<Node, Transform> out, final Pool<Transform> pool, final float alpha,
 		final Animation animation, final float time) {
 
 		if (out == null) {
