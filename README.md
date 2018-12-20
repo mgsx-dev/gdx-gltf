@@ -9,3 +9,9 @@ LibGDX GLTF 2.0 and PBR shader implementation **Work In Progress**
 
 * https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/master/shaders/pbr-vert.glsl
 * https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/master/shaders/pbr-frag.glsl
+
+
+# Blender exporter
+
+* - 2.79b- : https://github.com/KhronosGroup/glTF-Blender-Exporter
+* - 2.8+   : https://github.com/KhronosGroup/glTF-Blender-IO

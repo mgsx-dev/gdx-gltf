@@ -50,25 +50,8 @@ import net.mgsx.gltf.util.EnvironmentUtil;
 import net.mgsx.gltf.util.NodeUtil;
 import net.mgsx.gltf.util.SafeHttpResponseListener;
 
-/**
- * some demo models : https://github.com/KhronosGroup/glTF-Sample-Models
- * addon Blender : 
- * - 2.79b- : https://github.com/KhronosGroup/glTF-Blender-Exporter
- * - 2.8+   : https://github.com/KhronosGroup/glTF-Blender-IO
- * 
- * spec V2 : https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
- * 
- * @author mgsx
- *
- */
-
-// TODO extract SceneManager : 1 active camera, 
-
 public class GLTFDemo extends ApplicationAdapter
 {
-	
-	// TODO use config file or something else ...
-	
 	private static String AUTOLOAD_ENTRY = null; // "BoomBox" "BarramundiFish"
 	private static String AUTOLOAD_VARIANT = null; // "glTF-Binary"  "glTF"
 	
@@ -317,7 +300,7 @@ public class GLTFDemo extends ApplicationAdapter
 					Gdx.app.log(TAG, "loading " + fileName);
 					
 					if(fileName.endsWith(".gltf")){
-						// TODO with resolver rootModel = new GLTFLoader().load(glFile, baseFolder);
+						throw new GdxRuntimeException("remote gltf format not supported.");
 					}else if(fileName.endsWith(".glb")){
 						rootModel = new GLBLoader().load(bytes);
 					}else{
@@ -392,14 +375,21 @@ public class GLTFDemo extends ApplicationAdapter
 			camera.up.set(Vector3.Y);
 			
 			BoundingBox bb = scene.modelInstance.calculateBoundingBox(new BoundingBox());
-			//BoundingBox bb = new BoundingBox(new Vector3(-10, -10, -10), new Vector3(10, 10, 10));
 			
 			Vector3 center = bb.getCenter(new Vector3());
 			camera.position.set(bb.max).sub(center).scl(3).add(center);
 			camera.lookAt(center);
+			
+			float size = Math.max(bb.getWidth(), Math.max(bb.getHeight(), bb.getDepth()));
+			camera.near = size / 1000f;
+			camera.far = size * 30f;
+			
+			camera.update(true);
+			
 			cameraControl = new CameraInputController(camera);
 			cameraControl.translateUnits = bb.max.dst(bb.min);
 			cameraControl.target.set(center);
+			
 			
 			sceneManager.setCamera(camera);
 		}else{
@@ -428,7 +418,7 @@ public class GLTFDemo extends ApplicationAdapter
 			cameraControl.update();
 		}
 		
-		float l = .5f;
+		float l = 0f;
 		
 		Gdx.gl.glClearColor(l,l,l, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -438,15 +428,6 @@ public class GLTFDemo extends ApplicationAdapter
 		float IBLScale = ui.lightFactorSlider.getValue();
 		PBRShader.ScaleIBLAmbient.r = ui.ambiantSlider.getValue() * IBLScale;
 		PBRShader.ScaleIBLAmbient.g = ui.specularSlider.getValue() * IBLScale;
-		
-		// XXX
-		if(sceneManager.camera != null){
-			sceneManager.camera.near = .01f;
-			sceneManager.camera.far = 100000f;
-			sceneManager.camera.update();
-		}
-		
-		// dirLight.direction.nor(); //.set(-4, -64, -4).nor();
 		
 		float lum = ui.lightSlider.getValue();
 		sceneManager.directionalLights.first().color.set(lum, lum, lum, 1);
