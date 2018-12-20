@@ -29,6 +29,7 @@ import net.mgsx.gltf.scene3d.NodePlus;
 import net.mgsx.gltf.scene3d.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.PBRShader;
+import net.mgsx.gltf.scene3d.PBRShaderConfig.SRGB;
 import net.mgsx.gltf.scene3d.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.SceneAsset;
 
@@ -37,9 +38,10 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<String> variantSelector;
 	public SelectBox<String> animationSelector;
 	public Table screenshotsTable;
+	public Slider debugAmbiantSlider;
 	public Slider ambiantSlider;
 	public Slider lightSlider;
-	public Slider specularSlider; 
+	public Slider debugSpecularSlider; 
 	public SelectBox<String> cameraSelector;
 	public Slider lightFactorSlider;
 	
@@ -47,7 +49,6 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<ShaderMode> shaderSelector;
 	private SelectBox<String> materialSelector;
 	private Table materialTable;
-	private SceneAsset model;
 	
 	private final ObjectMap<String, Material> materialMap = new ObjectMap<String, Material>();
 	private final ObjectMap<String, Node> nodeMap = new ObjectMap<String, Node>();
@@ -55,6 +56,9 @@ public class GLTFDemoUI extends Table {
 	private Table nodeTable;
 	private TextButton btNodeExclusive;
 	private Node selectedNode;
+	public CollapsableUI shaderDebug;
+	protected CollapsableUI shaderOptions;
+	public SelectBox<SRGB> shaderSRGB;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -73,25 +77,52 @@ public class GLTFDemoUI extends Table {
 		root.add("File");
 		root.add(variantSelector).row();
 		
+		// Shader options
+		
 		shaderSelector = new SelectBox<ShaderMode>(skin);
 		root.add("Shader");
 		root.add(shaderSelector).row();
 		shaderSelector.setItems(ShaderMode.values());
 		
+		root.add();
+		root.add(shaderOptions = new CollapsableUI(skin, "Options", true)).row();
+		shaderOptions.optTable.add();
+		shaderOptions.optTable.add(shaderSRGB = new SelectBox<SRGB>(skin)).row();
+		shaderSRGB.setItems(SRGB.values());
+		shaderSRGB.setSelected(SRGB.ACCURATE);
+		
+		root.add();
+		root.add(shaderDebug = new CollapsableUI(skin, "Debug", true)).row();
+		
+		debugAmbiantSlider = new Slider(0, 1, .01f, false, skin);
+		shaderDebug.optTable.add("Ambiant Light");
+		shaderDebug.optTable.add(debugAmbiantSlider).row();
+		debugAmbiantSlider.setValue(1f);
+
+		debugSpecularSlider = new Slider(0, 1, .01f, false, skin);
+		shaderDebug.optTable.add("Specular Light");
+		shaderDebug.optTable.add(debugSpecularSlider).row();
+		debugSpecularSlider.setValue(1f);
+		
+		shaderDebug.optTable.add("ScaleFGDSpec");
+		shaderDebug.optTable.add(new Vector4UI(skin, PBRShader.ScaleFGDSpec)).row();
+		
+		shaderDebug.optTable.add("ScaleDiffBaseMR");
+		shaderDebug.optTable.add(new Vector4UI(skin, PBRShader.ScaleDiffBaseMR)).row();
+		
+		// Lighting options
+		
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
 		root.add("Ambiant Light");
 		root.add(ambiantSlider).row();
-		ambiantSlider.setValue(1f);
-		
+		ambiantSlider.setValue(.5f);
+
 		lightSlider = new Slider(0, 1, .01f, false, skin);
 		root.add("Diffuse Light");
 		root.add(lightSlider).row();
 		lightSlider.setValue(1f);
 		
-		specularSlider = new Slider(0, 1, .01f, false, skin);
-		root.add("Specular Light");
-		root.add(specularSlider).row();
-		specularSlider.setValue(1f);
+		
 		
 		lightFactorSlider = new Slider(0, 10, .01f, false, skin);
 		root.add("Light factor");
@@ -101,12 +132,6 @@ public class GLTFDemoUI extends Table {
 		root.add("Dir Light");
 		root.add(lightDirectionControl = new Vector3UI(skin, new Vector3())).row();
 
-		root.add("ScaleFGDSpec");
-		root.add(new Vector4UI(skin, PBRShader.ScaleFGDSpec)).row();
-		
-		root.add("ScaleDiffBaseMR");
-		root.add(new Vector4UI(skin, PBRShader.ScaleDiffBaseMR)).row();
-		
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");
 		root.add(cameraSelector).row();
@@ -153,6 +178,12 @@ public class GLTFDemoUI extends Table {
 				showHideOtherNodes(btNodeExclusive.isChecked());
 			}
 		});
+	}
+
+	protected TextButton toggle(String name, boolean checked) {
+		TextButton bt = new TextButton(name, getSkin(), "toggle");
+		bt.setChecked(checked);
+		return bt;
 	}
 
 	protected void showHideOtherNodes(boolean hide) {

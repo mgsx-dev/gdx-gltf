@@ -147,6 +147,9 @@ varying float v_fog;
 #endif // fogFlag
 
 
+#ifdef ambientLightFlag
+uniform vec3 u_ambientLight;
+#endif // ambientLightFlag
 
 
 
@@ -159,7 +162,9 @@ uniform samplerCube u_SpecularEnvSampler;
 #define u_SpecularEnvSampler u_DiffuseEnvSampler
 #endif
 
+#ifdef brdfLUTTexture
 uniform sampler2D u_brdfLUT;
+#endif
 
 #ifdef USE_TEX_LOD
 uniform float u_mipmapScale; // = 9.0 for resolution of 512x512
@@ -186,20 +191,18 @@ uniform DirectionalLight u_dirLights[numDirectionalLights];
 #endif // numDirectionalLights
 
 
-#ifdef cameraPositionFlag
 uniform vec4 u_cameraPosition;
-#endif // cameraPositionFlag
 
 uniform vec2 u_MetallicRoughnessValues;
 
 
 // debugging flags used for shader output of intermediate PBR variables
+#ifdef DEBUG
+uniform vec4 u_ScaleIBLAmbient;
 uniform vec4 u_ScaleDiffBaseMR;
 uniform vec4 u_ScaleFGDSpec;
-uniform vec4 u_ScaleIBLAmbient;
-
-
-
+uniform vec4 u_ScaleTextureBNEO;
+#endif
 
 varying vec3 v_position;
 
@@ -287,7 +290,12 @@ vec3 getNormal()
 vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
-    vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness))).rgb;
+#ifdef brdfLUTTexture
+	vec2 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness))).xy;
+#else // TODO not sure about how to compute it ...
+	vec2 brdf = vec2(pbrInputs.NdotV, pbrInputs.perceptualRoughness);
+#endif
+    
     vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, n)).rgb;
 
 #ifdef USE_TEX_LOD
@@ -301,10 +309,16 @@ vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
     vec3 specular = specularLight * (pbrInputs.specularColor * brdf.x + brdf.y);
 
     // For presentation, this allows us to disable IBL terms
+#ifdef DEBUG
     diffuse *= u_ScaleIBLAmbient.x;
     specular *= u_ScaleIBLAmbient.y;
-
+#endif
+    
+#ifdef ambientLightFlag
+    return (diffuse + specular) * u_ambientLight;
+#else
     return diffuse + specular;
+#endif    
 }
 #endif
 
@@ -435,6 +449,10 @@ void main() {
     // Calculate lighting contribution from image based lighting source (IBL)
 #ifdef USE_IBL
     color += getIBLContribution(pbrInputs, n, reflection);
+#else
+#ifdef ambientLightFlag
+    color += u_ambientLight;
+#endif
 #endif
 
     // Apply optional PBR terms for additional (optional) shading
@@ -449,14 +467,9 @@ void main() {
 #endif
 
     
-    
-
-#ifdef normalTextureFlag
-    color = mix(color, texture2D(u_normalTexture, v_normalUV).rgb, u_ScaleIBLAmbient.z);
-#endif
-    
     // This section uses mix to override final color for reference app visualization
     // of various parameters in the lighting equation.
+#ifdef DEBUG
     color = mix(color, F, u_ScaleFGDSpec.x);
     color = mix(color, vec3(G), u_ScaleFGDSpec.y);
     color = mix(color, vec3(D), u_ScaleFGDSpec.z);
@@ -466,17 +479,38 @@ void main() {
     color = mix(color, baseColor.rgb, u_ScaleDiffBaseMR.y);
     color = mix(color, vec3(metallic), u_ScaleDiffBaseMR.z);
     color = mix(color, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
-
-    gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);	
     
-	#ifdef blendedFlag
-		gl_FragColor.a = baseColor.a * v_opacity;
-		#ifdef alphaTestFlag
-			if (gl_FragColor.a <= v_alphaTest)
-				discard;
-		#endif
-	#else
-		gl_FragColor.a = 1.0;
+#ifdef diffuseTextureFlag
+    color = mix(color, texture2D(u_diffuseTexture, v_diffuseUV).rgb, u_ScaleTextureBNEO.x);
+#endif
+#ifdef normalTextureFlag
+    color = mix(color, texture2D(u_normalTexture, v_normalUV).rgb, u_ScaleTextureBNEO.y);
+#endif
+#ifdef emissiveTextureFlag
+    color = mix(color, texture2D(u_emissiveTexture, v_emissiveUV).rgb, u_ScaleTextureBNEO.z);
+#endif
+#ifdef occlusionTextureFlag
+    color = mix(color, texture2D(u_OcclusionSampler, v_occlusionUV).rgb, u_ScaleTextureBNEO.w);
+#endif
+    
+#endif
+    
+    // final frag color
+#ifdef MANUAL_SRGB
+    gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);	
+#else
+    gl_FragColor = vec4(color, baseColor.a);	
+#endif
+    
+    // Blending and Alpha Test
+#ifdef blendedFlag
+	gl_FragColor.a = baseColor.a * v_opacity;
+	#ifdef alphaTestFlag
+		if (gl_FragColor.a <= v_alphaTest)
+			discard;
 	#endif
+#else
+	gl_FragColor.a = 1.0;
+#endif
 
 }

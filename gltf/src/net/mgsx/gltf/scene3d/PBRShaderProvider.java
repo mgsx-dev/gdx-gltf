@@ -1,65 +1,56 @@
 package net.mgsx.gltf.scene3d;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import net.mgsx.gltf.scene3d.PBRShaderConfig.SRGB;
+
 public class PBRShaderProvider extends DefaultShaderProvider
 {
 	public static PBRShaderProvider createDefault(int maxBones){
-		String mode = "gdx-pbr";
-		Config config = new Config(
-				Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".vs").readString(), 
-				Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".fs").readString());
-		
+		PBRShaderConfig config = new PBRShaderConfig();
 		config.numBones = maxBones;
+		return new PBRShaderProvider(config);
+	}
+	
+	public static PBRShaderProvider createDefault(PBRShaderConfig config){
+		String mode = "gdx-pbr";
+		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".vs").readString();
+		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".fs").readString();
 		
 		return new PBRShaderProvider(config);
 	}
 	
-	// TODO move to environnement variable
-	private Texture brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/assets/brdfLUT.png"));
-	
-	public PBRShaderProvider(Config config) {
+	private PBRShaderProvider(PBRShaderConfig config) {
 		super(config);
 	}
 	
 	protected Shader createShader(Renderable renderable) {
 		
-		// TODO use extended config for all options ... 
+		PBRShaderConfig config = (PBRShaderConfig)this.config;
 		
 		String prefix = DefaultShader.createPrefix(renderable, config);
 		
-		boolean hasMorphTargets = false;
 		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
 			for(int i=0 ; i<8 ; i++){
 				if(att.alias.equals(ShaderProgram.POSITION_ATTRIBUTE + i)){
 					prefix += "#define " + "position" + i + "Flag\n";
-					hasMorphTargets = true;
 				}else if(att.alias.equals(ShaderProgram.NORMAL_ATTRIBUTE + i)){
 					prefix += "#define " + "normal" + i + "Flag\n";
-					hasMorphTargets = true;
 				}else if(att.alias.equals(ShaderProgram.TANGENT_ATTRIBUTE + i)){
 					prefix += "#define " + "tangent" + i + "Flag\n";
-					hasMorphTargets = true;
 				}
 			}
 		}
-		if(hasMorphTargets){
-			// TODO should be automatic in shader ?
-			prefix += "#define morphTargetsFlag\n";
-		}
-		
-		// XXX force camera position required for the shader
-		prefix += "#define cameraPositionFlag\n";
 		
 		if(renderable.material.has(PBRTextureAttribute.MetallicRoughnessTexture)){
 			prefix += "#define metallicRoughnessTextureFlag\n";
@@ -68,18 +59,44 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			prefix += "#define occlusionTextureFlag\n";
 		}
 		
-		// TODO option !
-		prefix += "#define USE_IBL\n";
-		
-		// TODO option !
-		prefix += "#define USE_TEX_LOD\n";
-		
-		// TODO option
-		prefix += "#define MANUAL_SRGB\n";
-		// prefix += "#define SRGB_FAST_APPROXIMATION\n";
-		
+		// IBL options
+		PBRCubemapAttribute specualarCubemapAttribute = null;
 		if(renderable.environment.has(PBRCubemapAttribute.SpecularEnv)){
 			prefix += "#define diffuseSpecularEnvSeparateFlag\n";
+			specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.SpecularEnv);
+		}else if(renderable.environment.has(PBRCubemapAttribute.DiffuseEnv)){
+			specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.DiffuseEnv);
+		}else if(renderable.environment.has(PBRCubemapAttribute.EnvironmentMap)){
+			specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.EnvironmentMap);
+		}
+		if(specualarCubemapAttribute != null){
+			prefix += "#define USE_IBL\n";
+			
+			TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();
+			if(textureFilter.equals(TextureFilter.MipMap)){
+				prefix += "#define USE_TEX_LOD\n";
+			}
+			
+			if(renderable.environment.has(PBRTextureAttribute.BRDFLUTTexture)){
+				prefix += "#define brdfLUTTexture\n";
+			}
+		}
+		
+		if(renderable.environment.has(ColorAttribute.AmbientLight)){
+			prefix += "#define ambientLightFlag\n";
+		}
+		
+		// SRGB
+		if(config.manualSRGB != SRGB.NONE){
+			prefix += "#define MANUAL_SRGB\n";
+			if(config.manualSRGB == SRGB.FAST){
+				prefix += "#define SRGB_FAST_APPROXIMATION\n";
+			}
+		}
+		
+		// DEBUG
+		if(config.debug){
+			prefix += "#define DEBUG\n";
 		}
 		
 		// multi UVs
@@ -124,9 +141,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(maxUVIndex == 1){
 			prefix += "#define textureCoord1Flag\n";
 		}else if(maxUVIndex > 1){
-			throw new GdxRuntimeException("multi UVs > 1 not supported"); // TODO maybe just ignored ?
+			throw new GdxRuntimeException("multi UVs > 1 not supported");
 		}
 		
-		return new PBRShader(renderable, config, prefix, brdfLUT);
+		return new PBRShader(renderable, config, prefix);
 	};
 }

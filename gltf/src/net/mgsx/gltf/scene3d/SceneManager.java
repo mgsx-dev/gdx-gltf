@@ -51,7 +51,7 @@ public class SceneManager {
 		environment.add(dirLight);
 		directionalLights.add(dirLight);
 		
-		float lum = .3f;
+		float lum = .5f;
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
 	}
 	

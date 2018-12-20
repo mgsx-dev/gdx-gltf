@@ -37,7 +37,9 @@ import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
 import net.mgsx.gltf.scene3d.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.PBRShader;
+import net.mgsx.gltf.scene3d.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.PBRShaderProvider;
+import net.mgsx.gltf.scene3d.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.Scene;
 import net.mgsx.gltf.scene3d.SceneAsset;
 import net.mgsx.gltf.scene3d.SceneManager;
@@ -49,10 +51,8 @@ import net.mgsx.gltf.util.SafeHttpResponseListener;
 
 public class GLTFDemo extends ApplicationAdapter
 {
-	private static String AUTOLOAD_ENTRY = null; // "BoomBox" "BarramundiFish"
-	private static String AUTOLOAD_VARIANT = null; // "glTF-Binary"  "glTF"
-	
-	private static final boolean USE_DEFAULT_ENV_MAP = true;
+	private static String AUTOLOAD_ENTRY = "BoomBox"; // "BoomBox" "BarramundiFish"
+	private static String AUTOLOAD_VARIANT = "glTF"; // "glTF-Binary"  "glTF"
 	
 	private static final String TAG = "GLTFDemo";
 	
@@ -80,6 +80,10 @@ public class GLTFDemo extends ApplicationAdapter
 
 	private SceneManager sceneManager;
 	private GLTFDemoUI ui;
+	private Cubemap diffuseCubemap;
+	private Cubemap environmentCubemap;
+	private Cubemap specularCubemap;
+	private Texture brdfLUT;
 	
 	public GLTFDemo() {
 		this("models");
@@ -92,9 +96,9 @@ public class GLTFDemo extends ApplicationAdapter
 	@Override
 	public void create() {
 		
-		createSceneManager();
-		
 		createUI();
+		
+		createSceneManager();
 		
 		loadModelIndex();
 		
@@ -105,32 +109,41 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private void createSceneManager()
 	{
-		sceneManager = new SceneManager(createShaderProvider(shaderMode, 12));
-		
 		// set environment maps
 		
-		Cubemap diffuseCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
+		diffuseCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
 				"net/mgsx/gltf/assets/diffuse/diffuse_", "_0.jpg");
 
-		Cubemap defaultEnvironmentCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
+		environmentCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
 				"net/mgsx/gltf/assets/environment/environment_", "_0.png");
 
-		Cubemap altEnvironmentCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
-				"net/mgsx/gltf/assets/demo_skybox_", ".png");
 		
-		Cubemap environmentCubemap = USE_DEFAULT_ENV_MAP ? defaultEnvironmentCubemap : altEnvironmentCubemap;
-		
-		Cubemap mipmapCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
+		specularCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
 				"net/mgsx/gltf/assets/specular/specular_", "_", ".jpg", 10);
 		
-		sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+		brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/assets/brdfLUT.png"));
 		
-		sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(mipmapCubemap));
-
+		sceneManager = new SceneManager(createShaderProvider(shaderMode, 12));
+		
 		sceneManager.setSkyBox(new SceneSkybox(environmentCubemap));
 		
 		// light direction based on environnement map SUN
 		sceneManager.directionalLights.first().direction.set(-.5f,-.5f,-.7f).nor();
+		
+		ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
+
+		setEnvironment();
+	}
+	
+	private void setEnvironment()
+	{
+		// TODO config UI based
+		
+		sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+		
+		sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+
+		sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
 	}
 	
 	private void loadModelIndex() 
@@ -159,8 +172,6 @@ public class GLTFDemo extends ApplicationAdapter
 		base.add(ui = new GLTFDemoUI(skin));
 		
 		ui.shaderSelector.setSelected(shaderMode);
-		
-		ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
 		
 		ui.entrySelector.addListener(new ChangeListener() {
 			@Override
@@ -197,6 +208,16 @@ public class GLTFDemo extends ApplicationAdapter
 				setShader(ui.shaderSelector.getSelected());
 			}
 		});
+		
+		ChangeListener shaderOptionListener = new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				setShader(shaderMode);
+			}
+		};
+		
+		ui.shaderSRGB.addListener(shaderOptionListener);
+		ui.shaderDebug.toggle.addListener(shaderOptionListener);
 	}
 	
 	protected void setImage(ModelEntry entry) {
@@ -237,18 +258,27 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 	
 	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones){
+		
 		switch(shaderMode){
 		default:
 		case PHONG:
 			// TODO phong variant (pixel based lighting)
 		case GOURAUD:
-			Config config = new DefaultShader.Config();
-			config.numBones = maxBones;
-			return new DefaultShaderProvider(config);
+			{
+				Config config = new DefaultShader.Config();
+				config.numBones = maxBones;
+				return new DefaultShaderProvider(config);
+			}
 		case PBR_MRSG:
 			// TODO SG shader variant
 		case PBR_MR:
-			return PBRShaderProvider.createDefault(maxBones);
+			{
+				PBRShaderConfig config = new PBRShaderConfig();
+				config.manualSRGB = ui.shaderSRGB.getSelected();
+				config.numBones = maxBones;
+				config.debug = ui.shaderDebug.toggle.isChecked();
+				return PBRShaderProvider.createDefault(config);
+			}
 		}
 	}
 
@@ -413,8 +443,8 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.setAmbiantLight(ui.ambiantSlider.getValue());
 		
 		float IBLScale = ui.lightFactorSlider.getValue();
-		PBRShader.ScaleIBLAmbient.r = ui.ambiantSlider.getValue() * IBLScale;
-		PBRShader.ScaleIBLAmbient.g = ui.specularSlider.getValue() * IBLScale;
+		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;
+		PBRShader.ScaleIBLAmbient.g = ui.debugSpecularSlider.getValue() * IBLScale;
 		
 		float lum = ui.lightSlider.getValue();
 		sceneManager.directionalLights.first().color.set(lum, lum, lum, 1);

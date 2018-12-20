@@ -1,0 +1,10 @@
+package net.mgsx.gltf.scene3d;
+
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
+
+public class PBRShaderConfig extends DefaultShader.Config
+{
+	public static enum SRGB{NONE,FAST,ACCURATE}
+	public SRGB manualSRGB = SRGB.ACCURATE;
+	public boolean debug = false;
+}

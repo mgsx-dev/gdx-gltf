@@ -22,9 +22,13 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String OcclusionTextureAlias = "OcclusionSampler";
 	public final static long OcclusionTexture = register(OcclusionTextureAlias);
 	
+	// IBL environnement only
+	public final static String BRDFLUTTextureAlias = "brdfLUTSampler";
+	public final static long BRDFLUTTexture = register(BRDFLUTTextureAlias);
+	
 	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture;
 	}
 	
 	public float rotationUV = 0f;
@@ -32,8 +36,8 @@ public class PBRTextureAttribute extends TextureAttribute
 	public PBRTextureAttribute(long type, TextureDescriptor<Texture> textureDescription) {
 		super(type, textureDescription);
 	}
-	public PBRTextureAttribute(long type, Texture cubemap) {
-		super(type, cubemap);
+	public PBRTextureAttribute(long type, Texture texture) {
+		super(type, texture);
 	}
 	public PBRTextureAttribute(PBRTextureAttribute attribute) {
 		super(attribute);

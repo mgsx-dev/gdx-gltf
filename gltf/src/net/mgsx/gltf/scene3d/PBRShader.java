@@ -2,7 +2,6 @@ package net.mgsx.gltf.scene3d;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -134,16 +133,17 @@ public class PBRShader extends DefaultShader
 	};
 	
 	public final static Uniform brdfLUTTextureUniform = new Uniform("u_brdfLUT");
-	public final static Setter brdfLUTTextureSetter = new GlobalSetter() {
+	public final static Setter brdfLUTTextureSetter = new LocalSetter() {
 		@Override
 		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-			final int unit = shader.context.textureBinder.bind( ((PBRShader)shader).brdfLUT);
-			shader.set(inputID, unit);
+			PBRTextureAttribute attribute = combinedAttributes.get(PBRTextureAttribute.class, PBRTextureAttribute.BRDFLUTTexture);
+			if(attribute != null){
+				final int unit = shader.context.textureBinder.bind(attribute.textureDescription);
+				shader.set(inputID, unit);
+			}
 		}
 	};
 
-	private Texture brdfLUT;
-	
 	public final int u_metallicRoughness;
 	public final int u_occlusionStrength; 
 	public final int u_metallicRoughnessTexture;
@@ -171,17 +171,16 @@ public class PBRShader extends DefaultShader
 	private int u_texCoord0Transform;
 	private int u_texCoord1Transform;
 
+	private int u_ambientLight;
+	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
 	public static final Color ScaleDiffBaseMR = new Color();
 	public static final Color ScaleFGDSpec = new Color();
 	public static final Color ScaleIBLAmbient = new Color(.5f, .5f, 0, 0);
 
-	public PBRShader(Renderable renderable, Config config, String prefix, Texture brdfLUT) {
+	public PBRShader(Renderable renderable, Config config, String prefix) {
 		super(renderable, config, prefix);
-
-		
-		this.brdfLUT = brdfLUT;
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
@@ -224,6 +223,8 @@ public class PBRShader extends DefaultShader
 		
 		u_morphTargets1 = program.fetchUniformLocation("u_morphTargets1", false);
 		u_morphTargets2 = program.fetchUniformLocation("u_morphTargets2", false);
+		
+		u_ambientLight = program.fetchUniformLocation("u_ambientLight", false);
 	}
 	
 	@Override
@@ -329,6 +330,17 @@ public class PBRShader extends DefaultShader
 		}
 		
 		super.render(renderable, combinedAttributes);
+	}
+	
+	@Override
+	protected void bindLights(Renderable renderable, Attributes attributes) {
+		super.bindLights(renderable, attributes);
+		
+		// XXX
+		ColorAttribute ambiantLight = attributes.get(ColorAttribute.class, ColorAttribute.AmbientLight);
+		if(ambiantLight != null){
+			program.setUniformf(u_ambientLight, ambiantLight.color.r, ambiantLight.color.g, ambiantLight.color.b);
+		}
 	}
 	
 }
