@@ -57,7 +57,10 @@ public class GLTFDemo extends ApplicationAdapter
 	private static final String TAG = "GLTFDemo";
 	
 	public static enum ShaderMode{
-		FLAT, GOURAUD, PHONG, PBR_MR, PBR_SG, 
+		GOURAUD,	// https://en.wikipedia.org/wiki/Gouraud_shading#Comparison_with_other_shading_techniques
+		PHONG,   	// https://en.wikipedia.org/wiki/Phong_shading
+		PBR_MR, 
+		PBR_MRSG
 	}
 	
 	private ShaderMode shaderMode = ShaderMode.PBR_MR;
@@ -236,13 +239,13 @@ public class GLTFDemo extends ApplicationAdapter
 	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones){
 		switch(shaderMode){
 		default:
-		case FLAT:
-		case GOURAUD:
 		case PHONG:
+			// TODO phong variant (pixel based lighting)
+		case GOURAUD:
 			Config config = new DefaultShader.Config();
 			config.numBones = maxBones;
 			return new DefaultShaderProvider(config);
-		case PBR_SG:
+		case PBR_MRSG:
 			// TODO SG shader variant
 		case PBR_MR:
 			return PBRShaderProvider.createDefault(maxBones);
