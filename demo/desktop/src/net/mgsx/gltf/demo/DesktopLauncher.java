@@ -3,7 +3,7 @@ package net.mgsx.gltf.demo;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
-import net.mgsx.gltf.GLTFDemo;
+import net.mgsx.gltf.demo.GLTFDemo;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {

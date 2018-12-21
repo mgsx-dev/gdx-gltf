@@ -1,4 +1,4 @@
-package net.mgsx.gltf.ui;
+package net.mgsx.gltf.demo.ui;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,8 +22,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Scaling;
 
-import net.mgsx.gltf.GLTFDemo.ShaderMode;
-import net.mgsx.gltf.demo.ModelEntry;
+import net.mgsx.gltf.demo.GLTFDemo.ShaderMode;
+import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.scene3d.NodePartPlus;
 import net.mgsx.gltf.scene3d.NodePlus;
 import net.mgsx.gltf.scene3d.PBRColorAttribute;

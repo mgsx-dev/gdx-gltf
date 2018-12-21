@@ -1,4 +1,4 @@
-package net.mgsx.gltf.util;
+package net.mgsx.gltf.demo.util;
 
 import java.io.IOException;
 

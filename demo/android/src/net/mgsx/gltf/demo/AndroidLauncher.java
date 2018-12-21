@@ -4,7 +4,7 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
 import android.os.Bundle;
-import net.mgsx.gltf.GLTFDemo;
+import net.mgsx.gltf.demo.GLTFDemo;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override

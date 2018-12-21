@@ -1,4 +1,4 @@
-package net.mgsx.gltf.util;
+package net.mgsx.gltf.demo.util;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Node;

@@ -1,4 +1,4 @@
-package net.mgsx.gltf;
+package net.mgsx.gltf.demo;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
-import net.mgsx.gltf.demo.ModelEntry;
+import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
 import net.mgsx.gltf.scene3d.SceneAsset;

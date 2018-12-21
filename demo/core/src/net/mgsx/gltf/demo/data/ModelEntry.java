@@ -1,4 +1,4 @@
-package net.mgsx.gltf.demo;
+package net.mgsx.gltf.demo.data;
 
 import com.badlogic.gdx.utils.ObjectMap;
 

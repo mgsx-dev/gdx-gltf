@@ -4,7 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 
-import net.mgsx.gltf.GLTFDemo;
+import net.mgsx.gltf.demo.GLTFDemo;
 
 public class HtmlLauncher extends GwtApplication {
 

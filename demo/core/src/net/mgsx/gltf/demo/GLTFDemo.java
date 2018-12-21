@@ -1,4 +1,4 @@
-package net.mgsx.gltf;
+package net.mgsx.gltf.demo;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -33,7 +33,11 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import net.mgsx.gltf.demo.ModelEntry;
+import net.mgsx.gltf.demo.data.ModelEntry;
+import net.mgsx.gltf.demo.ui.GLTFDemoUI;
+import net.mgsx.gltf.demo.util.EnvironmentUtil;
+import net.mgsx.gltf.demo.util.NodeUtil;
+import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
 import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
 import net.mgsx.gltf.loaders.PixmapBinaryLoaderHack;
@@ -46,10 +50,6 @@ import net.mgsx.gltf.scene3d.Scene;
 import net.mgsx.gltf.scene3d.SceneAsset;
 import net.mgsx.gltf.scene3d.SceneManager;
 import net.mgsx.gltf.scene3d.SceneSkybox;
-import net.mgsx.gltf.ui.GLTFDemoUI;
-import net.mgsx.gltf.util.EnvironmentUtil;
-import net.mgsx.gltf.util.NodeUtil;
-import net.mgsx.gltf.util.SafeHttpResponseListener;
 
 public class GLTFDemo extends ApplicationAdapter
 {
