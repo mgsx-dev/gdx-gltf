@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 
-import net.mgsx.gltf.scene3d.WeightVector;
+import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class WeightsUI extends Table
 {

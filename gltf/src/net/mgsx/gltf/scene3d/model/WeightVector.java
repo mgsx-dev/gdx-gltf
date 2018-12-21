@@ -1,4 +1,4 @@
-package net.mgsx.gltf.scene3d;
+package net.mgsx.gltf.scene3d.model;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;

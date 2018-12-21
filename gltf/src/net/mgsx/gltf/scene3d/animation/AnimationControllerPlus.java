@@ -1,4 +1,4 @@
-package net.mgsx.gltf.scene3d;
+package net.mgsx.gltf.scene3d.animation;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
@@ -16,6 +16,10 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
+
+import net.mgsx.gltf.scene3d.model.NodePartPlus;
+import net.mgsx.gltf.scene3d.model.NodePlus;
+import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class AnimationControllerPlus extends AnimationController
 {

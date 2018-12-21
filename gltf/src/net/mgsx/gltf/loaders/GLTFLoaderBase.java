@@ -58,14 +58,14 @@ import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.data.texture.GLTFSampler;
 import net.mgsx.gltf.data.texture.GLTFTexture;
 import net.mgsx.gltf.data.texture.GLTFTextureInfo;
-import net.mgsx.gltf.scene3d.NodeAnimationPlus;
-import net.mgsx.gltf.scene3d.NodePartPlus;
-import net.mgsx.gltf.scene3d.NodePlus;
-import net.mgsx.gltf.scene3d.PBRColorAttribute;
-import net.mgsx.gltf.scene3d.PBRFloatAttribute;
-import net.mgsx.gltf.scene3d.PBRTextureAttribute;
-import net.mgsx.gltf.scene3d.SceneAsset;
-import net.mgsx.gltf.scene3d.WeightVector;
+import net.mgsx.gltf.scene3d.animation.NodeAnimationPlus;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.model.NodePartPlus;
+import net.mgsx.gltf.scene3d.model.NodePlus;
+import net.mgsx.gltf.scene3d.model.WeightVector;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 // TODO simplify this class with some external herlpers ...
 

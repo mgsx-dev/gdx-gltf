@@ -1,4 +1,4 @@
-package net.mgsx.gltf.scene3d;
+package net.mgsx.gltf.scene3d.model;
 
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+
+import net.mgsx.gltf.scene3d.animation.NodeAnimationPlus;
 
 public class ModelInstancePlus extends ModelInstance
 {

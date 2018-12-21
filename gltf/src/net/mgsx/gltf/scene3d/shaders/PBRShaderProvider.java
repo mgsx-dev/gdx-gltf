@@ -1,4 +1,4 @@
-package net.mgsx.gltf.scene3d;
+package net.mgsx.gltf.scene3d.shaders;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
@@ -13,7 +13,9 @@ import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import net.mgsx.gltf.scene3d.PBRShaderConfig.SRGB;
+import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class PBRShaderProvider extends DefaultShaderProvider
 {

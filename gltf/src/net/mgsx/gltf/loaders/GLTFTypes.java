@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.texture.GLTFSampler;
-import net.mgsx.gltf.scene3d.WeightVector;
+import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class GLTFTypes {
 

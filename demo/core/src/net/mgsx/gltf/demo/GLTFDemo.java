@@ -41,15 +41,15 @@ import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
 import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
 import net.mgsx.gltf.loaders.PixmapBinaryLoaderHack;
-import net.mgsx.gltf.scene3d.PBRCubemapAttribute;
-import net.mgsx.gltf.scene3d.PBRShader;
-import net.mgsx.gltf.scene3d.PBRShaderConfig;
-import net.mgsx.gltf.scene3d.PBRShaderProvider;
-import net.mgsx.gltf.scene3d.PBRTextureAttribute;
-import net.mgsx.gltf.scene3d.Scene;
-import net.mgsx.gltf.scene3d.SceneAsset;
-import net.mgsx.gltf.scene3d.SceneManager;
-import net.mgsx.gltf.scene3d.SceneSkybox;
+import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.scene.Scene;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneManager;
+import net.mgsx.gltf.scene3d.scene.SceneSkybox;
+import net.mgsx.gltf.scene3d.shaders.PBRShader;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
 public class GLTFDemo extends ApplicationAdapter
 {

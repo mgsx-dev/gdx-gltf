@@ -24,14 +24,14 @@ import com.badlogic.gdx.utils.Scaling;
 
 import net.mgsx.gltf.demo.GLTFDemo.ShaderMode;
 import net.mgsx.gltf.demo.data.ModelEntry;
-import net.mgsx.gltf.scene3d.NodePartPlus;
-import net.mgsx.gltf.scene3d.NodePlus;
-import net.mgsx.gltf.scene3d.PBRColorAttribute;
-import net.mgsx.gltf.scene3d.PBRFloatAttribute;
-import net.mgsx.gltf.scene3d.PBRShader;
-import net.mgsx.gltf.scene3d.PBRShaderConfig.SRGB;
-import net.mgsx.gltf.scene3d.PBRTextureAttribute;
-import net.mgsx.gltf.scene3d.SceneAsset;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.model.NodePartPlus;
+import net.mgsx.gltf.scene3d.model.NodePlus;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.shaders.PBRShader;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class GLTFDemoUI extends Table {
 	public SelectBox<ModelEntry> entrySelector;

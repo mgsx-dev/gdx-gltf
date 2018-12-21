@@ -1,8 +1,11 @@
-package net.mgsx.gltf.scene3d;
+package net.mgsx.gltf.scene3d.scene;
 
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+
+import net.mgsx.gltf.scene3d.animation.AnimationControllerPlus;
+import net.mgsx.gltf.scene3d.model.ModelInstancePlus;
 
 public class Scene {
 	public ModelInstance modelInstance;

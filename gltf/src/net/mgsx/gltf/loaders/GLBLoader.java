@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.LittleEndianInputStream;
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
-import net.mgsx.gltf.scene3d.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 public class GLBLoader extends GLTFLoaderBase {
 

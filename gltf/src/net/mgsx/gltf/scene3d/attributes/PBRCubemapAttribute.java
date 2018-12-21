@@ -1,4 +1,4 @@
-package net.mgsx.gltf.scene3d;
+package net.mgsx.gltf.scene3d.attributes;
 
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.g3d.Attribute;

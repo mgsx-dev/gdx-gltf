@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
-import net.mgsx.gltf.scene3d.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 public class GLTFTest extends ApplicationAdapter 
 {
