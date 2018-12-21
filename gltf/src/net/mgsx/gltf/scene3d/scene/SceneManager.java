@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 
 /**
  * not related to GLTF : just a helper with : model instances, animators, camera, environement, lights, batch/shaderProvider
@@ -18,10 +19,10 @@ import com.badlogic.gdx.utils.Array;
  * @author mgsx
  *
  */
-public class SceneManager {
+public class SceneManager implements Disposable {
 	private Array<Scene> scenes = new Array<Scene>();
 	
-	public ModelBatch batch;
+	private ModelBatch batch;
 	
 	// TODO lights
 	public final Array<DirectionalLight> directionalLights = new Array<DirectionalLight>();
@@ -41,7 +42,7 @@ public class SceneManager {
 	
 	public SceneManager(ShaderProvider shaderProvider)
 	{
-		batch = new ModelBatch(shaderProvider);
+		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
 		
 		environment = new Environment();
 		
@@ -55,6 +56,10 @@ public class SceneManager {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
 	}
 	
+	public void setShaderProvider(ShaderProvider shaderProvider) {
+		batch.dispose();
+		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
+	}
 	
 	
 	public void addScene(Scene scene){
@@ -62,6 +67,7 @@ public class SceneManager {
 	}
 	
 	public void update(float delta){
+		skyBox.update(camera);
 		for(Scene scene : scenes){
 			scene.upadte(delta);
 		}
@@ -79,8 +85,7 @@ public class SceneManager {
 		for(Scene scene : scenes){
 			batch.render(scene.modelInstance, environment);
 		}
-		// TODO render directly skybox with strategy : all opaque near to far, skybox, all transparent far to near
-		skyBox.render(batch);
+		batch.render(skyBox);
 		batch.end();
 		
 	}
@@ -92,8 +97,6 @@ public class SceneManager {
 	public void setAmbiantLight(float lum) {
 		environment.get(ColorAttribute.class, ColorAttribute.AmbientLight).color.set(lum, lum, lum, 1);
 	}
-
-
 
 	public void setCamera(Camera camera) {
 		setCamera(camera, null);
@@ -115,5 +118,9 @@ public class SceneManager {
 			camera.update(true);
 		}
 	}
-	
+
+	@Override
+	public void dispose() {
+		batch.dispose();
+	}
 }

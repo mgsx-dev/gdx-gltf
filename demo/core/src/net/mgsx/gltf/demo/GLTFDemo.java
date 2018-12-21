@@ -14,7 +14,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
@@ -257,8 +256,7 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 
 	private void setShader(ShaderMode shaderMode) {
-		sceneManager.batch.dispose();
-		sceneManager.batch = new ModelBatch(createShaderProvider(shaderMode, rootModel.maxBones));
+		sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
 	}
 	
 	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones){
