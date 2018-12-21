@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Net.HttpMethods;
 import com.badlogic.gdx.Net.HttpRequest;
-import com.badlogic.gdx.assets.loaders.resolvers.ClasspathFileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Cubemap;
@@ -111,17 +111,17 @@ public class GLTFDemo extends ApplicationAdapter
 	{
 		// set environment maps
 		
-		diffuseCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
-				"net/mgsx/gltf/assets/diffuse/diffuse_", "_0.jpg");
+		diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+				"textures/diffuse/diffuse_", "_0.jpg");
 
-		environmentCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
-				"net/mgsx/gltf/assets/environment/environment_", "_0.png");
+		environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+				"textures/environment/environment_", "_0.png");
 
 		
-		specularCubemap = EnvironmentUtil.createCubemap(new ClasspathFileHandleResolver(), 
-				"net/mgsx/gltf/assets/specular/specular_", "_", ".jpg", 10);
+		specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+				"textures/specular/specular_", "_", ".jpg", 10);
 		
-		brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/assets/brdfLUT.png"));
+		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
 		
 		sceneManager = new SceneManager(createShaderProvider(shaderMode, 12));
 		
