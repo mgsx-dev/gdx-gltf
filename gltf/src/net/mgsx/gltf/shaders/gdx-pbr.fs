@@ -3,6 +3,7 @@
 #extension GL_EXT_shader_texture_lod: enable
 #extension GL_OES_standard_derivatives : enable
 #else
+// Note : "textureCubeLod" is used for compatibility but should be "textureLod" for GLSL #version 130 (OpenGL 3.0+)
 #define textureCubeLodEXT textureCubeLod
 #endif
 

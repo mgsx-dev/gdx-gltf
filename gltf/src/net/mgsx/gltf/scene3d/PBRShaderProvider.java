@@ -1,5 +1,6 @@
 package net.mgsx.gltf.scene3d;
 
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -72,8 +73,15 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(specualarCubemapAttribute != null){
 			prefix += "#define USE_IBL\n";
 			
+			boolean textureLodSupported;
+			if(Gdx.app.getType() == ApplicationType.WebGL){
+				textureLodSupported = Gdx.graphics.supportsExtension("EXT_shader_texture_lod");
+			}else{
+				textureLodSupported = true;
+			}
+			
 			TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();
-			if(textureFilter.equals(TextureFilter.MipMap)){
+			if(textureLodSupported && textureFilter.equals(TextureFilter.MipMap)){
 				prefix += "#define USE_TEX_LOD\n";
 			}
 			
@@ -81,6 +89,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define brdfLUTTexture\n";
 			}
 		}
+		
+		// TODO check GLSL extension 'OES_standard_derivatives' for WebGL
+        // TODO check GLSL extension 'EXT_SRGB' for WebGL
 		
 		if(renderable.environment.has(ColorAttribute.AmbientLight)){
 			prefix += "#define ambientLightFlag\n";
