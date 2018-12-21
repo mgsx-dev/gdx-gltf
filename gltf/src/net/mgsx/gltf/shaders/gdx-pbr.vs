@@ -289,7 +289,7 @@ void main() {
 	#endif //skinningFlag
 	
 	#ifdef morphTargetsFlag
-		vec3 morph_pos = a_position; // vec3(0.0, 0.0, 0.0); // ;
+		vec3 morph_pos = a_position;
 		#ifdef position0Flag
 			morph_pos += a_position0 * u_morphTargets1.x;
 		#endif
@@ -358,7 +358,7 @@ void main() {
 			vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
 			v_TBN = mat3(tangentW, bitangentW, normalW);
 		#else // tangentFlag != 1
-			v_normal = normalize(vec3(u_worldTrans * vec4(normal.xyz, 0.0)));
+			v_normal = normalize(vec3(u_normalMatrix * normal.xyz));
 		#endif
 	#endif // normalFlag
 

@@ -512,6 +512,14 @@ void main() {
     gl_FragColor = vec4(color, baseColor.a);	
 #endif
     
+#ifdef DEBUG_NORMALS
+#ifndef tangentFlag
+    gl_FragColor = vec4(gl_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
+#else
+    gl_FragColor = vec4(gl_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
+#endif
+#endif
+    
     // Blending and Alpha Test
 #ifdef blendedFlag
 	gl_FragColor.a = baseColor.a * v_opacity;

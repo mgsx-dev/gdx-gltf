@@ -62,6 +62,7 @@ import net.mgsx.gltf.scene3d.animation.NodeAnimationHack;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
@@ -635,11 +636,11 @@ abstract public class GLTFLoaderBase implements Disposable {
 							glAccessors.add(accessor);
 							
 							if(attributeName.equals("POSITION")){
-								vertexAttributes.add(new VertexAttribute(VertexAttributes.Usage.Generic, 3, ShaderProgram.POSITION_ATTRIBUTE + unit));
+								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.PositionTarget, 3, ShaderProgram.POSITION_ATTRIBUTE+unit, unit));
 							}else if(attributeName.equals("NORMAL")){
-								vertexAttributes.add(new VertexAttribute(VertexAttributes.Usage.Generic, 3, ShaderProgram.NORMAL_ATTRIBUTE + unit));
+								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.NormalTarget, 3, ShaderProgram.NORMAL_ATTRIBUTE + unit, unit));
 							}else if(attributeName.equals("TANGENT")){
-								vertexAttributes.add(new VertexAttribute(VertexAttributes.Usage.Generic, 3, ShaderProgram.TANGENT_ATTRIBUTE + unit));
+								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.TangentTarget, 3, ShaderProgram.TANGENT_ATTRIBUTE + unit, unit));
 							}else{
 								throw new GdxRuntimeException("unsupported target attribute type " + attributeName);
 							}
