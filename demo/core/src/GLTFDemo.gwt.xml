@@ -6,8 +6,4 @@
 	
 	<extend-configuration-property name="gdx.reflect.include" value="net.mgsx.gltf.demo.data" />
 	
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/gdx-pbr.vs" />
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/gdx-pbr.fs" />
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/skybox.vs" />
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/skybox.fs" />
 </module>

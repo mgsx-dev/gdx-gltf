@@ -2,5 +2,14 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit trunk//EN" "http://google-web-toolkit.googlecode.com/svn/trunk/distro-source/core/src/gwt-module.dtd">
 <module>
 	<source path="net/mgsx/gltf"/>
+	
 	<extend-configuration-property name="gdx.reflect.include" value="net.mgsx.gltf.data" />
+	
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/gdx-pbr.vs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/gdx-pbr.fs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/skybox.vs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/skybox.fs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/default.vs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/default.fs" />
+	
 </module>
