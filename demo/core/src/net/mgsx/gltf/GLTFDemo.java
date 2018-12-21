@@ -35,6 +35,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.mgsx.gltf.demo.ModelEntry;
 import net.mgsx.gltf.loaders.GLBLoader;
 import net.mgsx.gltf.loaders.GLTFLoader;
+import net.mgsx.gltf.loaders.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.PBRShader;
 import net.mgsx.gltf.scene3d.PBRShaderConfig;
@@ -229,7 +230,7 @@ public class GLTFDemo extends ApplicationAdapter
 				Gdx.net.sendHttpRequest(httpRequest, new SafeHttpResponseListener(){
 					@Override
 					protected void handleData(byte[] bytes) {
-						Pixmap pixmap = new Pixmap(bytes, 0, bytes.length);
+						Pixmap pixmap = PixmapBinaryLoaderHack.load(bytes, 0, bytes.length);
 						ui.setImage(new Texture(pixmap));
 						pixmap.dispose();
 					}

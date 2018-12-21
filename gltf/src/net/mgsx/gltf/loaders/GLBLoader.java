@@ -83,7 +83,7 @@ public class GLBLoader extends GLTFLoaderBase {
 			byte [] data = new byte[bufferView.byteLength];
 			buffer.position(bufferView.byteOffset);
 			buffer.get(data);
-			return new Pixmap(data, 0, data.length);
+			return PixmapBinaryLoaderHack.load(data, 0, data.length);
 		}else{
 			throw new GdxRuntimeException("GLB image should have bufferView");
 		}

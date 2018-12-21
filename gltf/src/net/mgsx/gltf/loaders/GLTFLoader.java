@@ -59,7 +59,7 @@ public class GLTFLoader extends GLTFLoaderBase
 			System.out.println(header);
 			String body = headerBody[1];
 			byte [] data = Base64Coder.decode(body);
-			return new Pixmap(data, 0, data.length);
+			return PixmapBinaryLoaderHack.load(data, 0, data.length);
 		}else{
 			return new Pixmap(path.child(glImage.uri));
 		}
