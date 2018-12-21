@@ -30,6 +30,9 @@ task dist(type: Jar) {
     from {configurations.compile.collect {zipTree(it)}}
     from files(project.assetsDir) // TODO exclude models
  	
+ 	exclude("models/BoomBox")
+ 	exclude("models/model-index-web.json")
+ 	
  	// additional files could be added like this :
  	// from file("$projectDir/LICENSE");
     

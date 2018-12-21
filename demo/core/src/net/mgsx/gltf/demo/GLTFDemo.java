@@ -318,6 +318,8 @@ public class GLTFDemo extends ApplicationAdapter
 		if(variant.isEmpty()) return;
 		
 		final String fileName = entry.variants.get(variant);
+		if(fileName == null) return;
+		
 		if(entry.url != null){
 			
 			final Table waitUI = new Table(skin);
