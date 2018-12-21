@@ -21,7 +21,10 @@ import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
-public class AnimationControllerPlus extends AnimationController
+/**
+ * {@link AnimationController} hack to run morph targets animations
+ */
+public class AnimationControllerHack extends AnimationController
 {
 	public static class Transform implements Poolable {
 		public final Vector3 translation = new Vector3();
@@ -79,7 +82,7 @@ public class AnimationControllerPlus extends AnimationController
 		}
 	}
 	
-	public AnimationControllerPlus(ModelInstance target) {
+	public AnimationControllerHack(ModelInstance target) {
 		super(target);
 	}
 
@@ -208,7 +211,7 @@ public class AnimationControllerPlus extends AnimationController
 		return out;
 	}
 	
-	private final static WeightVector getMorphTargetAtTime (final NodeAnimationPlus nodeAnim, final float time, final WeightVector out) {
+	private final static WeightVector getMorphTargetAtTime (final NodeAnimationHack nodeAnim, final float time, final WeightVector out) {
 		if (nodeAnim.weights == null) return out.set();
 		if (nodeAnim.weights.size == 1) return out.set(nodeAnim.weights.get(0).value);
 
@@ -229,8 +232,8 @@ public class AnimationControllerPlus extends AnimationController
 		getTranslationAtTime(nodeAnim, time, transform.translation);
 		getRotationAtTime(nodeAnim, time, transform.rotation);
 		getScalingAtTime(nodeAnim, time, transform.scale);
-		if(nodeAnim instanceof NodeAnimationPlus)
-			getMorphTargetAtTime((NodeAnimationPlus)nodeAnim, time, transform.weights);
+		if(nodeAnim instanceof NodeAnimationHack)
+			getMorphTargetAtTime((NodeAnimationHack)nodeAnim, time, transform.weights);
 		return transform;
 	}
 

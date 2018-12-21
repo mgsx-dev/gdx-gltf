@@ -12,12 +12,17 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
-import net.mgsx.gltf.scene3d.animation.NodeAnimationPlus;
+import net.mgsx.gltf.scene3d.animation.NodeAnimationHack;
 
-public class ModelInstancePlus extends ModelInstance
+/**
+ * {@link ModelInstance} hack for morph targets :
+ * - copy animations with {@link NodeAnimationHack}
+ * - pass morph targets to shader via Renderable userData 
+ */
+public class ModelInstanceHack extends ModelInstance
 {
 
-	public ModelInstancePlus(Model model) {
+	public ModelInstanceHack(Model model) {
 		super(model);
 		// patch animation copy because of private method
 		animations.clear();
@@ -32,13 +37,13 @@ public class ModelInstancePlus extends ModelInstance
 			for (final NodeAnimation nanim : anim.nodeAnimations) {
 				final Node node = getNode(nanim.node.id);
 				if (node == null) continue;
-				NodeAnimationPlus nodeAnim = new NodeAnimationPlus();
+				NodeAnimationHack nodeAnim = new NodeAnimationHack();
 				nodeAnim.node = node;
 				if (shareKeyframes) {
 					nodeAnim.translation = nanim.translation;
 					nodeAnim.rotation = nanim.rotation;
 					nodeAnim.scaling = nanim.scaling;
-					nodeAnim.weights = ((NodeAnimationPlus)nanim).weights;
+					nodeAnim.weights = ((NodeAnimationHack)nanim).weights;
 				} else {
 					if (nanim.translation != null) {
 						nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
@@ -55,13 +60,13 @@ public class ModelInstancePlus extends ModelInstance
 						for (final NodeKeyframe<Vector3> kf : nanim.scaling)
 							nodeAnim.scaling.add(new NodeKeyframe<Vector3>(kf.keytime, kf.value));
 					}
-					if (((NodeAnimationPlus)nanim).weights != null) {
-						((NodeAnimationPlus)nanim).weights = new Array<NodeKeyframe<WeightVector>>();
-						for (final NodeKeyframe<WeightVector> kf : ((NodeAnimationPlus)nanim).weights)
-							((NodeAnimationPlus)nanim).weights.add(new NodeKeyframe<WeightVector>(kf.keytime, kf.value));
+					if (((NodeAnimationHack)nanim).weights != null) {
+						((NodeAnimationHack)nanim).weights = new Array<NodeKeyframe<WeightVector>>();
+						for (final NodeKeyframe<WeightVector> kf : ((NodeAnimationHack)nanim).weights)
+							((NodeAnimationHack)nanim).weights.add(new NodeKeyframe<WeightVector>(kf.keytime, kf.value));
 					}
 				}
-				if (nodeAnim.translation != null || nodeAnim.rotation != null || nodeAnim.scaling != null || ((NodeAnimationPlus)nanim).weights != null)
+				if (nodeAnim.translation != null || nodeAnim.rotation != null || nodeAnim.scaling != null || ((NodeAnimationHack)nanim).weights != null)
 					animation.nodeAnimations.add(nodeAnim);
 			}
 			if (animation.nodeAnimations.size > 0) animations.add(animation);

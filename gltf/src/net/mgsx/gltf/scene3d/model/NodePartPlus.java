@@ -3,6 +3,9 @@ package net.mgsx.gltf.scene3d.model;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 
+/**
+ * {@link NodePart} hack to store morph targets
+ */
 public class NodePartPlus extends NodePart{
 	
 	public WeightVector morphTargets;
@@ -24,8 +27,7 @@ public class NodePartPlus extends NodePart{
 	protected NodePart set(NodePart other) {
 		super.set(other);
 		if(other instanceof NodePartPlus && ((NodePartPlus) other).morphTargets != null){
-			morphTargets = ((NodePartPlus) other).morphTargets; //.cpy(); 
-			// XXX
+			morphTargets = ((NodePartPlus) other).morphTargets;
 		}
 		return this;
 	}

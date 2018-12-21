@@ -7,6 +7,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
+/**
+ * Hack {@link Pixmap} loading from binary data via reflection in order to avoid GWT compilation issues. 
+ */
 public class PixmapBinaryLoaderHack {
 
 	public static Pixmap load(byte [] encodedData, int offset, int len){

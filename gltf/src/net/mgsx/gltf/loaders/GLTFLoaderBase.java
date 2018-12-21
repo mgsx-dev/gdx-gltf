@@ -58,7 +58,7 @@ import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.data.texture.GLTFSampler;
 import net.mgsx.gltf.data.texture.GLTFTexture;
 import net.mgsx.gltf.data.texture.GLTFTextureInfo;
-import net.mgsx.gltf.scene3d.animation.NodeAnimationPlus;
+import net.mgsx.gltf.scene3d.animation.NodeAnimationHack;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -175,7 +175,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 				
 				NodeAnimation nodeAnimation = animMap.get(node);
 				if(nodeAnimation == null){
-					nodeAnimation = new NodeAnimationPlus();
+					nodeAnimation = new NodeAnimationHack();
 					nodeAnimation.node = node;
 					animMap.put(node, nodeAnimation);
 					animation.nodeAnimations.add(nodeAnimation);
@@ -219,7 +219,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 						nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new Vector3(), outputData, k*3)));
 					}
 				}else if("weights".equals(property)){
-					NodeAnimationPlus np = (NodeAnimationPlus)nodeAnimation;
+					NodeAnimationHack np = (NodeAnimationHack)nodeAnimation;
 					int nbWeights = ((NodePlus)node).weights.count;
 					np.weights = new Array<NodeKeyframe<WeightVector>>();
 					// copy first frame if not at zero time

@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 
-import net.mgsx.gltf.scene3d.animation.AnimationControllerPlus;
-import net.mgsx.gltf.scene3d.model.ModelInstancePlus;
+import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
+import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 public class Scene {
 	public ModelInstance modelInstance;
@@ -17,7 +17,7 @@ public class Scene {
 	 * @param model
 	 */
 	public Scene(Model model) {
-		this(new ModelInstancePlus(model));
+		this(new ModelInstanceHack(model));
 	}
 
 	/**
@@ -38,11 +38,11 @@ public class Scene {
 		super();
 		this.modelInstance = modelInstance;
 		if(animated){
-			this.animationController = new AnimationControllerPlus(modelInstance);
+			this.animationController = new AnimationControllerHack(modelInstance);
 		}
 	}
 	public Scene(Model model, boolean animated) {
-		this(new ModelInstancePlus(model), animated);
+		this(new ModelInstanceHack(model), animated);
 	}
 
 	public void upadte(float delta){

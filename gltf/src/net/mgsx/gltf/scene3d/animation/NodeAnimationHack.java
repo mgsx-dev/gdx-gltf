@@ -6,7 +6,10 @@ import com.badlogic.gdx.utils.Array;
 
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
-public class NodeAnimationPlus extends NodeAnimation
+/**
+ *  {@link NodeAnimation} hack to store morph targets weights 
+ */
+public class NodeAnimationHack extends NodeAnimation
 {
 	public Array<NodeKeyframe<WeightVector>> weights = null;
 }

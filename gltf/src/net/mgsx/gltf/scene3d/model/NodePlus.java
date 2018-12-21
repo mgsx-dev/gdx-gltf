@@ -2,6 +2,9 @@ package net.mgsx.gltf.scene3d.model;
 
 import com.badlogic.gdx.graphics.g3d.model.Node;
 
+/**
+ * {@link Node} hack to store morph targets weights 
+ */
 public class NodePlus extends Node
 {
 	public WeightVector weights;

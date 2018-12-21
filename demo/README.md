@@ -1,9 +1,9 @@
 
-# Run examples
+# Run Desktop Examples
 
-Default is to run provided examples which are a subset of [Khronos models examples](https://github.com/KhronosGroup/glTF-Sample-Models).
+Default is to run a subset of [Khronos models examples](https://github.com/KhronosGroup/glTF-Sample-Models) remotly.
 
-It's possible to run external examples by providing absolute path to examples as desktop launcher first argument.
+It's possible to run examples locally by providing absolute path to examples folder as desktop launcher first argument.
 
 Example with Khronos models : 
 
@@ -17,7 +17,7 @@ BatchTest can be configured the same way to process a different model set.
 
 ## Khronos models examples
 
-[Khronos models examples](https://github.com/KhronosGroup/glTF-Sample-Models)
+Here is the list and status about [Khronos models examples](https://github.com/KhronosGroup/glTF-Sample-Models)
 
 | **Model**                 | **Features** |--- **Status** ---| **Comment** |
 |---------------------------|:------------:|:-----------------|-------------|
