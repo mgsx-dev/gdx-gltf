@@ -15,6 +15,7 @@ public class ColorAttributeUI extends Table
 	private ColorAttribute attribute;
 	public ColorAttributeUI(Skin skin, final ColorAttribute attribute) {
 		super(skin);
+		if(attribute == null) return;
 		this.attribute = attribute;
 		add(ColorAttribute.getAttributeAlias(attribute.type));
 		for(int i=0 ; i<4 ; i++){

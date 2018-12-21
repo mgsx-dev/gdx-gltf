@@ -121,6 +121,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 			loadCameras();
 			loadScenes();
 			loadAnimations();
+			loadSkins();
 			
 			model.scene = model.scenes.get(glModel.scene);
 			
@@ -495,6 +496,23 @@ abstract public class GLTFLoaderBase implements Disposable {
 				}
 			}
 			
+			if(glNode.mesh != null){
+				getMeshParts(node, glNode.mesh);
+			}
+			
+			if(glNode.camera != null){
+				model.cameraMap.put(node.id, glNode.camera);
+			}
+			
+		}
+		return node;
+	}
+	
+	private void loadSkins(){
+		for(Entry<Integer, Node> entry : nodeMap){
+			GLTFNode glNode = glModel.nodes.get(entry.key);
+			Node node = entry.value;
+			
 			Array<Matrix4> ibms = new Array<Matrix4>();
 			Array<Integer> joints = new Array<Integer>();
 			
@@ -515,19 +533,23 @@ abstract public class GLTFLoaderBase implements Disposable {
 				joints.addAll(glSkin.joints);
 			}
 			
-			if(glNode.mesh != null){
-				getMeshParts(node, glNode.mesh, joints, ibms);
+			if(ibms.size > 0){
+				for(NodePart nodePart : node.parts){
+					
+					nodePart.bones = new Matrix4[ibms.size];
+					nodePart.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
+					for(int n=0 ; n<joints.size ; n++){
+						nodePart.bones[n] = new Matrix4().idt();
+						Node key = nodeMap.get(joints.get(n));
+						if(key == null) throw new GdxRuntimeException("error !!!!!!!!"); // Node not already parsed !
+						nodePart.invBoneBindTransforms.put(key, ibms.get(n));
+					}
+				}
 			}
-			
-			if(glNode.camera != null){
-				model.cameraMap.put(node.id, glNode.camera);
-			}
-			
 		}
-		return node;
 	}
 
-	private void getMeshParts(Node node, Integer meshId, Array<Integer> joints, Array<Matrix4> ibms) 
+	private void getMeshParts(Node node, Integer meshId) 
 	{
 		Array<NodePart> parts = meshMap.get(meshId);
 		if(parts == null){
@@ -786,16 +808,6 @@ abstract public class GLTFLoaderBase implements Disposable {
 					nodePart.material = materialMap.get(primitive.material);
 				}else{
 					nodePart.material = defaultMaterial;
-				}
-				
-				if(ibms.size > 0){
-					nodePart.bones = new Matrix4[ibms.size];
-					nodePart.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
-					for(int n=0 ; n<joints.size ; n++){
-						nodePart.bones[n] = new Matrix4().idt();
-						Node key = nodeMap.get(joints.get(n));
-						nodePart.invBoneBindTransforms.put(key, ibms.get(n));
-					}
 				}
 				
 				parts.add(nodePart);
