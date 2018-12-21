@@ -19,15 +19,15 @@ BatchTest can be configured the same way to process a different model set.
 
 Here is the list and status about [Khronos models examples](https://github.com/KhronosGroup/glTF-Sample-Models)
 
-| **Model**                 | **Features** |--- **Status** ---| **Comment** |
+| **Model**                 | **Features** |--- **Errors** ---| **Comment** |
 |---------------------------|:------------:|:-----------------|-------------|
-| 2CylinderEngine			| 
+| 2CylinderEngine			| ?						|  | 
 | AlphaBlendModeTest		| Blending
 | AnimatedCube				| Animation
 | AnimatedMorphCube			| Morph Targets
 | AnimatedMorphSphere		| Morph Targets
 | AnimatedTriangle			| Animation
-| AntiqueCamera				| PBR
+| AntiqueCamera				| PBR					| ~ | texture files format not supported (work by re-export with GIMP) |
 | Avocado					| PBR
 | BarramundiFish			| PBR
 | BoomBox					| PBR
@@ -47,7 +47,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | Cube						|
 | DamagedHelmet				| PBR
 | Duck						| PBR
-| FlightHelmet				| PBR					| X | too many vertices
+| FlightHelmet				| PBR					| X | too many vertices |
 | GearboxAssy				| PBR
 | Lantern					| PBR
 | MetalRoughSpheres			| Metallic Roughness
@@ -60,7 +60,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | ReciprocatingSaw			| PBR
 | RiggedFigure				| Skinning
 | RiggedSimple				| Skinning
-| SciFiHelmet				| PBR
+| SciFiHelmet				| PBR					| X | Too many vertices |
 | SimpleMeshes				|
 | SimpleMorph				| Morph Targets
 | SimpleSparseAccessor		| Sparse Accessor

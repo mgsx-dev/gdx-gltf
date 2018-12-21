@@ -1,19 +1,4 @@
-# BUGS
-
-## KhronosGroup - glTF-Sample-Models
-
-HEre is a list of known bugs with [glTF-Sample-Models examples](https://github.com/KhronosGroup/glTF-Sample-Models)
-
-* **AntiqueCamera** fail because of special JPEG format, a workaround is to open/save them with Gimp.
-* **SciFiHelmet** too many indices
-
-# Platforms
-
-[] Gwt : doesn't work because of Pixmap(bye[], int, int)
-
-# CLEANUP
-
-- use config debug shader
+# Bugs & Hacks
 
 ## Monkey patches
 
@@ -57,7 +42,7 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 * **KHR_lights_punctual** : https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md
 * **KHR_materials_unlit** : https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_unlit/README.md*
 
-# Not Tested
+# Tests
 
 * multiple scenes
 * multiple models with different Shader configurations
