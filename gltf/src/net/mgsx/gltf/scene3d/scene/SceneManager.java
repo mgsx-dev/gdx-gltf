@@ -24,12 +24,9 @@ public class SceneManager implements Disposable {
 	
 	private ModelBatch batch;
 	
-	// TODO lights
 	public final Array<DirectionalLight> directionalLights = new Array<DirectionalLight>();
 	
 	public Environment environment;
-	
-	// TODO default batch with provider and shader
 	
 	public Camera camera;
 	public Node cameraNode;

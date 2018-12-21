@@ -215,6 +215,12 @@ public class PBRShader extends DefaultShader
 		
 	}
 
+	@Override
+	public boolean canRender(Renderable renderable) {
+		// TODO properly determine if current shader can render this renderable.
+		return super.canRender(renderable);
+	}
+
 
 	@Override
 	public void init(ShaderProgram program, Renderable renderable) {

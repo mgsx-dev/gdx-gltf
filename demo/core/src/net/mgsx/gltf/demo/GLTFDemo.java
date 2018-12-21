@@ -383,6 +383,7 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.setCameras(rootModel.cameraMap);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
 		
+		// XXX force shader provider to compile new shaders based on model
 		setShader(shaderMode);
 		
 		sceneManager.addScene(scene);
