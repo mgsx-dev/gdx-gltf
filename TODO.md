@@ -1,5 +1,9 @@
 # Bugs & Hacks
 
+# Morph Targets normal
+
+Normals are not OK when tangent attribute missing ... 
+
 ## Monkey patches
 
 Several LibGDX classes as been overridden or monkey patched in order to implements all features.
