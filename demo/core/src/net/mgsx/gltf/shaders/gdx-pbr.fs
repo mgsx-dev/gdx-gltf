@@ -1,8 +1,17 @@
+// Extension required for WebGL
+#ifdef GL_ES
+#extension GL_EXT_shader_texture_lod: enable
+#extension GL_OES_standard_derivatives : enable
+#else
+#define textureCubeLodEXT textureCubeLod
+#endif
+
+// required to have same precision in both shader for light structure
 #ifdef GL_ES
 #define LOWP lowp
 #define MED mediump
 #define HIGH highp
-precision mediump float;
+precision highp float;
 #else
 #define MED
 #define LOWP
@@ -300,7 +309,7 @@ vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
 
 #ifdef USE_TEX_LOD
     float lod = (pbrInputs.perceptualRoughness * u_mipmapScale);
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLod(u_SpecularEnvSampler, reflection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, reflection, lod)).rgb;
 #else
     vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, reflection)).rgb;
 #endif
@@ -462,7 +471,7 @@ void main() {
 #endif
 
 #ifdef emissiveTextureFlag
-    vec3 emissive = SRGBtoLINEAR(texture2D(u_emissiveTexture, v_emissiveUV)).rgb * u_emissiveColor;
+    vec3 emissive = SRGBtoLINEAR(texture2D(u_emissiveTexture, v_emissiveUV)).rgb * u_emissiveColor.rgb;
     color += emissive;
 #endif
 

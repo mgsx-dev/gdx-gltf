@@ -1,3 +1,15 @@
+// required to have same precision in both shader for light structure
+#ifdef GL_ES
+#define LOWP lowp
+#define MED mediump
+#define HIGH highp
+precision highp float;
+#else
+#define MED
+#define LOWP
+#define HIGH
+#endif
+
 varying vec3 v_position;
 
 #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)

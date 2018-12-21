@@ -4,6 +4,10 @@
 	<inherits name='GLTF' />
 	<source path="net/mgsx/gltf" />
 	
-	<define-configuration-property name="gdx.files.classpath" is-multi-valued="true" />
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/**/*.*" />
+	<extend-configuration-property name="gdx.reflect.include" value="net.mgsx.gltf.demo" />
+	
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/gdx-pbr.vs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/gdx-pbr.fs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/skybox.vs" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/skybox.fs" />
 </module>
