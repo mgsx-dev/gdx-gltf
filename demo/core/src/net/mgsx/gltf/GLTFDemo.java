@@ -1,5 +1,6 @@
 package net.mgsx.gltf;
 
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -151,7 +152,9 @@ public class GLTFDemo extends ApplicationAdapter
 	{
 		rootFolder = Gdx.files.internal(samplesPath);	
 		
-		FileHandle file = rootFolder.child("model-index.json");
+		String indexFilename = Gdx.app.getType() == ApplicationType.WebGL ? "model-index-web.json" : "model-index.json";
+		
+		FileHandle file = rootFolder.child(indexFilename);
 		
 		entries = new Json().fromJson(Array.class, ModelEntry.class, file);
 		
