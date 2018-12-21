@@ -52,16 +52,16 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
 public class GLTFDemo extends ApplicationAdapter
 {
-	private static String AUTOLOAD_ENTRY = "BoomBox"; // "BoomBox" "BarramundiFish"
-	private static String AUTOLOAD_VARIANT = "glTF"; // "glTF-Binary"  "glTF"
+	public static String AUTOLOAD_ENTRY = null;
+	public static String AUTOLOAD_VARIANT = null;
 	
 	private static final String TAG = "GLTFDemo";
 	
 	public static enum ShaderMode{
 		GOURAUD,	// https://en.wikipedia.org/wiki/Gouraud_shading#Comparison_with_other_shading_techniques
-		PHONG,   	// https://en.wikipedia.org/wiki/Phong_shading
+//		PHONG,   	// https://en.wikipedia.org/wiki/Phong_shading
 		PBR_MR, 
-		PBR_MRSG
+//		PBR_MRSG
 	}
 	
 	private ShaderMode shaderMode = ShaderMode.PBR_MR;
@@ -70,7 +70,7 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private Stage stage;
 	private Skin skin;
-	private Array entries;
+	private Array<ModelEntry> entries;
 	
 	private FileHandle rootFolder;
 	private CameraInputController cameraControl;
@@ -102,10 +102,6 @@ public class GLTFDemo extends ApplicationAdapter
 		createSceneManager();
 		
 		loadModelIndex();
-		
-		if(AUTOLOAD_ENTRY != null && AUTOLOAD_VARIANT != null){
-			load(AUTOLOAD_ENTRY, AUTOLOAD_VARIANT);
-		}
 	}
 	
 	private void createSceneManager()
@@ -158,6 +154,20 @@ public class GLTFDemo extends ApplicationAdapter
 		entries = new Json().fromJson(Array.class, ModelEntry.class, file);
 		
 		ui.entrySelector.setItems(entries);
+		
+		if(AUTOLOAD_ENTRY != null && AUTOLOAD_VARIANT != null){
+			for(int i=0 ; i<entries.size ; i++){
+				ModelEntry entry = entries.get(i);
+				if(entry.name.equals(AUTOLOAD_ENTRY)){
+					ui.entrySelector.setSelected(entry);
+					// will be auto select if there is only one variant.
+					if(entry.variants.size != 1){
+						ui.variantSelector.setSelected(AUTOLOAD_VARIANT);
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	private void createUI()
@@ -165,14 +175,11 @@ public class GLTFDemo extends ApplicationAdapter
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
-		Table base = new Table(skin);
-		base.setFillParent(true);
 		
-		base.defaults().expand().top().left();
+		ui = new GLTFDemoUI(skin);
+		ui.setFillParent(true);
 		
-		stage.addActor(base);
-		
-		base.add(ui = new GLTFDemoUI(skin));
+		stage.addActor(ui);
 		
 		ui.shaderSelector.setSelected(shaderMode);
 		
@@ -263,16 +270,16 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		switch(shaderMode){
 		default:
-		case PHONG:
-			// TODO phong variant (pixel based lighting)
 		case GOURAUD:
 			{
 				Config config = new DefaultShader.Config();
 				config.numBones = maxBones;
 				return new DefaultShaderProvider(config);
 			}
-		case PBR_MRSG:
-			// TODO SG shader variant
+//		case PHONG:
+//			// TODO phong variant (pixel based lighting)
+//		case PBR_MRSG:
+//			// TODO SG shader variant
 		case PBR_MR:
 			{
 				PBRShaderConfig config = new PBRShaderConfig();
@@ -280,15 +287,6 @@ public class GLTFDemo extends ApplicationAdapter
 				config.numBones = maxBones;
 				config.debug = ui.shaderDebug.toggle.isChecked();
 				return PBRShaderProvider.createDefault(config);
-			}
-		}
-	}
-
-	private void load(String entryName, String variant) {
-		for(ModelEntry item : ui.entrySelector.getItems()){
-			if(item.name.equals(entryName)){
-				load(item, variant);
-				return;
 			}
 		}
 	}

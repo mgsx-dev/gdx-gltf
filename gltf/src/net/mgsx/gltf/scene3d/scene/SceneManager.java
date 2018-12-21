@@ -64,7 +64,9 @@ public class SceneManager implements Disposable {
 	}
 	
 	public void update(float delta){
-		skyBox.update(camera);
+		if(camera != null){
+			skyBox.update(camera);
+		}
 		for(Scene scene : scenes){
 			scene.upadte(delta);
 		}

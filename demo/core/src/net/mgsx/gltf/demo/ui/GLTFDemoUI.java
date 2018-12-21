@@ -29,7 +29,6 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
-import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
@@ -59,12 +58,19 @@ public class GLTFDemoUI extends Table {
 	public CollapsableUI shaderDebug;
 	protected CollapsableUI shaderOptions;
 	public SelectBox<SRGB> shaderSRGB;
+	private CollapsableUI lightOptions;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
 		
-		Table root = this;
+		Table root = new Table(skin);
 		root.defaults().pad(5);
+		Table rootRight = new Table(skin);
+		rootRight.defaults().pad(5);
+		
+		add(root).expandY().top();
+		add().expand();
+		add(rootRight).expandY().top();
 		
 		entrySelector = new SelectBox<ModelEntry>(skin);
 		root.add("Model");
@@ -85,14 +91,14 @@ public class GLTFDemoUI extends Table {
 		shaderSelector.setItems(ShaderMode.values());
 		
 		root.add();
-		root.add(shaderOptions = new CollapsableUI(skin, "Options", true)).row();
-		shaderOptions.optTable.add();
+		root.add(shaderOptions = new CollapsableUI(skin, "Shader Options", false)).row();
+		shaderOptions.optTable.add("SRGB");
 		shaderOptions.optTable.add(shaderSRGB = new SelectBox<SRGB>(skin)).row();
 		shaderSRGB.setItems(SRGB.values());
 		shaderSRGB.setSelected(SRGB.ACCURATE);
 		
 		root.add();
-		root.add(shaderDebug = new CollapsableUI(skin, "Debug", true)).row();
+		root.add(shaderDebug = new CollapsableUI(skin, "Debug Mode", false)).row();
 		
 		debugAmbiantSlider = new Slider(0, 1, .01f, false, skin);
 		shaderDebug.optTable.add("Ambiant Light");
@@ -112,25 +118,27 @@ public class GLTFDemoUI extends Table {
 		
 		// Lighting options
 		
+		root.add();
+		root.add(lightOptions = new CollapsableUI(skin, "Light Options", false)).row();
+		
+		
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
-		root.add("Ambiant Light");
-		root.add(ambiantSlider).row();
+		lightOptions.optTable.add("Ambiant Light");
+		lightOptions.optTable.add(ambiantSlider).row();
 		ambiantSlider.setValue(.5f);
 
 		lightSlider = new Slider(0, 1, .01f, false, skin);
-		root.add("Diffuse Light");
-		root.add(lightSlider).row();
+		lightOptions.optTable.add("Diffuse Light");
+		lightOptions.optTable.add(lightSlider).row();
 		lightSlider.setValue(1f);
 		
-		
-		
 		lightFactorSlider = new Slider(0, 10, .01f, false, skin);
-		root.add("Light factor");
-		root.add(lightFactorSlider).row();
+		lightOptions.optTable.add("Light factor");
+		lightOptions.optTable.add(lightFactorSlider).row();
 		lightFactorSlider.setValue(1f);
 		
-		root.add("Dir Light");
-		root.add(lightDirectionControl = new Vector3UI(skin, new Vector3())).row();
+		lightOptions.optTable.add("Dir Light");
+		lightOptions.optTable.add(lightDirectionControl = new Vector3UI(skin, new Vector3())).row();
 
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");
@@ -141,22 +149,22 @@ public class GLTFDemoUI extends Table {
 		root.add(animationSelector).row();
 		
 		materialSelector = new SelectBox<String>(skin);
-		root.add("Materials");
-		root.add(materialSelector).row();
+		rootRight.add("Materials");
+		rootRight.add(materialSelector).row();
 		
 		materialTable = new Table(skin);
-		root.add();
-		root.add(materialTable).row();
+		rootRight.add();
+		rootRight.add(materialTable).row();
 		
 		nodeSelector = new SelectBox<String>(skin);
-		root.add("Nodes");
-		root.add(nodeSelector).row();
-		root.add();
-		root.add(btNodeExclusive = new TextButton("Hide other nodes", getSkin(), "toggle")).row();
+		rootRight.add("Nodes");
+		rootRight.add(nodeSelector).row();
+		rootRight.add();
+		rootRight.add(btNodeExclusive = new TextButton("Hide other nodes", getSkin(), "toggle")).row();
 		
 		nodeTable = new Table(skin);
-		root.add();
-		root.add(nodeTable).row();
+		rootRight.add();
+		rootRight.add(nodeTable).row();
 		
 		materialSelector.addListener(new ChangeListener() {
 			@Override
@@ -303,8 +311,8 @@ public class GLTFDemoUI extends Table {
 	public void setImage(Texture texture){
 		if(texture != null){
 			Image img = new Image(texture);
-			img.setScaling(Scaling.none);
-			screenshotsTable.add(img);
+			img.setScaling(Scaling.fit);
+			screenshotsTable.add(img).height(100);
 		}
 	}
 

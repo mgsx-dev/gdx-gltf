@@ -18,8 +18,9 @@ public class ColorAttributeUI extends Table
 		this.attribute = attribute;
 		add(ColorAttribute.getAttributeAlias(attribute.type));
 		for(int i=0 ; i<4 ; i++){
+			if(i != 0) add();
 			final Slider slider = new Slider(0, 1, .01f, false, skin);
-			add(slider);
+			add(slider).row();
 			slider.setValue(get(i));
 			final int index = i;
 			slider.addListener(new ChangeListener() {

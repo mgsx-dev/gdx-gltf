@@ -15,6 +15,8 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
+        		GLTFDemo.AUTOLOAD_ENTRY = "BoomBox";
+        		GLTFDemo.AUTOLOAD_VARIANT = "glTF";
                 return new GLTFDemo();
         }
 }
