@@ -5,5 +5,11 @@
     "variants": {
       "glTF": "BoomBox.gltf"
     }
+  },
+  {
+    "name": "PBRTest",
+    "variants": {
+      "glTF": "pbrTest.gltf"
+    }
   }
 ]
