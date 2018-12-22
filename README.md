@@ -12,8 +12,8 @@ Shaders inspiried by glTF-WebGL-PBR demo :
 
 # Demo
 
-* HTML : the online demo is available [here]() and only contains few examples.
-* Desktop : the desktop demo is available [here](). see [gdx-gltf-demo readme](demo/README.md) for futher information.
+* HTML : the online demo is available [here](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
+* Desktop : the desktop demo is available [here](releases). see [gdx-gltf-demo readme](demo/README.md) for futher information.
 
 # Project structure
 
