@@ -31,6 +31,7 @@ task dist(type: Jar) {
     from files(project.assetsDir) // TODO exclude models
  	
  	exclude("models/BoomBox")
+ 	exclude("models/PBRTest")
  	exclude("models/model-index-web.json")
  	
  	// additional files could be added like this :
