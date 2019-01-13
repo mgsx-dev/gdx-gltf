@@ -3,6 +3,7 @@ package net.mgsx.gltf.demo.ui;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
@@ -59,6 +60,7 @@ public class GLTFDemoUI extends Table {
 	protected CollapsableUI shaderOptions;
 	public SelectBox<SRGB> shaderSRGB;
 	private CollapsableUI lightOptions;
+	public SelectBox<String> sceneSelector;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -82,6 +84,13 @@ public class GLTFDemoUI extends Table {
 		variantSelector = new SelectBox<String>(skin);
 		root.add("File");
 		root.add(variantSelector).row();
+		
+		// scene
+		sceneSelector = new SelectBox<String>(skin);
+		root.add("Scene");
+		root.add(sceneSelector).row();
+		
+		
 		
 		// Shader options
 		
@@ -333,7 +342,9 @@ public class GLTFDemoUI extends Table {
 		Array<String> cameraNames = new Array<String>();
 		cameraNames.add("");
 		for(Entry<String, Integer> e : cameraMap){
-			cameraNames.add(e.key);
+			if(nodeMap.get(e.key) != null){
+				cameraNames.add(e.key);
+			}
 		}
 		cameraSelector.setItems();
 		cameraSelector.setItems(cameraNames);
@@ -366,5 +377,21 @@ public class GLTFDemoUI extends Table {
 		nodeSelector.setItems(names);
 	}
 
-	
+	public void setScenes(Array<Model> scenes) {
+		if(scenes == null){
+			sceneSelector.setDisabled(true);
+			sceneSelector.setItems(new Array<String>());
+		}else{
+			sceneSelector.setDisabled(false);
+			Array<String> names = new Array<String>();
+			names.add("");
+			for(int i=0 ; i<scenes.size ; i++){
+				names.add("scene " + i);
+			}
+			sceneSelector.setItems(names);
+			
+		}
+		
+	}
+
 }

@@ -228,6 +228,13 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		ui.shaderSRGB.addListener(shaderOptionListener);
 		ui.shaderDebug.toggle.addListener(shaderOptionListener);
+		
+		ui.sceneSelector.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				load(ui.sceneSelector.getSelected());
+			}
+		});
 	}
 	
 	protected void setImage(ModelEntry entry) {
@@ -301,15 +308,23 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 	}
 
-	private void load(ModelEntry entry, String variant) {
-		
+	private void clearScene(){
 		if(scene != null){
 			sceneManager.removeScene(scene);
+			scene = null;
 		}
+		
+	}
+	
+	private void load(ModelEntry entry, String variant) {
+		
+		clearScene();
 		
 		if(rootModel != null){
 			rootModel.dispose();
+			rootModel = null;
 		}
+		
 		
 		if(variant.isEmpty()) return;
 		
@@ -374,12 +389,33 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private void load()
 	{
-		scene = new Scene(rootModel.scene, true);
+		if(rootModel.scenes.size > 1){
+			ui.setScenes(rootModel.scenes);
+			ui.sceneSelector.setSelectedIndex(rootModel.scenes.indexOf(rootModel.scene, true));
+		}else{
+			ui.setScenes(null);
+			load(new Scene(rootModel.scene, true));
+		}
+	}
+	
+	protected void load(String name) {
+		int index = ui.sceneSelector.getItems().indexOf(name, false) - 1;
+		if(index < 0){
+			return;
+		}
+		load(new Scene(rootModel.scenes.get(index), true));
+	}
+	
+	private void load(Scene scene)
+	{
+		clearScene();
+		
+		this.scene = scene;
 		
 		ui.setMaterials(scene.modelInstance.materials);
 		ui.setAnimations(scene.modelInstance.animations);
-		ui.setCameras(rootModel.cameraMap);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
+		ui.setCameras(rootModel.cameraMap);
 		
 		// XXX force shader provider to compile new shaders based on model
 		setShader(shaderMode);
