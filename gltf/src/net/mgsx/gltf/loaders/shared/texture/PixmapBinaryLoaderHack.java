@@ -1,4 +1,4 @@
-package net.mgsx.gltf.loaders;
+package net.mgsx.gltf.loaders.shared.texture;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;

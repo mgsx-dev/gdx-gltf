@@ -1,4 +1,4 @@
-package net.mgsx.gltf.loaders;
+package net.mgsx.gltf.loaders.shared;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;

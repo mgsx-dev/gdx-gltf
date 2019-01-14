@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import net.mgsx.gltf.loaders.GLTFTypes;
+import net.mgsx.gltf.loaders.shared.GLTFTypes;
 
 /**
  * {@link net.mgsx.gltf.data.scene.GLTFNode} and {@link net.mgsx.gltf.data.GLTF} (root) extension

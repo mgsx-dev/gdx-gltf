@@ -1,4 +1,4 @@
-package net.mgsx.gltf.loaders;
+package net.mgsx.gltf.loaders.glb;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -11,14 +11,42 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
+import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
+import net.mgsx.gltf.loaders.shared.data.DataResolver;
+import net.mgsx.gltf.loaders.shared.texture.ImageResolver;
+import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 public class GLBLoader extends GLTFLoaderBase {
 
+	private static class BinaryImageResolver extends ImageResolver
+	{
+		private DataResolver dataResolver;
+		
+		public BinaryImageResolver(DataResolver dataResolver) {
+			super();
+			this.dataResolver = dataResolver;
+		}
+
+		@Override
+		protected Pixmap load(GLTFImage glImage) {
+			if(glImage.bufferView != null){
+				GLTFBufferView bufferView = dataResolver.getBufferView(glImage.bufferView);
+				ByteBuffer buffer = dataResolver.getBufferByte(bufferView);
+				byte [] data = new byte[bufferView.byteLength];
+				buffer.get(data);
+				return PixmapBinaryLoaderHack.load(data, 0, data.length);
+			}else{
+				throw new GdxRuntimeException("GLB image should have bufferView");
+			}
+		}
+	}
+	
 	public SceneAsset load(FileHandle file){
 		return load(file.read());
 	}
@@ -29,7 +57,10 @@ public class GLBLoader extends GLTFLoaderBase {
 	
 	public SceneAsset load(LittleEndianInputStream stream) {
 		try {
-			glModel = loadInternal(stream);
+			ObjectMap<Integer, ByteBuffer> bufferMap = new ObjectMap<Integer, ByteBuffer>();
+			glModel = loadInternal(stream, bufferMap);
+			dataResolver = new DataResolver(glModel, bufferMap);
+			imageResolver = new BinaryImageResolver(dataResolver);
 			return loadInternal();
 		} catch (IOException e) {
 			throw new GdxRuntimeException(e);
@@ -40,7 +71,7 @@ public class GLBLoader extends GLTFLoaderBase {
 		return load(new ByteArrayInputStream(bytes));
 	}
 	
-	private GLTF loadInternal(LittleEndianInputStream stream) throws IOException {
+	private GLTF loadInternal(LittleEndianInputStream stream, ObjectMap<Integer, ByteBuffer> bufferMap) throws IOException {
 		long magic = stream.readInt(); // & 0xFFFFFFFFL;
 		if(magic != 0x46546C67) throw new GdxRuntimeException("bad magic");
 		int version = stream.readInt();
@@ -75,19 +106,4 @@ public class GLBLoader extends GLTFLoaderBase {
 		return new Json().fromJson(GLTF.class, jsonData);
 	}
 
-	@Override
-	protected Pixmap loadPixmap(GLTFImage glImage) {
-		if(glImage.bufferView != null){
-			GLTFBufferView bufferView = glModel.bufferViews.get(glImage.bufferView);
-			ByteBuffer buffer = bufferMap.get(bufferView.buffer);
-			byte [] data = new byte[bufferView.byteLength];
-			buffer.position(bufferView.byteOffset);
-			buffer.get(data);
-			return PixmapBinaryLoaderHack.load(data, 0, data.length);
-		}else{
-			throw new GdxRuntimeException("GLB image should have bufferView");
-		}
-	}
-
-	
 }

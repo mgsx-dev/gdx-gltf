@@ -37,9 +37,9 @@ import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.EnvironmentUtil;
 import net.mgsx.gltf.demo.util.NodeUtil;
 import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
-import net.mgsx.gltf.loaders.GLBLoader;
-import net.mgsx.gltf.loaders.GLTFLoader;
-import net.mgsx.gltf.loaders.PixmapBinaryLoaderHack;
+import net.mgsx.gltf.loaders.glb.GLBLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -375,7 +375,7 @@ public class GLTFDemo extends ApplicationAdapter
 			Gdx.app.log(TAG, "loading " + fileName);
 			
 			if(fileName.endsWith(".gltf")){
-				rootModel = new GLTFLoader().load(glFile, baseFolder);
+				rootModel = new GLTFLoader().load(glFile);
 			}else if(fileName.endsWith(".glb")){
 				rootModel = new GLBLoader().load(glFile);
 			}else{

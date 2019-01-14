@@ -10,21 +10,25 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class SceneAsset implements Disposable 
 {
-	public Array<SceneModel> scenes = new Array<SceneModel>();
+	public Array<SceneModel> scenes;
 	public SceneModel scene;
 
-	public Array<Animation> animations = new Array<Animation>();
+	public Array<Animation> animations;
 	public int maxBones;
 	
-	public final Array<Texture> textures = new Array<Texture>();
+	public Array<Texture> textures;
 	
 	@Override
 	public void dispose() {
-		for(SceneModel scene : scenes){
-			scene.dispose();
+		if(scenes != null){
+			for(SceneModel scene : scenes){
+				scene.dispose();
+			}
 		}
-		for(Texture texture : textures){
-			texture.dispose();
+		if(textures != null){
+			for(Texture texture : textures){
+				texture.dispose();
+			}
 		}
 	}
 }

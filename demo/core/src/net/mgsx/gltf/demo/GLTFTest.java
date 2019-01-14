@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 import net.mgsx.gltf.demo.data.ModelEntry;
-import net.mgsx.gltf.loaders.GLBLoader;
-import net.mgsx.gltf.loaders.GLTFLoader;
+import net.mgsx.gltf.loaders.glb.GLBLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 public class GLTFTest extends ApplicationAdapter 
@@ -44,7 +44,7 @@ public class GLTFTest extends ApplicationAdapter
 				SceneAsset sceneAsset;
 				try{
 					if(glFile.extension().equals("gltf")){
-						sceneAsset = new GLTFLoader().load(glFile, baseFolder);
+						sceneAsset = new GLTFLoader().load(glFile);
 					}else if(glFile.extension().equals("glb")){
 						sceneAsset = new GLBLoader().load(glFile);
 					}else{
