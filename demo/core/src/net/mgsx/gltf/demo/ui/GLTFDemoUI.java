@@ -1,10 +1,11 @@
 package net.mgsx.gltf.demo.ui;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
@@ -30,6 +31,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
+import net.mgsx.gltf.scene3d.scene.SceneModel;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
@@ -61,6 +63,7 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<SRGB> shaderSRGB;
 	private CollapsableUI lightOptions;
 	public SelectBox<String> sceneSelector;
+	public SelectBox<String> lightSelector;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -152,6 +155,10 @@ public class GLTFDemoUI extends Table {
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");
 		root.add(cameraSelector).row();
+		
+		lightSelector = new SelectBox<String>(skin);
+		root.add("Lights");
+		root.add(lightSelector).row();
 		
 		animationSelector = new SelectBox<String>(skin);
 		root.add("Animation");
@@ -338,13 +345,11 @@ public class GLTFDemoUI extends Table {
 		}
 	}
 
-	public void setCameras(ObjectMap<String, Integer> cameraMap) {
+	public void setCameras(ObjectMap<Camera, Node> cameras) {
 		Array<String> cameraNames = new Array<String>();
 		cameraNames.add("");
-		for(Entry<String, Integer> e : cameraMap){
-			if(nodeMap.get(e.key) != null){
-				cameraNames.add(e.key);
-			}
+		for(Entry<Camera, Node> e : cameras){
+			cameraNames.add(e.value.id);
 		}
 		cameraSelector.setItems();
 		cameraSelector.setItems(cameraNames);
@@ -377,7 +382,7 @@ public class GLTFDemoUI extends Table {
 		nodeSelector.setItems(names);
 	}
 
-	public void setScenes(Array<Model> scenes) {
+	public void setScenes(Array<SceneModel> scenes) {
 		if(scenes == null){
 			sceneSelector.setDisabled(true);
 			sceneSelector.setItems(new Array<String>());
@@ -386,12 +391,20 @@ public class GLTFDemoUI extends Table {
 			Array<String> names = new Array<String>();
 			names.add("");
 			for(int i=0 ; i<scenes.size ; i++){
-				names.add("scene " + i);
+				names.add(scenes.get(i).name);
 			}
 			sceneSelector.setItems(names);
 			
 		}
-		
+	}
+
+	public void setLights(ObjectMap<BaseLight, Node> lights) {
+		Array<String> names = new Array<String>();
+		names.add("");
+		for(Entry<BaseLight, Node> entry : lights){
+			names.add(entry.value.id);
+		}
+		lightSelector.setItems(names);
 	}
 
 }

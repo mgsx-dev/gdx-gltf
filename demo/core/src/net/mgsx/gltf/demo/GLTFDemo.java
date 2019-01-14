@@ -125,9 +125,10 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.setSkyBox(new SceneSkybox(environmentCubemap));
 		
 		// light direction based on environnement map SUN
-		sceneManager.directionalLights.first().direction.set(-.5f,-.5f,-.7f).nor();
-		
-		ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
+		if(sceneManager.directionalLights.size > 0){
+			sceneManager.directionalLights.first().direction.set(-.5f,-.5f,-.7f).nor();
+			ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
+		}
 
 		setEnvironment();
 	}
@@ -394,7 +395,7 @@ public class GLTFDemo extends ApplicationAdapter
 			ui.sceneSelector.setSelectedIndex(rootModel.scenes.indexOf(rootModel.scene, true));
 		}else{
 			ui.setScenes(null);
-			load(new Scene(rootModel.scene, true));
+			load(new Scene(rootModel.scene));
 		}
 	}
 	
@@ -403,7 +404,7 @@ public class GLTFDemo extends ApplicationAdapter
 		if(index < 0){
 			return;
 		}
-		load(new Scene(rootModel.scenes.get(index), true));
+		load(new Scene(rootModel.scenes.get(index)));
 	}
 	
 	private void load(Scene scene)
@@ -412,10 +413,17 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		this.scene = scene;
 		
+		if(scene.lights.size == 0){
+			sceneManager.setDefaultLight();
+		}else{
+			sceneManager.removeDefaultLight();
+		}
+		
 		ui.setMaterials(scene.modelInstance.materials);
 		ui.setAnimations(scene.modelInstance.animations);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
-		ui.setCameras(rootModel.cameraMap);
+		ui.setCameras(scene.cameras);
+		ui.setLights(scene.lights);
 		
 		// XXX force shader provider to compile new shaders based on model
 		setShader(shaderMode);
@@ -449,10 +457,9 @@ public class GLTFDemo extends ApplicationAdapter
 			
 			sceneManager.setCamera(camera);
 		}else{
-			Camera camera = rootModel.createCamera(name);
-			Node cameraNode = scene.modelInstance.getNode(name, true);
+			Camera camera = scene.getCamera(name);
 			cameraControl = new CameraInputController(camera);
-			sceneManager.setCamera(camera, cameraNode);
+			sceneManager.setCamera(camera);
 		}
 		Gdx.input.setInputProcessor(new InputMultiplexer(stage, cameraControl));
 	}
@@ -485,14 +492,15 @@ public class GLTFDemo extends ApplicationAdapter
 		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;
 		PBRShader.ScaleIBLAmbient.g = ui.debugSpecularSlider.getValue() * IBLScale;
 		
-		float lum = ui.lightSlider.getValue();
-		sceneManager.directionalLights.first().color.set(lum, lum, lum, 1);
-		sceneManager.directionalLights.first().direction.set(ui.lightDirectionControl.value).nor();
-		
-		sceneManager.directionalLights.first().color.r *= IBLScale;
-		sceneManager.directionalLights.first().color.g *= IBLScale;
-		sceneManager.directionalLights.first().color.b *= IBLScale;
-		
+		if(sceneManager.directionalLights.size > 0){
+			float lum = ui.lightSlider.getValue();
+			sceneManager.directionalLights.first().color.set(lum, lum, lum, 1);
+			sceneManager.directionalLights.first().direction.set(ui.lightDirectionControl.value).nor();
+			sceneManager.directionalLights.first().color.r *= IBLScale;
+			sceneManager.directionalLights.first().color.g *= IBLScale;
+			sceneManager.directionalLights.first().color.b *= IBLScale;
+		}
+
 		sceneManager.render();
 		
 		stage.draw();

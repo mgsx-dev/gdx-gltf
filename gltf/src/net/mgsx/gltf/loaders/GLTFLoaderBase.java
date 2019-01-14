@@ -5,6 +5,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
@@ -45,6 +47,8 @@ import net.mgsx.gltf.data.animation.GLTFAnimationSampler;
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.data.GLTFBufferView;
+import net.mgsx.gltf.data.extensions.KHRLightsPunctual;
+import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.geometry.GLTFMesh;
@@ -67,6 +71,7 @@ import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 // TODO simplify this class with some external herlpers ...
 
@@ -78,6 +83,17 @@ abstract public class GLTFLoaderBase implements Disposable {
 	protected ObjectMap<Integer, ByteBuffer> bufferMap = new ObjectMap<Integer, ByteBuffer>();
 	
 	private ObjectMap<Integer, Material> materialMap = new ObjectMap<Integer, Material>();
+	
+	private final Array<Camera> cameras = new Array<Camera>();
+	private final Array<BaseLight> lights = new Array<BaseLight>();
+	
+	/** node name to light index */
+	private ObjectMap<String, Integer> lightMap = new ObjectMap<String, Integer>();
+	
+	
+	/** node name to camera index */
+	private ObjectMap<String, Integer> cameraMap = new ObjectMap<String, Integer>();
+
 	
 	private ObjectMap<Integer, Texture> textures = new ObjectMap<Integer, Texture>();
 	private Array<Pixmap> pixmaps = new Array<Pixmap>();
@@ -106,6 +122,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 				for(String extension : glModel.extensionsRequired){
 					if(KHRMaterialsPBRSpecularGlossiness.EXT.equals(extension)){
 					}else if(KHRTextureTransform.EXT.equals(extension)){
+					}else if(KHRLightsPunctual.EXT.equals(extension)){
 					}else{
 						throw new GdxRuntimeException("Extension " + extension + " required but not supported");
 					}
@@ -119,6 +136,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 			loadMaterials();
 			
 			loadCameras();
+			loadLights();
 			loadScenes();
 			loadAnimations();
 			loadSkins();
@@ -132,6 +150,17 @@ abstract public class GLTFLoaderBase implements Disposable {
 		}
 	}
 	
+	private void loadLights() {
+		if(glModel.extensions != null){
+			KHRLightsPunctual.GLTFLights lightExt = glModel.extensions.get(KHRLightsPunctual.GLTFLights.class, KHRLightsPunctual.EXT);
+			if(lightExt != null){
+				for(GLTFLight light : lightExt.lights){
+					lights.add(KHRLightsPunctual.map(light));
+				}
+			}
+		}
+	}
+
 	@Override
 	public void dispose() {
 		for(Pixmap pixmap : pixmaps){
@@ -140,8 +169,8 @@ abstract public class GLTFLoaderBase implements Disposable {
 		for(Texture texture : model.textures){
 			texture.dispose();
 		}
-		for(Model model : model.scenes){
-			model.dispose();
+		for(SceneModel scene : model.scenes){
+			scene.dispose();
 		}
 	}
 
@@ -155,7 +184,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 	private void loadCameras() {
 		if(glModel.cameras != null){
 			for(GLTFCamera glCamera : glModel.cameras){
-				model.cameras.add(GLTFTypes.map(glCamera));
+				cameras.add(GLTFTypes.map(glCamera));
 			}
 		}
 	}
@@ -239,8 +268,8 @@ abstract public class GLTFLoaderBase implements Disposable {
 			model.animations.add(animation);
 			
 			// XXX don't know where the animation are ...
-			for(Model scene : model.scenes){
-				scene.animations.add(animation);
+			for(SceneModel scene : model.scenes){
+				scene.model.animations.add(animation);
 			}
 			
 		}
@@ -451,15 +480,28 @@ abstract public class GLTFLoaderBase implements Disposable {
 	}
 
 
-	private Model loadScene(GLTFScene gltfScene) 
+	private SceneModel loadScene(GLTFScene gltfScene) 
 	{
-		Model model = new Model();
+		SceneModel sceneModel = new SceneModel();
+		sceneModel.name = gltfScene.name;
+		sceneModel.model = new Model();
 		
+		// add root nodes
 		for(int id : gltfScene.nodes){
-			model.nodes.add(getNode(id));
+			sceneModel.model.nodes.add(getNode(id));
+		}
+		// add scene cameras (filter from all scenes cameras)
+		for(Entry<String, Integer> entry : cameraMap){
+			Node node = sceneModel.model.getNode(entry.key, true);
+			if(node != null) sceneModel.cameras.put(cameras.get(entry.value), node);
+		}
+		// add scene lights (filter from all scenes lights)
+		for(Entry<String, Integer> entry : lightMap){
+			Node node = sceneModel.model.getNode(entry.key, true);
+			if(node != null) sceneModel.lights.put(lights.get(entry.value), node);
 		}
 		
-		return model;
+		return sceneModel;
 	}
 
 	private Node getNode(int id) 
@@ -501,7 +543,15 @@ abstract public class GLTFLoaderBase implements Disposable {
 			}
 			
 			if(glNode.camera != null){
-				model.cameraMap.put(node.id, glNode.camera);
+				cameraMap.put(node.id, glNode.camera);
+			}
+			
+			// node extensions
+			if(glNode.extensions != null){
+				KHRLightsPunctual.GLTFLightNode nodeLight = glNode.extensions.get(KHRLightsPunctual.GLTFLightNode.class, KHRLightsPunctual.EXT);
+				if(nodeLight != null){
+					lightMap.put(node.id, nodeLight.light);
+				}
 			}
 			
 		}

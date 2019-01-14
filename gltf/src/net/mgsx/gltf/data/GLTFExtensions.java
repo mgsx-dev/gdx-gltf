@@ -2,47 +2,36 @@ package net.mgsx.gltf.data;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
-
-import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
-import net.mgsx.gltf.data.extensions.KHRTextureTransform;
-
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 public class GLTFExtensions implements Serializable{
 
-	public JsonValue value;
+	private static final Json json = new Json();
 	
+	private JsonValue value;
+	private ObjectMap<String, Object> extentions = new ObjectMap<String, Object>();
+
 	@Override
 	public void write(Json json) {
-		
+		for(Entry<String, Object> extension : extentions){
+			json.writeField(extension.value, extension.key, extension.getClass());
+		}
 	}
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
-		
-		// TODO map to known extensions (official)
-		for(int i=0 ; i<jsonData.size ; i++){
-			JsonValue child = jsonData.get(i);
-			String name = child.name;
-			if(KHRMaterialsPBRSpecularGlossiness.EXT.equals(name)){
-				extentions.put(name, json.readValue(KHRMaterialsPBRSpecularGlossiness.class, child));
-			}else if(KHRTextureTransform.EXT.equals(name)){
-				extentions.put(name, json.readValue(KHRTextureTransform.class, child));
-			}else{
-				System.out.println("unknown extension : " + name);
-			}
-		}
-		
 		value = jsonData;
 	}
 	
-	private ObjectMap<String, Object> extentions = new ObjectMap<String, Object>();
-
 	public <T> T get(Class<T> type, String ext) 
 	{
-		return (T)extentions.get(ext);
+		T result = (T)extentions.get(ext);
+		if(result == null){
+			result = json.readValue(type, value.get(ext));
+			extentions.put(ext, result);
+		}
+		return result;
 	}
-	
-
 }
