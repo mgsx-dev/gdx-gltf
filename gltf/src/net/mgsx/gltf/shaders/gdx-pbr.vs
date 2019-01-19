@@ -1,3 +1,4 @@
+#line 1
 // required to have same precision in both shader for light structure
 #ifdef GL_ES
 #define LOWP lowp

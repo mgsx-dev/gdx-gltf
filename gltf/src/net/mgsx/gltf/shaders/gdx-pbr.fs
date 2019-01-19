@@ -1,3 +1,4 @@
+#line 1
 // Extension required for WebGL
 #ifdef GL_ES
 #extension GL_EXT_shader_texture_lod: enable
