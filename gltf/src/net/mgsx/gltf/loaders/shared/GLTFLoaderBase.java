@@ -23,7 +23,7 @@ import net.mgsx.gltf.data.scene.GLTFScene;
 import net.mgsx.gltf.loaders.shared.animation.AnimationLoader;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.geometry.MeshLoader;
-import net.mgsx.gltf.loaders.shared.material.DefaultMaterialLoader;
+import net.mgsx.gltf.loaders.shared.material.PBRMaterialLoader;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
 import net.mgsx.gltf.loaders.shared.scene.NodeResolver;
 import net.mgsx.gltf.loaders.shared.scene.SkinLoader;
@@ -59,8 +59,8 @@ abstract public class GLTFLoaderBase implements Disposable {
 	protected ImageResolver imageResolver;
 	
 	public GLTFLoaderBase() {
-		materialLoader = new DefaultMaterialLoader();
 		textureResolver = new TextureResolver();
+		materialLoader = new PBRMaterialLoader(textureResolver);
 		animationLoader = new AnimationLoader();
 		nodeResolver = new NodeResolver();
 		meshLoader = new MeshLoader();
@@ -97,7 +97,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 			textureResolver.loadTextures(glModel.textures, glModel.samplers, imageResolver);
 			imageResolver.dispose();
 			
-			materialLoader.loadMaterials(glModel.materials, textureResolver);
+			materialLoader.loadMaterials(glModel.materials);
 			
 			loadCameras();
 			loadLights();

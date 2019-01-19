@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
@@ -23,18 +22,14 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
-public class DefaultMaterialLoader implements MaterialLoader {
+public class PBRMaterialLoader extends MaterialLoaderBase {
 
-	private TextureResolver textureResolver;
-	private Material defaultMaterial;
-	private Array<Material> materials = new Array<Material>();
-	
-	public DefaultMaterialLoader() {
-		defaultMaterial = new Material();
-		defaultMaterial.set(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE));
+	public PBRMaterialLoader(TextureResolver textureResolver) {
+		super(textureResolver, new Material(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE)));
 	}
 	
-	public Material load(GLTFMaterial glMaterial) 
+	@Override
+	public Material loadMaterial(GLTFMaterial glMaterial) 
 	{
 		Material material = new Material();
 		if(glMaterial.name != null) material.id = glMaterial.name;
@@ -139,26 +134,5 @@ public class DefaultMaterialLoader implements MaterialLoader {
 		
 		return attribute;
 	}
-
-	@Override
-	public Material getDefaultMaterial() {
-		return defaultMaterial;
-	}
-
-	@Override
-	public Material get(int index) {
-		return materials.get(index);
-	}
-
-	@Override
-	public void loadMaterials(Array<GLTFMaterial> glMaterials, TextureResolver textureResolver) {
-		this.textureResolver = textureResolver; // XXX cons
-		if(glMaterials != null){
-			for(int i=0 ; i<glMaterials.size ; i++){
-				GLTFMaterial glMaterial = glMaterials.get(i);
-				Material material = load(glMaterial);
-				materials.add(material);
-			}
-		}
-	}
+	
 }
