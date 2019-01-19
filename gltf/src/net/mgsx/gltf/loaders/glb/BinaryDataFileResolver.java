@@ -7,13 +7,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.GLTF;
+import net.mgsx.gltf.data.data.GLTFBufferView;
+import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
+import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 
 public class BinaryDataFileResolver implements DataFileResolver
 {
@@ -87,4 +91,17 @@ public class BinaryDataFileResolver implements DataFileResolver
 		return bufferMap.get(buffer);
 	}
 	
+	@Override
+	public Pixmap load(GLTFImage glImage) {
+		if(glImage.bufferView != null){
+			GLTFBufferView bufferView = glModel.bufferViews.get(glImage.bufferView);
+			ByteBuffer buffer = bufferMap.get(bufferView.buffer);
+			buffer.position(bufferView.byteOffset);
+			byte [] data = new byte[bufferView.byteLength];
+			buffer.get(data);
+			return PixmapBinaryLoaderHack.load(data, 0, data.length);
+		}else{
+			throw new GdxRuntimeException("GLB image should have bufferView");
+		}
+	}
 }

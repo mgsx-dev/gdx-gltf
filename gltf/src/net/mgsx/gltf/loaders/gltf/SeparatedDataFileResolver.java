@@ -4,13 +4,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Base64Coder;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBuffer;
+import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
+import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 
 public class SeparatedDataFileResolver implements DataFileResolver
 {
@@ -21,7 +25,8 @@ public class SeparatedDataFileResolver implements DataFileResolver
 	@Override
 	public void load(FileHandle file) {
 		glModel = new Json().fromJson(GLTF.class, file);
-		loadBuffers(file.parent());
+		path = file.parent();
+		loadBuffers(path);
 	}
 
 	@Override
@@ -57,6 +62,23 @@ public class SeparatedDataFileResolver implements DataFileResolver
 	@Override
 	public ByteBuffer getBuffer(int buffer) {
 		return bufferMap.get(buffer);
+	}
+	
+	@Override
+	public Pixmap load(GLTFImage glImage) {
+		if(glImage.uri == null){
+			throw new GdxRuntimeException("GLTF image URI cannot be null");
+		}else if(glImage.uri.startsWith("data:")){
+			// data:application/octet-stream;base64,
+			String [] headerBody = glImage.uri.split(",", 2);
+			String header = headerBody[0];
+			System.out.println(header);
+			String body = headerBody[1];
+			byte [] data = Base64Coder.decode(body);
+			return PixmapBinaryLoaderHack.load(data, 0, data.length);
+		}else{
+			return new Pixmap(path.child(glImage.uri));
+		}
 	}
 	
 }

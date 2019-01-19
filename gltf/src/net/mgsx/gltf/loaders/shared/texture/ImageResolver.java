@@ -6,11 +6,19 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.texture.GLTFImage;
+import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 
-abstract public class ImageResolver implements Disposable {
+public class ImageResolver implements Disposable {
 	
 	private Array<Pixmap> pixmaps = new Array<Pixmap>();	
 	
+	private DataFileResolver dataFileResolver;
+	
+	public ImageResolver(DataFileResolver dataFileResolver) {
+		super();
+		this.dataFileResolver = dataFileResolver;
+	}
+
 	public void load(Array<GLTFImage> glImages) {
 		if(glImages != null){
 			for(int i=0 ; i<glImages.size ; i++){
@@ -20,7 +28,7 @@ abstract public class ImageResolver implements Disposable {
 				// XXX should throw exception (usefull to test models with incompatible bitmaps)
 				Pixmap pixmap;
 				try{
-					pixmap = load(glImage);
+					pixmap = dataFileResolver.load(glImage);
 				}catch(GdxRuntimeException e){
 					pixmap = null;
 					System.err.println("cannot load pixmap " + glImage.uri);
@@ -33,8 +41,6 @@ abstract public class ImageResolver implements Disposable {
 	public Pixmap get(int index) {
 		return pixmaps.get(index);
 	}
-	
-	abstract protected Pixmap load(GLTFImage glImage);
 	
 	@Override
 	public void dispose() {

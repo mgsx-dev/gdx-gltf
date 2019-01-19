@@ -60,7 +60,8 @@ abstract public class GLTFLoaderBase implements Disposable {
 	protected MeshLoader meshLoader;
 	protected ImageResolver imageResolver;
 	
-	public GLTFLoaderBase() {
+	public GLTFLoaderBase() 
+	{
 		textureResolver = new TextureResolver();
 		materialLoader = new PBRMaterialLoader(textureResolver);
 		// materialLoader = new DefaultMaterialLoader(textureResolver);
@@ -78,8 +79,11 @@ abstract public class GLTFLoaderBase implements Disposable {
 		return glModel;
 	}
 	
-	protected SceneAsset loadInternal(){
+	protected SceneAsset loadInternal(DataFileResolver dataFileResolver){
 		try{
+			this.dataFileResolver = dataFileResolver;
+			
+			glModel = dataFileResolver.getRoot();
 			
 			// prerequists
 			if(glModel.extensionsRequired != null){
@@ -96,6 +100,8 @@ abstract public class GLTFLoaderBase implements Disposable {
 			// load deps from lower to higher
 			
 			// images (pixmaps)
+			dataResolver = new DataResolver(glModel, dataFileResolver);
+			imageResolver = new ImageResolver(dataFileResolver);
 			imageResolver.load(glModel.images);
 			textureResolver.loadTextures(glModel.textures, glModel.samplers, imageResolver);
 			imageResolver.dispose();
