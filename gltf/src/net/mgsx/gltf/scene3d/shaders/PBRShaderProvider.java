@@ -151,6 +151,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			}
 		}
 		
+		if(maxUVIndex >= 0){
+			prefix += "#define textureFlag\n";
+		}
 		if(maxUVIndex == 1){
 			prefix += "#define textureCoord1Flag\n";
 		}else if(maxUVIndex > 1){
