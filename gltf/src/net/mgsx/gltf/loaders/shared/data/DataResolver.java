@@ -5,8 +5,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import com.badlogic.gdx.utils.ObjectMap;
-
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.data.GLTFBufferView;
@@ -15,12 +13,12 @@ import net.mgsx.gltf.loaders.shared.GLTFTypes;
 public class DataResolver {
 	
 	private GLTF glModel;
-	private ObjectMap<Integer, ByteBuffer> bufferMap;
+	private DataFileResolver dataFileResolver;
 	
-	public DataResolver(GLTF glModel, ObjectMap<Integer, ByteBuffer> bufferMap) {
+	public DataResolver(GLTF glModel, DataFileResolver dataFileResolver) {
 		super();
 		this.glModel = glModel;
-		this.bufferMap = bufferMap;
+		this.dataFileResolver = dataFileResolver;
 	}
 	
 	public GLTFAccessor getAccessor(int accessorID) {
@@ -38,7 +36,7 @@ public class DataResolver {
 	public int[] readBufferUByte(int accessorID) {
 		GLTFAccessor accessor = glModel.accessors.get(accessorID);
 		GLTFBufferView bufferView = glModel.bufferViews.get(accessor.bufferView);
-		ByteBuffer bytes = bufferMap.get(bufferView.buffer);
+		ByteBuffer bytes = dataFileResolver.getBuffer(bufferView.buffer);
 		bytes.position(bufferView.byteOffset + accessor.byteOffset);
 		int [] data = new int[GLTFTypes.accessorSize(accessor)];
 		for(int i=0 ; i<data.length ; i++){
@@ -50,7 +48,7 @@ public class DataResolver {
 	public int[] readBufferUShort(int accessorID) {
 		GLTFAccessor accessor = glModel.accessors.get(accessorID);
 		GLTFBufferView bufferView = glModel.bufferViews.get(accessor.bufferView);
-		ByteBuffer bytes = bufferMap.get(bufferView.buffer);
+		ByteBuffer bytes = dataFileResolver.getBuffer(bufferView.buffer);
 		bytes.position(bufferView.byteOffset + accessor.byteOffset);
 		ShortBuffer shorts = bytes.asShortBuffer();
 		int [] data = new int[GLTFTypes.accessorSize(accessor)/2];
@@ -82,13 +80,13 @@ public class DataResolver {
 
 	public ByteBuffer getBufferByte(GLTFAccessor glAccessor) {
 		GLTFBufferView bufferView = glModel.bufferViews.get(glAccessor.bufferView);
-		ByteBuffer bytes = bufferMap.get(bufferView.buffer);
+		ByteBuffer bytes = dataFileResolver.getBuffer(bufferView.buffer);
 		bytes.position(bufferView.byteOffset + glAccessor.byteOffset);
 		return bytes;
 	}
 
 	public ByteBuffer getBufferByte(GLTFBufferView bufferView) {
-		ByteBuffer bytes = bufferMap.get(bufferView.buffer);
+		ByteBuffer bytes = dataFileResolver.getBuffer(bufferView.buffer);
 		bytes.position(bufferView.byteOffset);
 		return bytes;
 	}

@@ -21,6 +21,7 @@ import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFScene;
 import net.mgsx.gltf.loaders.shared.animation.AnimationLoader;
+import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.geometry.MeshLoader;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
@@ -49,6 +50,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 	
 	protected GLTF glModel;
 	
+	protected DataFileResolver dataFileResolver;
 	protected MaterialLoader materialLoader;
 	protected TextureResolver textureResolver;
 	protected AnimationLoader animationLoader;
