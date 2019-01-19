@@ -271,6 +271,7 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 
 	private void setShader(ShaderMode shaderMode) {
+		this.shaderMode = shaderMode;
 		sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
 	}
 	
