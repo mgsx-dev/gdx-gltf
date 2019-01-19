@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 
 public class PBRTextureAttribute extends TextureAttribute
 {
-	public final static String BaseColorTextureAlias = "diffuseTexture";
+	public final static String BaseColorTextureAlias = "baseColorTexture";
 	public final static long BaseColorTexture = register(BaseColorTextureAlias);
 	
-	public final static String EmissiveTextureAlias = "emissiveTexture";
+	public final static String EmissiveTextureAlias = "PBR_emissiveTexture";
 	public final static long EmissiveTexture = register(EmissiveTextureAlias);
 	
-	public final static String NormalTextureAlias = "normalTexture";
+	public final static String NormalTextureAlias = "PBR_normalTexture";
 	public final static long NormalTexture = register(NormalTextureAlias);
 	
 	public final static String MetallicRoughnessTextureAlias = "MetallicRoughnessSampler";
