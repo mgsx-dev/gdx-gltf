@@ -80,5 +80,12 @@ public class SeparatedDataFileResolver implements DataFileResolver
 			return new Pixmap(path.child(glImage.uri));
 		}
 	}
+
+	public FileHandle getImageFile(GLTFImage glImage) {
+		if(glImage.uri != null && !glImage.uri.startsWith("data:")){
+			return path.child(glImage.uri);
+		}
+		return null;
+	}
 	
 }

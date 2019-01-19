@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Net.HttpMethods;
 import com.badlogic.gdx.Net.HttpRequest;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
@@ -37,8 +38,9 @@ import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.EnvironmentUtil;
 import net.mgsx.gltf.demo.util.NodeUtil;
 import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
+import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
-import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -86,6 +88,9 @@ public class GLTFDemo extends ApplicationAdapter
 	private Cubemap specularCubemap;
 	private Texture brdfLUT;
 	
+	private AssetManager assetManager;
+	private String lastFileName;
+	
 	public GLTFDemo() {
 		this("models");
 	}
@@ -96,6 +101,12 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	@Override
 	public void create() {
+		
+		assetManager = new AssetManager();
+		Texture.setAssetManager(assetManager);
+		
+		assetManager.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
+		assetManager.setLoader(SceneAsset.class, ".glb", new GLBAssetLoader());
 		
 		createUI();
 		
@@ -325,6 +336,10 @@ public class GLTFDemo extends ApplicationAdapter
 		if(rootModel != null){
 			rootModel.dispose();
 			rootModel = null;
+			if(lastFileName != null){
+				assetManager.unload(lastFileName);
+				lastFileName = null;
+			}
 		}
 		
 		
@@ -375,13 +390,11 @@ public class GLTFDemo extends ApplicationAdapter
 			
 			Gdx.app.log(TAG, "loading " + fileName);
 			
-			if(fileName.endsWith(".gltf")){
-				rootModel = new GLTFLoader().load(glFile);
-			}else if(fileName.endsWith(".glb")){
-				rootModel = new GLBLoader().load(glFile);
-			}else{
-				throw new GdxRuntimeException("unknown file extension " + glFile.extension());
-			}
+			lastFileName = glFile.path();
+			
+			assetManager.load(lastFileName, SceneAsset.class);
+			assetManager.finishLoading();
+			rootModel = assetManager.get(lastFileName, SceneAsset.class);
 			
 			load();
 			

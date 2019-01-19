@@ -34,7 +34,7 @@ import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
 
-abstract public class GLTFLoaderBase implements Disposable {
+public class GLTFLoaderBase implements Disposable {
 
 	private final Array<Camera> cameras = new Array<Camera>();
 	private final Array<BaseLight> lights = new Array<BaseLight>();
@@ -62,9 +62,11 @@ abstract public class GLTFLoaderBase implements Disposable {
 	
 	public GLTFLoaderBase() 
 	{
-		textureResolver = new TextureResolver();
-		materialLoader = new PBRMaterialLoader(textureResolver);
-		// materialLoader = new DefaultMaterialLoader(textureResolver);
+		this(null);
+	}
+	public GLTFLoaderBase(TextureResolver textureResolver) 
+	{
+		this.textureResolver = textureResolver;
 		animationLoader = new AnimationLoader();
 		nodeResolver = new NodeResolver();
 		meshLoader = new MeshLoader();
@@ -79,7 +81,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 		return glModel;
 	}
 	
-	protected SceneAsset loadInternal(DataFileResolver dataFileResolver){
+	public SceneAsset load(DataFileResolver dataFileResolver){
 		try{
 			this.dataFileResolver = dataFileResolver;
 			
@@ -101,11 +103,17 @@ abstract public class GLTFLoaderBase implements Disposable {
 			
 			// images (pixmaps)
 			dataResolver = new DataResolver(glModel, dataFileResolver);
-			imageResolver = new ImageResolver(dataFileResolver);
-			imageResolver.load(glModel.images);
-			textureResolver.loadTextures(glModel.textures, glModel.samplers, imageResolver);
-			imageResolver.dispose();
 			
+			if(textureResolver == null){
+				imageResolver = new ImageResolver(dataFileResolver); // TODO no longer necessary
+				imageResolver.load(glModel.images);
+				textureResolver = new TextureResolver();
+				textureResolver.loadTextures(glModel.textures, glModel.samplers, imageResolver);
+				imageResolver.dispose();
+			}
+			
+			materialLoader = new PBRMaterialLoader(textureResolver);
+			// materialLoader = new DefaultMaterialLoader(textureResolver);
 			materialLoader.loadMaterials(glModel.materials);
 			
 			loadCameras();

@@ -10,12 +10,12 @@ public class GLBLoader extends GLTFLoaderBase {
 	public SceneAsset load(FileHandle file){
 		BinaryDataFileResolver dataFileResolver = new BinaryDataFileResolver();
 		dataFileResolver.load(file);
-		return loadInternal(dataFileResolver);
+		return load(dataFileResolver);
 	}
 	
 	public SceneAsset load(byte[] bytes) {
 		BinaryDataFileResolver dataFileResolver = new BinaryDataFileResolver();
 		dataFileResolver.load(bytes);
-		return loadInternal(dataFileResolver);
+		return load(dataFileResolver);
 	}
 }

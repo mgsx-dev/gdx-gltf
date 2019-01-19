@@ -15,9 +15,9 @@ import net.mgsx.gltf.loaders.shared.GLTFTypes;
 
 public class TextureResolver implements Disposable
 {
-	private ObjectMap<Integer, Texture> textures = new ObjectMap<Integer, Texture>();
-	private Array<GLTFTexture> glTextures;
-	private Array<GLTFSampler> glSamplers;
+	protected ObjectMap<Integer, Texture> textures = new ObjectMap<Integer, Texture>();
+	protected Array<GLTFTexture> glTextures;
+	protected Array<GLTFSampler> glSamplers;
 	
 	public void loadTextures(Array<GLTFTexture> glTextures, Array<GLTFSampler> glSamplers, ImageResolver imageResolver) {
 		this.glTextures = glTextures;

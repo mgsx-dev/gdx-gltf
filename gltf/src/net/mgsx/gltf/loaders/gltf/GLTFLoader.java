@@ -10,7 +10,7 @@ public class GLTFLoader extends GLTFLoaderBase
 	public SceneAsset load(FileHandle glFile){
 		SeparatedDataFileResolver dataFileResolver = new SeparatedDataFileResolver();
 		dataFileResolver.load(glFile);
-		return loadInternal(dataFileResolver);
+		return load(dataFileResolver);
 	}
 
 }

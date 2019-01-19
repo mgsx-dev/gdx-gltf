@@ -1,6 +1,7 @@
 package net.mgsx.gltf.loaders.shared;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -139,6 +140,12 @@ public class GLTFTypes {
 		textureDescriptor.magFilter = GLTFTypes.mapTextureMagFilter(glSampler.magFilter);
 		textureDescriptor.uWrap = GLTFTypes.mapTextureWrap(glSampler.wrapS);
 		textureDescriptor.vWrap = GLTFTypes.mapTextureWrap(glSampler.wrapT);
+	}
+	public static void mapTextureSampler(TextureParameter textureParameter, GLTFSampler glSampler) {
+		textureParameter.minFilter = GLTFTypes.mapTextureMinFilter(glSampler.minFilter);
+		textureParameter.magFilter = GLTFTypes.mapTextureMagFilter(glSampler.magFilter);
+		textureParameter.wrapU = GLTFTypes.mapTextureWrap(glSampler.wrapS);
+		textureParameter.wrapV = GLTFTypes.mapTextureWrap(glSampler.wrapT);
 	}
 	
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#samplerwraps
