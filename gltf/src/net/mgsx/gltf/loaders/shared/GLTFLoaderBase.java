@@ -1,6 +1,7 @@
 package net.mgsx.gltf.loaders.shared;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
@@ -110,7 +111,7 @@ abstract public class GLTFLoaderBase implements Disposable {
 			model.scenes = scenes;
 			model.scene = scenes.get(glModel.scene);
 			model.maxBones = meshLoader.getMaxBones();
-			textureResolver.getTextures(model.textures);
+			model.textures = textureResolver.getTextures(new Array<Texture>());
 			model.animations = animationLoader.animations;
 			// XXX don't know where the animation are ...
 			for(SceneModel scene : model.scenes){

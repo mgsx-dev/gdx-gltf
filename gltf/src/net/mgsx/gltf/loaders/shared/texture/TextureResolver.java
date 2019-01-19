@@ -63,9 +63,10 @@ public class TextureResolver implements Disposable
 		textures.clear();
 	}
 
-	public void getTextures(Array<Texture> textures) {
+	public Array<Texture> getTextures(Array<Texture> textures) {
 		for(Entry<Integer, Texture> entry : this.textures){
 			textures.add(entry.value);
 		}
+		return textures;
 	}
 }
