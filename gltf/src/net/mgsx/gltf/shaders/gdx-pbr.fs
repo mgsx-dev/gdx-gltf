@@ -373,6 +373,41 @@ float microfacetDistribution(PBRInfo pbrInputs)
     return roughnessSq / (M_PI * f * f);
 }
 
+#ifdef unlitFlag
+
+void main() {
+#ifdef diffuseTextureFlag
+    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * u_BaseColorFactor;
+#else
+    vec4 baseColor = u_BaseColorFactor;
+#endif
+
+#ifdef colorFlag
+    baseColor *= v_color;
+#endif
+    
+    vec3 color = baseColor.rgb;
+
+    // final frag color
+#ifdef MANUAL_SRGB
+    gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);	
+#else
+    gl_FragColor = vec4(color, baseColor.a);	
+#endif
+
+	// Blending and Alpha Test
+#ifdef blendedFlag
+	gl_FragColor.a = baseColor.a * v_opacity;
+#ifdef alphaTestFlag
+	if (gl_FragColor.a <= v_alphaTest)
+		discard;
+#endif
+#else
+	gl_FragColor.a = 1.0;
+#endif
+}
+
+#else
 
 void main() {
 	
@@ -533,3 +568,5 @@ void main() {
 #endif
 
 }
+
+#endif

@@ -38,6 +38,8 @@ public class DefaultMaterialLoader extends MaterialLoaderBase {
 	@Override
 	public Material loadMaterial(GLTFMaterial glMaterial) 
 	{
+		// TODO handle unlit model (disable lighting)
+		
 		Material material = new Material();
 		if(glMaterial.name != null) material.id = glMaterial.name;
 		
