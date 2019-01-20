@@ -46,6 +46,7 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, AssetL
 
 		public void getDependencies(Array<AssetDescriptor> deps) {
 			this.glTextures = glModel.textures;
+			this.glSamplers = glModel.samplers;
 			if(glTextures != null){
 				for(int i=0 ; i<glTextures.size ; i++){
 					GLTFTexture glTexture = glTextures.get(i);
