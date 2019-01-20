@@ -164,6 +164,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			throw new GdxRuntimeException("multi UVs > 1 not supported");
 		}
 		
-		return new PBRShader(renderable, config, prefix);
+		PBRShader shader = new PBRShader(renderable, config, prefix);
+		
+		// prevent infinite loop
+		if(!shader.canRender(renderable)){
+			throw new GdxRuntimeException("cannot render with this shader");
+		}
+		
+		return shader;
 	};
 }
