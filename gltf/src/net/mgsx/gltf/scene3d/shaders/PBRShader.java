@@ -181,6 +181,8 @@ public class PBRShader extends DefaultShader
 
 	private int u_ambientLight;
 	
+	private long textureCoordinateMapMask;
+	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
 	public static final Color ScaleDiffBaseMR = new Color();
@@ -189,6 +191,8 @@ public class PBRShader extends DefaultShader
 
 	public PBRShader(Renderable renderable, Config config, String prefix) {
 		super(renderable, config, prefix);
+		
+		textureCoordinateMapMask = getTextureCoordinateMapMask(renderable.material);
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
@@ -220,9 +224,41 @@ public class PBRShader extends DefaultShader
 	@Override
 	public boolean canRender(Renderable renderable) {
 		// TODO properly determine if current shader can render this renderable.
+		
+		// compare texture coordinates mapping
+		long textureCoordinateMapMask = getTextureCoordinateMapMask(renderable.material);
+		if(textureCoordinateMapMask != this.textureCoordinateMapMask){
+			return false;
+		}
+		
 		return super.canRender(renderable);
 	}
+	
+	private static long[] allTextureTypes = {
+		PBRTextureAttribute.BaseColorTexture,
+		PBRTextureAttribute.EmissiveTexture,
+		PBRTextureAttribute.NormalTexture,
+		PBRTextureAttribute.MetallicRoughnessTexture,
+		PBRTextureAttribute.OcclusionTexture
+	};
 
+	private static long getTextureCoordinateMapMask(Attributes attributes){
+		// encode texture coordinate unit in a 5 bits integer.
+		// 5 texture types with 1 bits per texture type.
+		// 0 means no texture or unit 0
+		// 1 means unit 1
+		// only 2 units are supported.
+		long mask = 0L;
+		int maskShift = 0;
+		for(long textureType : allTextureTypes){
+			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, textureType);
+			if(attribute != null){
+				mask |= (attribute.uvIndex & 1) << maskShift;
+			}
+			maskShift++;
+		}
+		return mask;
+	}
 
 	@Override
 	public void init(ShaderProgram program, Renderable renderable) {
@@ -261,32 +297,8 @@ public class PBRShader extends DefaultShader
 		transformTexture[0] = null;
 		transformTexture[1] = null;
 		
-		{
-			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.BaseColorTexture);
-			if(attribute != null){
-				transformTexture[attribute.uvIndex] = attribute;
-			}
-		}
-		{
-			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.EmissiveTexture);
-			if(attribute != null){
-				transformTexture[attribute.uvIndex] = attribute;
-			}
-		}
-		{
-			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.NormalTexture);
-			if(attribute != null){
-				transformTexture[attribute.uvIndex] = attribute;
-			}
-		}
-		{
-			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.MetallicRoughnessTexture);
-			if(attribute != null){
-				transformTexture[attribute.uvIndex] = attribute;
-			}
-		}
-		{
-			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.OcclusionTexture);
+		for(long textureType : allTextureTypes){
+			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, textureType);
 			if(attribute != null){
 				transformTexture[attribute.uvIndex] = attribute;
 			}
