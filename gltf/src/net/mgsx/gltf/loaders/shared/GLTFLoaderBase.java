@@ -157,8 +157,12 @@ public class GLTFLoaderBase implements Disposable {
 
 	@Override
 	public void dispose() {
-		imageResolver.dispose();
-		textureResolver.dispose();
+		if(imageResolver != null){
+			imageResolver.dispose();
+		}
+		if(textureResolver != null){
+			textureResolver.dispose();
+		}
 		for(SceneModel scene : scenes){
 			scene.dispose();
 		}
