@@ -41,4 +41,4 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 ## Extensions
 
 * **KHR_materials_pbrSpecularGlossiness** not yet implemented
-* **KHR_materials_unlit** : https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_unlit/README.md*
+
