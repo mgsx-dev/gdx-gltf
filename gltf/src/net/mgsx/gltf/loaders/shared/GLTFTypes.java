@@ -24,6 +24,9 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class GLTFTypes {
 
+	/** whenether error logged or exception thrown when not implemented feature is present */
+	public static boolean FAIL_NOT_IMPLEMENTED = false;
+	
 	/** https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#primitivemode */
 	public static int mapPrimitiveMode(Integer glMode){
 		if(glMode == null) return GL20.GL_TRIANGLES; // TODO not sure
@@ -206,11 +209,18 @@ public class GLTFTypes {
 		if("LINEAR".equals(type)){
 			return Interpolation.linear;
 		}else if("STEP".equals(type)){
-			throw new GdxRuntimeException("unsupported step interpolation");
+			if(FAIL_NOT_IMPLEMENTED)
+				throw new GdxRuntimeException("unsupported step interpolation");
+			else
+				Gdx.app.error("GLTF", "skip unsupported step interpolation");
 		}else if("CUBICSPLINE".equals(type)){
-			throw new GdxRuntimeException("unsupported cubic spline interpolation");
+			if(FAIL_NOT_IMPLEMENTED)
+				throw new GdxRuntimeException("unsupported cubic spline interpolation");
+			else
+				Gdx.app.error("GLTF", "skip unsupported cubic spline interpolation");
 		}else{
 			throw new GdxRuntimeException("unexpected interpolation type " + type);
 		}
+		return Interpolation.linear;
 	}
 }
