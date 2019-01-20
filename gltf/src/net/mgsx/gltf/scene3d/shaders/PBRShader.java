@@ -149,6 +149,8 @@ public class PBRShader extends DefaultShader
 			}
 		}
 	};
+	
+	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
 	public final int u_metallicRoughness;
 	public final int u_occlusionStrength; 
@@ -256,7 +258,8 @@ public class PBRShader extends DefaultShader
 		
 		// TODO texCoords should be mapped in vertex shader to allow separated UV transform
 		
-		PBRTextureAttribute transformTexture [] = {null, null};
+		transformTexture[0] = null;
+		transformTexture[1] = null;
 		
 		{
 			PBRTextureAttribute attribute = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.BaseColorTexture);
