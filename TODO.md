@@ -40,13 +40,5 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 
 ## Extensions
 
-* **KHR_texture_transform** partially : need to separate individual transforms (baseColor, emissive, and so on)
-  https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_texture_transform/README.md
 * **KHR_materials_pbrSpecularGlossiness** not yet implemented
-* **KHR_lights_punctual** : https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md
 * **KHR_materials_unlit** : https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_unlit/README.md*
-
-# Tests
-
-* multiple scenes
-* multiple models with different Shader configurations

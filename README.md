@@ -15,6 +15,11 @@ Shaders inspiried by glTF-WebGL-PBR demo :
 * HTML : the online demo is available [here](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
 * Desktop : the desktop demo is available [here](https://github.com/mgsx-dev/gdx-gltf/releases). It remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
 
+# GLTF extensions implemented
+
+* [KHR_texture_transform](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_texture_transform/README.md)
+* [KHR_lights_punctual](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md)
+
 # Project structure
 
 This repository is made of a library and a demo :
