@@ -517,6 +517,13 @@ public class GLTFDemo extends ApplicationAdapter
 
 		sceneManager.render();
 		
+		int shaderCount = 0;
+		ShaderProvider shaderProvider = sceneManager.getBatch().getShaderProvider();
+		if(shaderProvider instanceof PBRShaderProvider){
+			shaderCount = ((PBRShaderProvider) shaderProvider).getShaderCount();
+		}
+		ui.shaderCount.setText(String.valueOf(shaderCount));
+		
 		stage.draw();
 	}
 	

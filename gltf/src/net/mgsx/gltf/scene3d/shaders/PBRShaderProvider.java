@@ -37,6 +37,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		super(config);
 	}
 	
+	public int getShaderCount(){
+		return shaders.size;
+	}
+	
 	protected Shader createShader(Renderable renderable) {
 		
 		PBRShaderConfig config = (PBRShaderConfig)this.config;

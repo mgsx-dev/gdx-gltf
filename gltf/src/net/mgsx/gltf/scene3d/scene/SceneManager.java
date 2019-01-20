@@ -50,6 +50,10 @@ public class SceneManager implements Disposable {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
 	}
 	
+	public ModelBatch getBatch() {
+		return batch;
+	}
+	
 	public void setShaderProvider(ShaderProvider shaderProvider) {
 		batch.dispose();
 		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
@@ -100,6 +104,10 @@ public class SceneManager implements Disposable {
 		for(Entry<BaseLight, Node> e : scene.lights){
 			environment.remove(e.key);
 		}
+	}
+	
+	public Array<Scene> getScenes() {
+		return scenes;
 	}
 
 	public void updateViewport(int width, int height) {

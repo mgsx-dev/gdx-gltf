@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -64,6 +65,7 @@ public class GLTFDemoUI extends Table {
 	private CollapsableUI lightOptions;
 	public SelectBox<String> sceneSelector;
 	public SelectBox<String> lightSelector;
+	public Label shaderCount;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -101,6 +103,9 @@ public class GLTFDemoUI extends Table {
 		root.add("Shader");
 		root.add(shaderSelector).row();
 		shaderSelector.setItems(ShaderMode.values());
+		
+		root.add("Shader count");
+		root.add(shaderCount = new Label("", skin)).row();
 		
 		root.add();
 		root.add(shaderOptions = new CollapsableUI(skin, "Shader Options", false)).row();
