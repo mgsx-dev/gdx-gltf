@@ -56,7 +56,7 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 	
 	public void update(Camera camera){
 		// scale skybox to camera range.
-		float s = camera.far;
+		float s = camera.far * (float)Math.sqrt(2.0);
 		box.worldTransform.setToScaling(s, s, s);
 		box.worldTransform.setTranslation(camera.position);
 	}

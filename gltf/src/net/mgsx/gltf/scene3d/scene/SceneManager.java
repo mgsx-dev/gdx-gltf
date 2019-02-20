@@ -26,7 +26,7 @@ public class SceneManager implements Disposable {
 	
 	private ModelBatch batch;
 	
-	public final Array<DirectionalLight> directionalLights = new Array<DirectionalLight>();
+	private DirectionalLight defaultLight;
 	
 	public Environment environment;
 	
@@ -44,7 +44,7 @@ public class SceneManager implements Disposable {
 		
 		environment = new Environment();
 		
-		setDefaultLight();
+		enableDefaultLight();
 		
 		float lum = .5f;
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
@@ -69,7 +69,9 @@ public class SceneManager implements Disposable {
 	
 	public void update(float delta){
 		if(camera != null){
-			skyBox.update(camera);
+			if(skyBox != null){
+				skyBox.update(camera);
+			}
 		}
 		for(Scene scene : scenes){
 			scene.update(delta);
@@ -82,7 +84,9 @@ public class SceneManager implements Disposable {
 		for(Scene scene : scenes){
 			batch.render(scene.modelInstance, environment);
 		}
-		batch.render(skyBox);
+		if(skyBox != null){
+			batch.render(skyBox);
+		}
 		batch.end();
 		
 	}
@@ -123,19 +127,21 @@ public class SceneManager implements Disposable {
 		batch.dispose();
 	}
 
-	public void setDefaultLight() {
-		if(directionalLights.size < 1){
-			DirectionalLight dirLight = new DirectionalLight();
-			dirLight.set(Color.WHITE, new Vector3(0,-1,0));
-			environment.add(dirLight);
-			directionalLights.add(dirLight);
+	public void enableDefaultLight() {
+		if(defaultLight == null){
+			defaultLight = new DirectionalLight();
+			defaultLight.set(Color.WHITE, new Vector3(0,-1,0));
+			environment.add(defaultLight);
 		}
 	}
 	
-	public void removeDefaultLight(){
-		if(directionalLights.size > 0){
-			environment.remove(directionalLights.first());
-			directionalLights.clear();
+	public void disableDefaultLight(){
+		if(defaultLight != null){
+			environment.remove(defaultLight);
 		}
+	}
+	
+	public DirectionalLight getDefaultLight() {
+		return defaultLight;
 	}
 }

@@ -23,7 +23,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	public static PBRShaderProvider createDefault(int maxBones){
 		PBRShaderConfig config = new PBRShaderConfig();
 		config.numBones = maxBones;
-		return new PBRShaderProvider(config);
+		return createDefault(config);
 	}
 	
 	public static PBRShaderProvider createDefault(PBRShaderConfig config){

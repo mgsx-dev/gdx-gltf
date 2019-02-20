@@ -136,9 +136,9 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.setSkyBox(new SceneSkybox(environmentCubemap));
 		
 		// light direction based on environnement map SUN
-		if(sceneManager.directionalLights.size > 0){
-			sceneManager.directionalLights.first().direction.set(-.5f,-.5f,-.7f).nor();
-			ui.lightDirectionControl.set(sceneManager.directionalLights.first().direction);
+		if(sceneManager.getDefaultLight() != null){
+			sceneManager.getDefaultLight().direction.set(-.5f,-.5f,-.7f).nor();
+			ui.lightDirectionControl.set(sceneManager.getDefaultLight().direction);
 		}
 
 		setEnvironment();
@@ -428,9 +428,9 @@ public class GLTFDemo extends ApplicationAdapter
 		this.scene = scene;
 		
 		if(scene.lights.size == 0){
-			sceneManager.setDefaultLight();
+			sceneManager.enableDefaultLight();
 		}else{
-			sceneManager.removeDefaultLight();
+			sceneManager.disableDefaultLight();
 		}
 		
 		ui.setMaterials(scene.modelInstance.materials);
@@ -506,13 +506,13 @@ public class GLTFDemo extends ApplicationAdapter
 		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;
 		PBRShader.ScaleIBLAmbient.g = ui.debugSpecularSlider.getValue() * IBLScale;
 		
-		if(sceneManager.directionalLights.size > 0){
+		if(sceneManager.getDefaultLight() != null){
 			float lum = ui.lightSlider.getValue();
-			sceneManager.directionalLights.first().color.set(lum, lum, lum, 1);
-			sceneManager.directionalLights.first().direction.set(ui.lightDirectionControl.value).nor();
-			sceneManager.directionalLights.first().color.r *= IBLScale;
-			sceneManager.directionalLights.first().color.g *= IBLScale;
-			sceneManager.directionalLights.first().color.b *= IBLScale;
+			sceneManager.getDefaultLight().color.set(lum, lum, lum, 1);
+			sceneManager.getDefaultLight().direction.set(ui.lightDirectionControl.value).nor();
+			sceneManager.getDefaultLight().color.r *= IBLScale;
+			sceneManager.getDefaultLight().color.g *= IBLScale;
+			sceneManager.getDefaultLight().color.b *= IBLScale;
 		}
 
 		sceneManager.render();
