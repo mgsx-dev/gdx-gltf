@@ -1,11 +1,16 @@
 #line 1
-// Extension required for WebGL
-#ifdef GL_ES
+
+// Extensions required for WebGL and some Android versions
+
+#ifdef USE_TEXTURE_LOD_EXT
 #extension GL_EXT_shader_texture_lod: enable
-#extension GL_OES_standard_derivatives : enable
 #else
 // Note : "textureCubeLod" is used for compatibility but should be "textureLod" for GLSL #version 130 (OpenGL 3.0+)
 #define textureCubeLodEXT textureCubeLod
+#endif
+
+#ifdef USE_DERIVATIVES_EXT
+#extension GL_OES_standard_derivatives: enable
 #endif
 
 // required to have same precision in both shader for light structure

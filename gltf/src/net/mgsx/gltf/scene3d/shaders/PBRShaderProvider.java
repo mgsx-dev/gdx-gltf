@@ -48,6 +48,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		String prefix = DefaultShader.createPrefix(renderable, config);
 		
+		if(Gdx.app.getType() != ApplicationType.Desktop){
+			prefix += "#define USE_DERIVATIVES_EXT\n";
+		}
+		
 		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
 			for(int i=0 ; i<8 ; i++){
 				if(att.alias.equals(ShaderProgram.POSITION_ATTRIBUTE + i)){
@@ -91,6 +95,11 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				boolean textureLodSupported;
 				if(Gdx.app.getType() == ApplicationType.WebGL){
 					textureLodSupported = Gdx.graphics.supportsExtension("EXT_shader_texture_lod");
+				}else if(Gdx.app.getType() == ApplicationType.Android){
+					if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
+						prefix += "#define USE_TEXTURE_LOD_EXT\n";
+					}
+					textureLodSupported = true;
 				}else{
 					textureLodSupported = true;
 				}
