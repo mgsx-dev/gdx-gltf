@@ -159,7 +159,7 @@ public class GLTFDemo extends ApplicationAdapter
 	{
 		rootFolder = Gdx.files.internal(samplesPath);	
 		
-		String indexFilename = Gdx.app.getType() == ApplicationType.WebGL ? "model-index-web.json" : "model-index.json";
+		String indexFilename = Gdx.app.getType() == ApplicationType.WebGL || Gdx.app.getType() == ApplicationType.Android ? "model-index-web.json" : "model-index.json";
 		
 		FileHandle file = rootFolder.child(indexFilename);
 		

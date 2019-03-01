@@ -4,12 +4,13 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
 import android.os.Bundle;
-import net.mgsx.gltf.demo.GLTFDemo;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		GLTFDemo.AUTOLOAD_ENTRY = "BoomBox";
+		GLTFDemo.AUTOLOAD_VARIANT = "glTF";
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new GLTFDemo(), config);
 	}

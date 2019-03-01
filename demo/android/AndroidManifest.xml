@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.mgsx.gltf.demo" >
 
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="26" />
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="20" />
 
     <application
         android:allowBackup="true"
