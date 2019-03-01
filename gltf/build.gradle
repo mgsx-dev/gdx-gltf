@@ -44,8 +44,8 @@ dependencies {
 }
 
 sourceCompatibility = 1.6
-sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.java.srcDirs = [ "src" ]
 sourceSets.main.resources.srcDirs = ["src"]
-sourceSets.test.java.srcDirs = [ "test/" ]
+sourceSets.test.java.srcDirs = [ "test" ]
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

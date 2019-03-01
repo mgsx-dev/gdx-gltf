@@ -28,8 +28,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	
 	public static PBRShaderProvider createDefault(PBRShaderConfig config){
 		String mode = "gdx-pbr";
-		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".vs").readString();
-		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".fs").readString();
+		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".vs.glsl").readString();
+		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".fs.glsl").readString();
 		
 		return new PBRShaderProvider(config);
 	}

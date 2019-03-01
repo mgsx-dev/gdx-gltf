@@ -31,8 +31,8 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		// create shader provider
 		Config shaderConfig = new Config();
 		String basePathName = "net/mgsx/gltf/shaders/skybox";
-		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs").readString();
-		shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs").readString();
+		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
+		shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs.glsl").readString();
 		shaderProvider =  new DefaultShaderProvider(shaderConfig);
 		
 		// create box
