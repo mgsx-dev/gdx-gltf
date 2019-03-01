@@ -18,6 +18,7 @@ Shaders inspiried by glTF-WebGL-PBR demo :
 
 * HTML : the online demo is available [here](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
 * Desktop : the desktop demo is available [here](https://github.com/mgsx-dev/gdx-gltf/releases). It remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
+* Android : the Android demo is available [on Play Store](https://play.google.com/store/apps/details?id=net.mgsx.gltf.demo) and only contains few examples (same as HTML version).
 
 ## GLTF extensions implemented
 
