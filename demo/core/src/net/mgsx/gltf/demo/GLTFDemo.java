@@ -467,6 +467,7 @@ public class GLTFDemo extends ApplicationAdapter
 			cameraControl = new CameraInputController(camera);
 			cameraControl.translateUnits = bb.max.dst(bb.min);
 			cameraControl.target.set(center);
+			cameraControl.pinchZoomFactor = bb.max.dst(bb.min);
 			
 			
 			sceneManager.setCamera(camera);
