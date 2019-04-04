@@ -48,7 +48,12 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		String prefix = DefaultShader.createPrefix(renderable, config);
 		
-		if(Gdx.app.getType() != ApplicationType.Desktop){
+		final boolean openGL3 = Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
+		if(openGL3){
+			prefix = "#version 130\n" + "#define GLES3\n" + prefix;
+		}
+		
+		if(Gdx.app.getType() == ApplicationType.WebGL || !openGL3){
 			prefix += "#define USE_DERIVATIVES_EXT\n";
 		}
 		
@@ -96,10 +101,14 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				if(Gdx.app.getType() == ApplicationType.WebGL){
 					textureLodSupported = Gdx.graphics.supportsExtension("EXT_shader_texture_lod");
 				}else if(Gdx.app.getType() == ApplicationType.Android){
-					if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
+					if(openGL3){
+						textureLodSupported = true;
+					}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
 						prefix += "#define USE_TEXTURE_LOD_EXT\n";
+						textureLodSupported = true;
+					}else{
+						textureLodSupported = false;
 					}
-					textureLodSupported = true;
 				}else{
 					textureLodSupported = true;
 				}
@@ -185,6 +194,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		PBRShader shader = new PBRShader(renderable, config, prefix);
+		Gdx.app.log("Shader compilation", shader.program.getLog());
 		
 		// prevent infinite loop
 		if(!shader.canRender(renderable)){
