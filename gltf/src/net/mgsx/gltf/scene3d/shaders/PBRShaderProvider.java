@@ -50,7 +50,11 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		final boolean openGL3 = Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
 		if(openGL3){
-			prefix = "#version 130\n" + "#define GLES3\n" + prefix;
+			if(Gdx.app.getType() == ApplicationType.Desktop){
+				prefix = "#version 130\n" + "#define GLSL3\n" + prefix;
+			}else if(Gdx.app.getType() == ApplicationType.Android){
+				prefix = "#version 300 es\n" + "#define GLSL3\n" + prefix;
+			}
 		}
 		
 		if(Gdx.app.getType() == ApplicationType.WebGL || !openGL3){
@@ -194,7 +198,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		PBRShader shader = new PBRShader(renderable, config, prefix);
-		Gdx.app.log("Shader compilation", shader.program.getLog());
+		String shaderLog = shader.program.getLog();
+		Gdx.app.log("Shader compilation", shaderLog.isEmpty() ? "success" : shaderLog);
 		
 		// prevent infinite loop
 		if(!shader.canRender(renderable)){

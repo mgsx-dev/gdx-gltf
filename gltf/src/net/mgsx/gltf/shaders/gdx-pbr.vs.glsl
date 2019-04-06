@@ -11,6 +11,11 @@ precision highp float;
 #define HIGH
 #endif
 
+#ifdef GLSL3
+#define attribute in
+#define varying out
+#endif
+
 varying vec3 v_position;
 
 #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)

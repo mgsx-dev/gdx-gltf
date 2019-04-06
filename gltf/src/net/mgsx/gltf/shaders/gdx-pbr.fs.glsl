@@ -2,7 +2,7 @@
 
 // Extensions required for WebGL and some Android versions
 
-#ifdef GLES3
+#ifdef GLSL3
 #define textureCubeLodEXT textureLod
 #else
 #ifdef USE_TEXTURE_LOD_EXT
@@ -27,6 +27,15 @@ precision highp float;
 #define MED
 #define LOWP
 #define HIGH
+#endif
+
+#ifdef GLSL3
+#define varying in
+out vec4 out_FragColor;
+#define textureCube texture
+#define texture2D texture
+#else
+#define out_FragColor gl_FragColor
 #endif
 
 #if defined(specularTextureFlag) || defined(specularColorFlag)
@@ -399,20 +408,20 @@ void main() {
 
     // final frag color
 #ifdef MANUAL_SRGB
-    gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);	
+    out_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
 #else
-    gl_FragColor = vec4(color, baseColor.a);	
+    out_FragColor = vec4(color, baseColor.a);
 #endif
 
 	// Blending and Alpha Test
 #ifdef blendedFlag
-	gl_FragColor.a = baseColor.a * v_opacity;
+	out_FragColor.a = baseColor.a * v_opacity;
 #ifdef alphaTestFlag
-	if (gl_FragColor.a <= v_alphaTest)
+	if (out_FragColor.a <= v_alphaTest)
 		discard;
 #endif
 #else
-	gl_FragColor.a = 1.0;
+	out_FragColor.a = 1.0;
 #endif
 }
 
@@ -552,28 +561,28 @@ void main() {
     
     // final frag color
 #ifdef MANUAL_SRGB
-    gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);	
+    out_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
 #else
-    gl_FragColor = vec4(color, baseColor.a);	
+    out_FragColor = vec4(color, baseColor.a);
 #endif
     
 #ifdef DEBUG_NORMALS
 #ifndef tangentFlag
-    gl_FragColor = vec4(gl_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
+    out_FragColor = vec4(out_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
 #else
-    gl_FragColor = vec4(gl_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
+    out_FragColor = vec4(out_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
 #endif
 #endif
     
     // Blending and Alpha Test
 #ifdef blendedFlag
-	gl_FragColor.a = baseColor.a * v_opacity;
+	out_FragColor.a = baseColor.a * v_opacity;
 	#ifdef alphaTestFlag
-		if (gl_FragColor.a <= v_alphaTest)
+		if (out_FragColor.a <= v_alphaTest)
 			discard;
 	#endif
 #else
-	gl_FragColor.a = 1.0;
+	out_FragColor.a = 1.0;
 #endif
 
 }
