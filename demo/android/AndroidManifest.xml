@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.mgsx.gltf.demo"
-    android:versionCode="3"
-    android:versionName="0.0.3">
+    android:versionCode="4"
+    android:versionName="0.0.4">
 
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="28" />
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="27" />
 
     <application
         android:allowBackup="true"
