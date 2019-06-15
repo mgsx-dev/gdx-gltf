@@ -105,8 +105,10 @@ public class MeshLoader {
 						}
 					}else if(attributeName.startsWith("JOINTS_")){
 						rawAttribute = false;
-						for(float boneIndex : accessor.max){
-							maxBones = Math.max(maxBones, (int)boneIndex + 1);
+						if(accessor.max != null){
+							for(float boneIndex : accessor.max){
+								maxBones = Math.max(maxBones, (int)boneIndex + 1);
+							}
 						}
 						
 						if(!"VEC4".equals(accessor.type)){
