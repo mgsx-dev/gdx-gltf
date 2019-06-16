@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -20,13 +19,11 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.texture.GLTFSampler;
+import net.mgsx.gltf.loaders.shared.animation.Interpolation;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class GLTFTypes {
 
-	/** whenether error logged or exception thrown when not implemented feature is present */
-	public static boolean FAIL_NOT_IMPLEMENTED = false;
-	
 	/** https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#primitivemode */
 	public static int mapPrimitiveMode(Integer glMode){
 		if(glMode == null) return GL20.GL_TRIANGLES; // TODO not sure
@@ -205,22 +202,15 @@ public class GLTFTypes {
 	
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#animation-samplerinterpolation
 	public static Interpolation mapInterpolation(String type){
-		if(type == null) return Interpolation.linear;
+		if(type == null) return Interpolation.LINEAR;
 		if("LINEAR".equals(type)){
-			return Interpolation.linear;
+			return Interpolation.LINEAR;
 		}else if("STEP".equals(type)){
-			if(FAIL_NOT_IMPLEMENTED)
-				throw new GdxRuntimeException("unsupported step interpolation");
-			else
-				Gdx.app.error("GLTF", "skip unsupported step interpolation");
+			return Interpolation.STEP;
 		}else if("CUBICSPLINE".equals(type)){
-			if(FAIL_NOT_IMPLEMENTED)
-				throw new GdxRuntimeException("unsupported cubic spline interpolation");
-			else
-				Gdx.app.error("GLTF", "skip unsupported cubic spline interpolation");
+			return Interpolation.CUBICSPLINE;
 		}else{
 			throw new GdxRuntimeException("unexpected interpolation type " + type);
 		}
-		return Interpolation.linear;
 	}
 }

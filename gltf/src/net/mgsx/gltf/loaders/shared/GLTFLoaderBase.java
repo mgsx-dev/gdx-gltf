@@ -37,6 +37,9 @@ import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 public class GLTFLoaderBase implements Disposable {
 
+	/** whenether error logged or exception thrown when not implemented feature is present */
+	public static boolean FAIL_NOT_IMPLEMENTED = false;
+
 	private final Array<Camera> cameras = new Array<Camera>();
 	private final Array<BaseLight> lights = new Array<BaseLight>();
 	
