@@ -10,6 +10,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -21,6 +22,8 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -91,6 +94,8 @@ public class GLTFDemo extends ApplicationAdapter
 	private AssetManager assetManager;
 	private String lastFileName;
 	
+	private ShapeRenderer shapeRenderer;
+	
 	public GLTFDemo() {
 		this("models");
 	}
@@ -107,6 +112,8 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		assetManager.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
 		assetManager.setLoader(SceneAsset.class, ".glb", new GLBAssetLoader());
+		
+		shapeRenderer = new ShapeRenderer();
 		
 		createUI();
 		
@@ -518,6 +525,8 @@ public class GLTFDemo extends ApplicationAdapter
 
 		sceneManager.render();
 		
+		renderOverlays();
+		
 		int shaderCount = 0;
 		ShaderProvider shaderProvider = sceneManager.getBatch().getShaderProvider();
 		if(shaderProvider instanceof PBRShaderProvider){
@@ -526,6 +535,31 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.shaderCount.setText(String.valueOf(shaderCount));
 		
 		stage.draw();
+	}
+
+	private void renderOverlays() {
+		if(ui.skeletonButton.isChecked() && scene != null){
+			shapeRenderer.setProjectionMatrix(sceneManager.camera.combined);
+			shapeRenderer.begin(ShapeType.Line);
+			drawSkeleton(scene.modelInstance.nodes);
+			shapeRenderer.end();
+		}
+	}
+
+	private static final Vector3 v1 = new Vector3();
+	
+	private void drawSkeleton(Iterable<Node> iterable) {
+		for(Node node : iterable){
+			if(node.parts == null || node.parts.size == 0){
+				
+				float s = cameraControl.translateUnits / 100f; // .03f;
+				shapeRenderer.setColor(Color.WHITE);
+				node.globalTransform.getTranslation(v1);
+				shapeRenderer.box(v1.x, v1.y, v1.z, s,s,s);
+			}
+			drawSkeleton(node.getChildren());
+		}
+		
 	}
 	
 }

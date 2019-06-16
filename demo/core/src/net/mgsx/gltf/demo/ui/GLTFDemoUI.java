@@ -66,6 +66,7 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<String> sceneSelector;
 	public SelectBox<String> lightSelector;
 	public Label shaderCount;
+	public TextButton skeletonButton;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -168,6 +169,10 @@ public class GLTFDemoUI extends Table {
 		animationSelector = new SelectBox<String>(skin);
 		root.add("Animation");
 		root.add(animationSelector).row();
+		
+		skeletonButton = new TextButton("Skeletons", getSkin(), "toggle");
+		root.add("Skeletons");
+		root.add(skeletonButton).row();
 		
 		materialSelector = new SelectBox<String>(skin);
 		rootRight.add("Materials");
