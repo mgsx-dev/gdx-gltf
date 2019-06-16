@@ -105,11 +105,6 @@ public class MeshLoader {
 						}
 					}else if(attributeName.startsWith("JOINTS_")){
 						rawAttribute = false;
-						if(accessor.max != null){
-							for(float boneIndex : accessor.max){
-								maxBones = Math.max(maxBones, (int)boneIndex + 1);
-							}
-						}
 						
 						if(!"VEC4".equals(accessor.type)){
 							throw new GdxRuntimeException("joint must be VEC4 found " + accessor.type);
@@ -121,6 +116,20 @@ public class MeshLoader {
 							bonesIndices[unit] = dataResolver.readBufferUShort(accessorId);
 						}else{
 							throw new GdxRuntimeException("type not supported : " + accessor.componentType);
+						}
+						if(accessor.max != null){
+							for(float boneIndex : accessor.max){
+								maxBones = Math.max(maxBones, (int)boneIndex + 1);
+							}
+						}else{
+							// compute from data
+							for(int [] ids : bonesIndices){
+								if(ids != null){
+									for(int boneIndex : ids){
+										maxBones = Math.max(maxBones, boneIndex + 1);
+									}
+								}
+							}
 						}
 					}else{
 						throw new GdxRuntimeException("unsupported attribute type " + attributeName);
