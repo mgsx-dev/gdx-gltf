@@ -34,7 +34,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		return new PBRShaderProvider(config);
 	}
 	
-	private PBRShaderProvider(PBRShaderConfig config) {
+	public PBRShaderProvider(PBRShaderConfig config) {
 		super(config);
 	}
 	
