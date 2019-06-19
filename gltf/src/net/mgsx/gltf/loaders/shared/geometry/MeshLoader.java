@@ -33,6 +33,7 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 public class MeshLoader {
 	
 	private ObjectMap<GLTFMesh, Array<NodePart>> meshMap = new ObjectMap<GLTFMesh, Array<NodePart>>();
+	private final Array<Mesh> meshes = new Array<Mesh>();
 	private int maxBones;
 	
 	public void load(Node node, GLTFMesh glMesh, DataResolver dataResolver, MaterialLoader materialLoader) 
@@ -282,6 +283,7 @@ public class MeshLoader {
 				}
 				
 				Mesh mesh = new Mesh(true, maxVertices, maxIndices, attributesGroup);
+				meshes.add(mesh);
 				mesh.setVertices(vertices);
 				
 				if(indices != null){
@@ -372,6 +374,10 @@ public class MeshLoader {
 
 	public int getMaxBones() {
 		return maxBones;
+	}
+
+	public Array<? extends Mesh> getMeshes() {
+		return meshes;
 	}
 
 	

@@ -206,6 +206,8 @@ public class GLTFLoaderBase implements Disposable {
 			Node node = sceneModel.model.getNode(entry.key, true);
 			if(node != null) sceneModel.lights.put(lights.get(entry.value), node);
 		}
+		sceneModel.model.meshes.addAll(meshLoader.getMeshes());
+		// TODO add materials and meshParts as well
 		
 		return sceneModel;
 	}
