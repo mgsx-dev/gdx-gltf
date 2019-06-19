@@ -47,14 +47,19 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		PBRShaderConfig config = (PBRShaderConfig)this.config;
 		
 		String prefix = DefaultShader.createPrefix(renderable, config);
-		
+		String version = config.glslVersion;
 		final boolean openGL3 = Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
 		if(openGL3){
 			if(Gdx.app.getType() == ApplicationType.Desktop){
-				prefix = "#version 130\n" + "#define GLSL3\n" + prefix;
+				if(version == null)
+					version = "#version 130\n" + "#define GLSL3\n";
 			}else if(Gdx.app.getType() == ApplicationType.Android){
-				prefix = "#version 300 es\n" + "#define GLSL3\n" + prefix;
+				if(version == null)
+					version = "#version 300 es\n" + "#define GLSL3\n";
 			}
+		}
+		if(version != null){
+			prefix = version + prefix;
 		}
 		
 		if(Gdx.app.getType() == ApplicationType.WebGL || !openGL3){
