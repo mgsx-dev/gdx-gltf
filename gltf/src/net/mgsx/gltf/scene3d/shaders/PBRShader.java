@@ -336,7 +336,7 @@ public class PBRShader extends DefaultShader
 			PBRCubemapAttribute specularEnv = combinedAttributes.get(PBRCubemapAttribute.class, PBRCubemapAttribute.SpecularEnv);
 			float mipmapFactor;
 			if(specularEnv != null){
-				mipmapFactor = (float)Math.sqrt(specularEnv.textureDescription.texture.getWidth());
+				mipmapFactor = (float)(Math.log(specularEnv.textureDescription.texture.getWidth()) / Math.log(2.0));
 			}else{
 				mipmapFactor = 1;
 			}
