@@ -1,4 +1,4 @@
-package net.mgsx.gltf.demo;
+package net.mgsx.gltf.examples;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
