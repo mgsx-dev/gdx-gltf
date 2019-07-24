@@ -58,7 +58,7 @@ public class GLTFExample extends ApplicationAdapter
 				"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_FULL);
 		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
 		
-		sceneManager.setAmbiantLight(1f);
+		sceneManager.setAmbientLight(1f);
 		sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
 		sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
 		sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));

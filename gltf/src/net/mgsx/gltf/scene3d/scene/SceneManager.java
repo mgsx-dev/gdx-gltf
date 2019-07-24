@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 /**
- * not related to GLTF : just a helper with : model instances, animators, camera, environement, lights, batch/shaderProvider
+ * Convient manager class for: model instances, animators, camera, environment, lights, batch/shaderProvider
  * 
  * @author mgsx
  *
@@ -95,7 +95,7 @@ public class SceneManager implements Disposable {
 		this.skyBox = skyBox;
 	}
 	
-	public void setAmbiantLight(float lum) {
+	public void setAmbientLight(float lum) {
 		environment.get(ColorAttribute.class, ColorAttribute.AmbientLight).color.set(lum, lum, lum, 1);
 	}
 

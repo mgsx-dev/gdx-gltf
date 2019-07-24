@@ -522,7 +522,7 @@ public class GLTFDemo extends ApplicationAdapter
 		Gdx.gl.glClearColor(l,l,l, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
-		sceneManager.setAmbiantLight(ui.ambiantSlider.getValue());
+		sceneManager.setAmbientLight(ui.ambiantSlider.getValue());
 		
 		float IBLScale = ui.lightFactorSlider.getValue();
 		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;

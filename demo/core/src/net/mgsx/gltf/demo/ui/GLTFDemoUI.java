@@ -119,7 +119,7 @@ public class GLTFDemoUI extends Table {
 		root.add(shaderDebug = new CollapsableUI(skin, "Debug Mode", false)).row();
 		
 		debugAmbiantSlider = new Slider(0, 1, .01f, false, skin);
-		shaderDebug.optTable.add("Ambiant Light");
+		shaderDebug.optTable.add("Ambient Light");
 		shaderDebug.optTable.add(debugAmbiantSlider).row();
 		debugAmbiantSlider.setValue(1f);
 
@@ -141,7 +141,7 @@ public class GLTFDemoUI extends Table {
 		
 		
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
-		lightOptions.optTable.add("Ambiant Light");
+		lightOptions.optTable.add("Ambient Light");
 		lightOptions.optTable.add(ambiantSlider).row();
 		ambiantSlider.setValue(.5f);
 

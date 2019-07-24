@@ -40,7 +40,7 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		boxModel = new ModelBuilder().createBox(boxScale, boxScale, boxScale, new Material(), VertexAttributes.Usage.Position);
 		box = boxModel.nodes.first().parts.first().setRenderable(new Renderable());
 		
-		// assign environement
+		// assign environment
 		Environment env = new Environment();
 		env.set(new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap));
 		env.set(new ColorAttribute(ColorAttribute.AmbientLight, Color.WHITE));
