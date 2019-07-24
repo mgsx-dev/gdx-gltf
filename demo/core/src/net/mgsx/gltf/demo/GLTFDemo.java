@@ -38,7 +38,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
-import net.mgsx.gltf.demo.util.EnvironmentUtil;
 import net.mgsx.gltf.demo.util.NodeUtil;
 import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
 import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
@@ -54,6 +53,7 @@ import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
+import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 
 public class GLTFDemo extends ApplicationAdapter
 {

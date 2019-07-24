@@ -1,4 +1,4 @@
-package net.mgsx.gltf.demo.util;
+package net.mgsx.gltf.scene3d.utils;
 
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
