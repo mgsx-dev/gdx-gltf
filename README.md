@@ -78,7 +78,7 @@ SceneAsset sceneAsset = assetManager.get("myModel.gltf", SceneAsset.class);
 
 This library provides a convenient scene manager to handle glTF models and PBR shader.
 
-see [Example code](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/demo/GLTFExample.java)
+see [Example code](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFExample.java)
 for more information.
 
 ## Export models from Blender
