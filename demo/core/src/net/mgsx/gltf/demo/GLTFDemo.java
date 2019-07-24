@@ -59,6 +59,7 @@ public class GLTFDemo extends ApplicationAdapter
 {
 	public static String AUTOLOAD_ENTRY = null;
 	public static String AUTOLOAD_VARIANT = null;
+	public static String alternateMaps = null;
 	
 	private static final String TAG = "GLTFDemo";
 	
@@ -126,15 +127,26 @@ public class GLTFDemo extends ApplicationAdapter
 	{
 		// set environment maps
 		
-		diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-				"textures/diffuse/diffuse_", "_0.jpg");
-
-		environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-				"textures/environment/environment_", "_0.png");
-
+		if(alternateMaps != null){
+			diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+					"textures/" + alternateMaps + "/diffuse/diffuse_", ".jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
+			
+			environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+					"textures/" + alternateMaps + "/environment/environment_", ".jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
+			
+			specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+					"textures/" + alternateMaps + "/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
+		}else{
+			diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+					"textures/diffuse/diffuse_", "_0.jpg", EnvironmentUtil.FACE_NAMES_FULL);
+			
+			environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+					"textures/environment/environment_", "_0.png", EnvironmentUtil.FACE_NAMES_FULL);
+			
+			specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
+					"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_FULL);
+		}
 		
-		specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-				"textures/specular/specular_", "_", ".jpg", 10);
 		
 		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
 		
@@ -159,7 +171,9 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
 
-		sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+		if(brdfLUT != null){
+			sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+		}
 	}
 	
 	private void loadModelIndex() 

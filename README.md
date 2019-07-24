@@ -86,6 +86,10 @@ for more information.
 * - 2.79b- : https://github.com/KhronosGroup/glTF-Blender-Exporter
 * - 2.8+   : https://github.com/KhronosGroup/glTF-Blender-IO
 
+## Image Based Lighting (IBL)
+
+Demo is shipped with a pre-generated lighting environment.
+If you want to change it, please [read IBL guide](IBL.md)
 
 # More about the library
 

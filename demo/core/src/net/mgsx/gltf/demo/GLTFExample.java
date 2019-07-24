@@ -51,11 +51,11 @@ public class GLTFExample extends ApplicationAdapter
 		
 		// setup IBL (image based lighting)
 		environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-				"textures/environment/environment_", "_0.png");
+				"textures/environment/environment_", "_0.png", EnvironmentUtil.FACE_NAMES_FULL);
 		diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-				"textures/diffuse/diffuse_", "_0.jpg");
+				"textures/diffuse/diffuse_", "_0.jpg", EnvironmentUtil.FACE_NAMES_FULL);
 		specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-				"textures/specular/specular_", "_", ".jpg", 10);
+				"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_FULL);
 		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
 		
 		sceneManager.setAmbiantLight(1f);

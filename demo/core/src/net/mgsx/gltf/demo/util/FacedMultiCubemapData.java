@@ -1,7 +1,6 @@
 package net.mgsx.gltf.demo.util;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap.CubemapSide;
 import com.badlogic.gdx.graphics.CubemapData;
@@ -14,20 +13,26 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class FacedMultiCubemapData implements CubemapData
 {
-
 	final protected TextureData[] data;
 	private int levels;
 
-	public FacedMultiCubemapData(FileHandleResolver resolver, String baseName, String midName, String extension, int levels)
+	/**
+	 * Construct Cubemap data for MipMap cubemap.
+	 * @param files texture files in following order : 
+	 * level 0 (positive X, negative X, positive Y, negative Y, positive Z, negative Z)
+	 * level 1 (positive X, negative X, positive Y, negative Y, positive Z, negative Z)
+	 * and so on. Where level 0 is the biggest texture. Expected levels x 6 files.
+	 * @param levels mipmap levels
+	 */
+	public FacedMultiCubemapData(FileHandle[] files, int levels)
 	{
 		this.levels = levels;
 		data = new TextureData[6 * levels];
-		String[] names = {"right", "left", "top", "bottom", "front", "back"};
 		for(int level = 0 ; level<levels ; level++){
 			for(int face = 0 ; face < 6 ; face++){
-				// eg. specular_right_8.jpg
-				FileHandle file = resolver.resolve(baseName + names[face] + midName + level + extension);
-				data[level*6+face] = new PixmapTextureData(new Pixmap(file), null, false, true);
+				int index = level*6+face;
+				FileHandle file = files[index];
+				data[index] = new PixmapTextureData(new Pixmap(file), null, false, true);
 			}
 		}
 	}
