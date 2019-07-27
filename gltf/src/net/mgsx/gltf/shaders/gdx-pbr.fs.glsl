@@ -525,8 +525,16 @@ void main() {
     color = mix(color, color * ao, u_OcclusionStrength);
 #endif
 
-#ifdef emissiveTextureFlag
+    // Add emissive
+#if defined(emissiveTextureFlag) && defined(emissiveColorFlag)
     vec3 emissive = SRGBtoLINEAR(texture2D(u_emissiveTexture, v_emissiveUV)).rgb * u_emissiveColor.rgb;
+#elif defined(emissiveTextureFlag)
+    vec3 emissive = SRGBtoLINEAR(texture2D(u_emissiveTexture, v_emissiveUV)).rgb;
+#elif defined(emissiveColorFlag)
+    vec3 emissive = u_emissiveColor.rgb;
+#endif
+
+#if defined(emissiveTextureFlag) || defined(emissiveColorFlag)
     color += emissive;
 #endif
 
