@@ -151,7 +151,7 @@ varying vec3 v_shadowMapUv;
 float getShadowness(vec2 offset)
 {
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
-    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts));//+(1.0/255.0));
+    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts)+(1.0/255.0));
 }
 
 float getShadow()
@@ -343,11 +343,7 @@ vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
     specular *= u_ScaleIBLAmbient.y;
 #endif
     
-#ifdef ambientLightFlag
-    return (diffuse + specular) * u_ambientLight;
-#else
     return diffuse + specular;
-#endif    
 }
 #endif
 
@@ -511,12 +507,22 @@ void main() {
     vec3 color = NdotL * u_dirLights[0].color * (diffuseContrib + specContrib);
 
     // Calculate lighting contribution from image based lighting source (IBL)
-#ifdef USE_IBL
-    color += getIBLContribution(pbrInputs, n, reflection);
+#if defined(USE_IBL)
+    vec3 ambientColor = getIBLContribution(pbrInputs, n, reflection);
+#elif defined(ambientLightFlag)
+    vec3 ambientColor = u_ambientLight;
 #else
-#ifdef ambientLightFlag
-    color += u_ambientLight;
+    vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #endif
+
+#ifdef shadowMapFlag
+#ifdef ambientLightFlag
+    color = mix(ambientColor * u_ambientLight, ambientColor + color, getShadow());
+#else
+    color = ambientColor + color * getShadow();
+#endif
+#else
+    color = color + ambientColor;
 #endif
 
     // Apply optional PBR terms for additional (optional) shading
