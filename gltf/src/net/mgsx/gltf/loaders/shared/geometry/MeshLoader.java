@@ -319,10 +319,14 @@ public class MeshLoader {
 			
 			GLTFAccessor indicesAccessor = dataResolver.getAccessor(primitive.indices);
 			
+			// Accessor Element Size
+			// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#accessor-element-size
 			// 5120 : byte
 			// 5121 : ubyte
 			// 5122 : short
 			// 5123 : ushort
+			// 5125 : uint
+			// 5126 : float (not in this case)
 			
 			if(indicesAccessor.type.equals("SCALAR")){
 				
@@ -331,27 +335,33 @@ public class MeshLoader {
 				
 				switch(indicesAccessor.componentType){
 				case 5125: // unsigned int
-					System.err.println("warning : unsigned int could not work");
 					IntBuffer intBuffer = dataResolver.getBufferInt(indicesAccessor);
 					for(int i=0 ; i<maxIndices ; i++){
-						indices[i] = (short)(intBuffer.get() & 0xFFFF);
+						long index = intBuffer.get() & 0xFFFFFFFF;
+						if(index > 1<<15){
+							throw new GdxRuntimeException("index too big : " + index);
+						}
+						indices[i] = (short)(index);
 					}
 					break;
 				case 5123: // unsigned short
-					{
-						int maxIndex;
-						if(indicesAccessor.max != null){
-							maxIndex = (int)indicesAccessor.max[0];
-						}else{
-							maxIndex = indicesAccessor.count-1;
-						}
-						// TODO corset example work well with 16 limit ...
-						if(maxIndex >= 1<<15){ // 32767 is the limit for shorts ...
-							throw new GdxRuntimeException("indices too big : " + maxIndex);
-						}
-					}
 				case 5122: // short
 					dataResolver.getBufferShort(indicesAccessor).get(indices);
+					
+					int maxIndex;
+					if(indicesAccessor.max != null){
+						maxIndex = (int)indicesAccessor.max[0];
+					}else{
+						maxIndex = 0;
+						for(short i : indices){
+							maxIndex = Math.max(maxIndex, i & 0xFFFF);
+						}
+					}
+					
+					if(maxIndex >= 1<<15){
+						throw new GdxRuntimeException("index too big : " + maxIndex);
+					}
+					
 					break;
 				case 5121: // unsigned bytes
 					ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
