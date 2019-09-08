@@ -37,6 +37,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import net.mgsx.gltf.demo.data.ModelEntry;
+import net.mgsx.gltf.demo.events.FileChangeEvent;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.NodeUtil;
 import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
@@ -215,6 +216,18 @@ public class GLTFDemo extends ApplicationAdapter
 		stage.addActor(ui);
 		
 		ui.shaderSelector.setSelected(shaderMode);
+		
+		ui.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(event instanceof FileChangeEvent){
+					ui.entrySelector.setSelectedIndex(0);
+					ui.variantSelector.setSelectedIndex(0);
+					load(((FileChangeEvent) event).file);
+				}
+			}
+		});
 		
 		ui.entrySelector.addListener(new ChangeListener() {
 			@Override
@@ -409,18 +422,22 @@ public class GLTFDemo extends ApplicationAdapter
 			FileHandle baseFolder = rootFolder.child(entry.name).child(variant);
 			FileHandle glFile = baseFolder.child(fileName);
 			
-			Gdx.app.log(TAG, "loading " + fileName);
-			
-			lastFileName = glFile.path();
-			
-			assetManager.load(lastFileName, SceneAsset.class);
-			assetManager.finishLoading();
-			rootModel = assetManager.get(lastFileName, SceneAsset.class);
-			
-			load();
-			
-			Gdx.app.log(TAG, "loaded " + glFile.path());
+			load(glFile);
 		}
+	}
+	
+	private void load(FileHandle glFile){
+		Gdx.app.log(TAG, "loading " + glFile.name());
+		
+		lastFileName = glFile.path();
+		
+		assetManager.load(lastFileName, SceneAsset.class);
+		assetManager.finishLoading();
+		rootModel = assetManager.get(lastFileName, SceneAsset.class);
+		
+		load();
+		
+		Gdx.app.log(TAG, "loaded " + glFile.path());
 	}
 	
 	private void load()

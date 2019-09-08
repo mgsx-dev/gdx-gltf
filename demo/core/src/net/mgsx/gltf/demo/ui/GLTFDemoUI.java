@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.Scaling;
 
 import net.mgsx.gltf.demo.GLTFDemo.ShaderMode;
 import net.mgsx.gltf.demo.data.ModelEntry;
+import net.mgsx.gltf.demo.events.FileChangeEvent;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -37,6 +38,8 @@ import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class GLTFDemoUI extends Table {
+	public static FileSelector fileSelector = null;
+	
 	public SelectBox<ModelEntry> entrySelector;
 	public SelectBox<String> variantSelector;
 	public SelectBox<String> animationSelector;
@@ -79,6 +82,24 @@ public class GLTFDemoUI extends Table {
 		add(root).expandY().top();
 		add().expand();
 		add(rootRight).expandY().top();
+		
+		if(fileSelector != null){
+			TextButton btOpenFile = new TextButton("Open file", skin);
+			root.add("File");
+			root.add(btOpenFile).row();
+			
+			btOpenFile.addListener(new ChangeListener() {
+				@Override
+				public void changed(ChangeEvent event, Actor actor) {
+					fileSelector.open(new Runnable() {
+						@Override
+						public void run() {
+							GLTFDemoUI.this.fire(new FileChangeEvent(fileSelector.lastFile));
+						}
+					});
+				}
+			});
+		}
 		
 		entrySelector = new SelectBox<ModelEntry>(skin);
 		root.add("Model");
