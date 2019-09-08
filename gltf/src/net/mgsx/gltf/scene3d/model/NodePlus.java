@@ -19,7 +19,7 @@ public class NodePlus extends Node
 	{
 		if(other instanceof NodePlus){
 			if(((NodePlus)other).weights != null){
-				weights = new WeightVector().set(((NodePlus)other).weights);
+				weights = ((NodePlus)other).weights.cpy();
 			}
 		}
 		return super.set(other);

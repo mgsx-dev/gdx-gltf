@@ -22,9 +22,12 @@ public class WeightVector {
 	}
 
 	public WeightVector set(WeightVector weights) {
-		if(weights.count > values.length) throw new GdxRuntimeException("WeightVector out of bound");
+		if(weights.count > values.length){
+			values = new float[weights.count];
+		}
+			// throw new GdxRuntimeException("WeightVector out of bound");
 		this.count = weights.count;
-		for(int i=0 ; i<count ; i++){
+		for(int i=0 ; i<weights.values.length ; i++){
 			values[i] = weights.values[i];
 		}
 		return this;
@@ -53,7 +56,7 @@ public class WeightVector {
 	}
 
 	public WeightVector cpy() {
-		return new WeightVector(count).set(this);
+		return new WeightVector(count, values.length).set(this);
 	}
 
 	public float get(int index) {
