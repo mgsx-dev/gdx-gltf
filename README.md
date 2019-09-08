@@ -135,3 +135,20 @@ LibGDX only support signed short indices, mesh are then limited to 32768 vertice
 
 LibGDX Pixmap loading from binary data is not supported by its GWT emulation. So, GLTF embeded and binary formats are not supported for html/WebGL target.
 
+# Troubleshooting
+
+## Max uniform: Constant register limit exceeded
+
+You may encounter this shader compilation error in case too many uniform needed on current hardware.
+
+`Constant register limit exceeded at ... more than 1024 registers needed to compiled program`
+
+It means you may have too many bone weights or shape keys. Try to reduce or split then before exporting to GLTF. 
+
+## Max vertices: index too big
+
+You may encounter `index too big` error. 
+
+It means you may have too many vertices in a mesh. Try to reduce or split then to max 32768 (32k) before exporting to GLTF. 
+
+
