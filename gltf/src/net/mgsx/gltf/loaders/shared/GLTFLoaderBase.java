@@ -193,8 +193,10 @@ public class GLTFLoaderBase implements Disposable {
 		sceneModel.model = new Model();
 		
 		// add root nodes
-		for(int id : gltfScene.nodes){
-			sceneModel.model.nodes.add(getNode(id));
+		if(gltfScene.nodes != null){
+			for(int id : gltfScene.nodes){
+				sceneModel.model.nodes.add(getNode(id));
+			}
 		}
 		// add scene cameras (filter from all scenes cameras)
 		for(Entry<String, Integer> entry : cameraMap){
