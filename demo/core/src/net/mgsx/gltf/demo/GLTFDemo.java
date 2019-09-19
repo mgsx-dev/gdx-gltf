@@ -480,7 +480,7 @@ public class GLTFDemo extends ApplicationAdapter
 		// XXX force shader provider to compile new shaders based on model
 		setShader(shaderMode);
 		
-		sceneManager.addScene(scene);
+		sceneManager.addScene(scene, false);
 	}
 	
 	protected void setCamera(String name) 

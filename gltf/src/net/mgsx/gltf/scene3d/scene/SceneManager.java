@@ -61,9 +61,15 @@ public class SceneManager implements Disposable {
 	
 	
 	public void addScene(Scene scene){
+		addScene(scene, true);
+	}
+	
+	public void addScene(Scene scene, boolean appendLights){
 		scenes.add(scene);
-		for(Entry<BaseLight, Node> e : scene.lights){
-			environment.add(e.key);
+		if(appendLights){
+			for(Entry<BaseLight, Node> e : scene.lights){
+				environment.add(e.key);
+			}
 		}
 	}
 	
