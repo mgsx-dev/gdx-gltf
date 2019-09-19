@@ -47,7 +47,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | Cube						|
 | DamagedHelmet				| PBR
 | Duck						| PBR
-| FlightHelmet				| PBR					| X | too many vertices |
+| FlightHelmet				| PBR
 | GearboxAssy				| PBR
 | Lantern					| PBR
 | MetalRoughSpheres			| Metallic Roughness
@@ -60,7 +60,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | ReciprocatingSaw			| PBR
 | RiggedFigure				| Skinning
 | RiggedSimple				| Skinning
-| SciFiHelmet				| PBR					| X | Too many vertices |
+| SciFiHelmet				| PBR					| X | Too many vertices (more than 64k) |
 | SimpleMeshes				|
 | SimpleMorph				| Morph Targets
 | SimpleSparseAccessor		| Sparse Accessor
