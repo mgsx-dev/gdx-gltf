@@ -25,7 +25,6 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 
 * AssetManager loader utilities
 * sparse accessors
-* high-poly mesh support : limited to 32768 vertices because of libGdx short index array.
 * emulate default shader based on some PBR information
 * key frame interpolation (non linear ...)
 * add more lighting support : multiple directional lights, point lights, spot lights ...
@@ -36,6 +35,16 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
   see: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-a-tangent-space-recalculation
 - Client may implements at least 8 channels (8 positions or 4 position/normal or 2 pos/tan/nor) ...
 - add support for 8 positions / 4 normals / 2 tangents. POC allow 2 positions / 2 normals / 2 tangents
+
+## max vertices
+
+Libgdx has a limit of 32767 vertices because of short indices (note: index 32767 is reserved, that's why limit is not 32768)
+
+Limit can be easily raised to 64k using unsigned short. This is the reason of MeshPlus hack.
+
+In order get rid of max vertices limit, indices array should use int (in order to support unsigned int).
+For unsigned int case (index greater than max integer) there is no solution in java because array require int.
+However if only NIO buffer are used it may not be an issue.
 
 
 ## Extensions

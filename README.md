@@ -145,10 +145,20 @@ You may encounter this shader compilation error in case too many uniform needed 
 
 It means you may have too many bone weights or shape keys. Try to reduce or split then before exporting to GLTF. 
 
-## Max vertices: index too big
+## Max vertices: high index detected
 
-You may encounter `index too big` error. 
+You may encounter `high index detected` warnings or errors. 
 
-It means you may have too many vertices in a mesh. Try to reduce or split then to max 32768 (32k) before exporting to GLTF. 
+It means you may have too many vertices in a mesh. Try to reduce or split them before exporting to GLTF :
+
+* 32k vertices are fully supported.
+* 64k vertices are supported but still experimental.
+* more vertices are not supported at all.
+
+Note that this limitation is per mesh, not for a whole scene.
+
+Note that Blender vertex count can be misleading because exported geometry may contains more vertices because of
+normal split, texture coordinates split or vertex color split.
+
 
 

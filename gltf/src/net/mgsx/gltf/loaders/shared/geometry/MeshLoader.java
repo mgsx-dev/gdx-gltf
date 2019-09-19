@@ -4,7 +4,9 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.MeshPlus;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -282,7 +284,7 @@ public class MeshLoader {
 					}
 				}
 				
-				Mesh mesh = new Mesh(true, maxVertices, maxIndices, attributesGroup);
+				Mesh mesh = new MeshPlus(true, maxVertices, maxIndices, attributesGroup);
 				meshes.add(mesh);
 				mesh.setVertices(vertices);
 				
@@ -330,18 +332,20 @@ public class MeshLoader {
 			
 			if(indicesAccessor.type.equals("SCALAR")){
 				
-				int maxIndices = indicesAccessor.count; // glIndicesBuffer.byteLength / 2;
+				int maxIndices = indicesAccessor.count;
 				indices = new short[maxIndices];
 				
 				switch(indicesAccessor.componentType){
 				case 5125: // unsigned int
-					IntBuffer intBuffer = dataResolver.getBufferInt(indicesAccessor);
-					for(int i=0 ; i<maxIndices ; i++){
-						long index = intBuffer.get() & 0xFFFFFFFF;
-						if(index > 1<<15){
-							throw new GdxRuntimeException("index too big : " + index);
+					{
+						IntBuffer intBuffer = dataResolver.getBufferInt(indicesAccessor);
+						long maxIndex = 0;
+						for(int i=0 ; i<maxIndices ; i++){
+							long index = intBuffer.get() & 0xFFFFFFFFL;
+							maxIndex = Math.max(index, maxIndex);
+							indices[i] = (short)(index);
 						}
-						indices[i] = (short)(index);
+						checkMaxIndex(maxIndex);
 					}
 					break;
 				case 5123: // unsigned short
@@ -357,11 +361,7 @@ public class MeshLoader {
 							maxIndex = Math.max(maxIndex, i & 0xFFFF);
 						}
 					}
-					
-					if(maxIndex >= 1<<15){
-						throw new GdxRuntimeException("index too big : " + maxIndex);
-					}
-					
+					checkMaxIndex(maxIndex);
 					break;
 				case 5121: // unsigned bytes
 					ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
@@ -390,5 +390,12 @@ public class MeshLoader {
 		return meshes;
 	}
 
+	private void checkMaxIndex(long maxIndex){
+		if(maxIndex >= 1<<16){
+			throw new GdxRuntimeException("high index detected: " + maxIndex + ". Not supported");
+		}else if(maxIndex >= 1<<15){
+			Gdx.app.error("GLTF", "high index detected: " + maxIndex + ". Unsigned short indices are supported but still experimental");
+		}
+	}
 	
 }
