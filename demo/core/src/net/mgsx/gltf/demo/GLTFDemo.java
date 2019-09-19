@@ -39,6 +39,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileChangeEvent;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
+import net.mgsx.gltf.demo.util.GLTFInspector;
 import net.mgsx.gltf.demo.util.NodeUtil;
 import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
 import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
@@ -438,6 +439,8 @@ public class GLTFDemo extends ApplicationAdapter
 		load();
 		
 		Gdx.app.log(TAG, "loaded " + glFile.path());
+		
+		new GLTFInspector().inspect(rootModel);
 	}
 	
 	private void load()
