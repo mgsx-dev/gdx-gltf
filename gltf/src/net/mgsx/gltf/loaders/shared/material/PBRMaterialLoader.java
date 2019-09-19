@@ -75,7 +75,9 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 		if(glMaterial.pbrMetallicRoughness != null){
 			GLTFpbrMetallicRoughness p = glMaterial.pbrMetallicRoughness;
 			
-			material.set(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, GLTFTypes.mapColor(p.baseColorFactor, Color.WHITE)));
+			Color baseColorFactor = GLTFTypes.mapColor(p.baseColorFactor, Color.WHITE);
+			
+			material.set(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, baseColorFactor));
 
 			material.set(PBRFloatAttribute.createMetallic(p.metallicFactor));
 			material.set(PBRFloatAttribute.createRoughness(p.roughnessFactor));
@@ -89,7 +91,7 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 			}
 			
 			if(alphaBlend){
-				material.get(BlendingAttribute.class, BlendingAttribute.Type).opacity = p.baseColorFactor[3];
+				material.get(BlendingAttribute.class, BlendingAttribute.Type).opacity = baseColorFactor.a;
 			}
 		}
 		
