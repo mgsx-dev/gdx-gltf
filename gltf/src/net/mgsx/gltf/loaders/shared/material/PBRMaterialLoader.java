@@ -58,6 +58,7 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 			material.set(PBRFloatAttribute.createOcclusionStrength(glMaterial.occlusionTexture.strength));
 		}
 		
+		boolean alphaBlend = false;
 		if("OPAQUE".equals(glMaterial.alphaMode)){
 			// nothing to do
 		}else if("MASK".equals(glMaterial.alphaMode)){ 
@@ -65,7 +66,8 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 			material.set(FloatAttribute.createAlphaTest(value));
 			material.set(new BlendingAttribute()); // necessary
 		}else if("BLEND".equals(glMaterial.alphaMode)){
-			material.set(new BlendingAttribute());
+			material.set(new BlendingAttribute()); // opacity is set by pbrMetallicRoughness below
+			alphaBlend = true;
 		}else if(glMaterial.alphaMode != null){
 			throw new GdxRuntimeException("unknow alpha mode : " + glMaterial.alphaMode);
 		}
@@ -84,6 +86,10 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 			
 			if(p.baseColorTexture != null){
 				material.set(getTexureMap(PBRTextureAttribute.BaseColorTexture, p.baseColorTexture));
+			}
+			
+			if(alphaBlend){
+				material.get(BlendingAttribute.class, BlendingAttribute.Type).opacity = p.baseColorFactor[3];
 			}
 		}
 		
