@@ -39,6 +39,12 @@ public class ModelInstanceHack extends ModelInstance
 				if (node == null) continue;
 				NodeAnimationHack nodeAnim = new NodeAnimationHack();
 				nodeAnim.node = node;
+				
+				nodeAnim.translationMode = ((NodeAnimationHack)nanim).translationMode;
+				nodeAnim.rotationMode = ((NodeAnimationHack)nanim).rotationMode;
+				nodeAnim.scalingMode = ((NodeAnimationHack)nanim).scalingMode;
+				nodeAnim.weightsMode = ((NodeAnimationHack)nanim).weightsMode;
+				
 				if (shareKeyframes) {
 					nodeAnim.translation = nanim.translation;
 					nodeAnim.rotation = nanim.rotation;

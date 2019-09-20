@@ -17,6 +17,10 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+import net.mgsx.gltf.loaders.shared.animation.Interpolation;
+import net.mgsx.gltf.scene3d.model.CubicQuaternion;
+import net.mgsx.gltf.scene3d.model.CubicVector3;
+import net.mgsx.gltf.scene3d.model.CubicWeightVector;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
@@ -168,30 +172,122 @@ public class AnimationControllerHack extends AnimationController
 		if (nodeAnim.translation.size == 1) return out.set(nodeAnim.translation.get(0).value);
 
 		int index = getFirstKeyframeIndexAtTime(nodeAnim.translation, time);
-		final NodeKeyframe firstKeyframe = nodeAnim.translation.get(index);
-		out.set((Vector3)firstKeyframe.value);
 
-		if (++index < nodeAnim.translation.size) {
-			final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.translation.get(index);
-			final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
-			out.lerp(secondKeyframe.value, t);
+		Interpolation interpolation = null;
+		if(nodeAnim instanceof NodeAnimationHack){
+			interpolation = ((NodeAnimationHack) nodeAnim).translationMode;
 		}
+		
+		if(interpolation == Interpolation.STEP){
+			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.translation.get(index);
+			out.set((Vector3)firstKeyframe.value);
+		}
+		else if(interpolation == Interpolation.LINEAR){
+			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.translation.get(index);
+			out.set((Vector3)firstKeyframe.value);
+			if (++index < nodeAnim.translation.size) {
+				final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.translation.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				out.lerp(secondKeyframe.value, t);
+			}
+		}else if(interpolation == Interpolation.CUBICSPLINE){
+			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.translation.get(index);
+			if (++index < nodeAnim.translation.size) {
+				final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.translation.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				
+				CubicVector3 firstCV = (CubicVector3)firstKeyframe.value;
+				CubicVector3 secondCV = (CubicVector3)secondKeyframe.value;
+				
+				cubic(out, t, firstCV, firstCV.tangentOut, secondCV, secondCV.tangentIn);
+			}else{
+				out.set((Vector3)firstKeyframe.value);
+			}
+		}
+		
 		return out;
 	}
+	
+	/** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation */
+	private static void cubic(Vector3 out, float t, Vector3 p0, Vector3 m0, Vector3 p1, Vector3 m1){
+		// p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
+		float t2 = t*t;
+		float t3 = t2*t;
+		out.set(p0).scl(2*t3 - 3*t2 + 1).mulAdd(m0, t3 - 2*t2 + t).mulAdd(p1, -2*t3 + 3*t2).mulAdd(m1, t3-t2);
+	}
+
+	private static final Quaternion q1 = new Quaternion();
+	private static final Quaternion q2 = new Quaternion();
+	private static final Quaternion q3 = new Quaternion();
+	private static final Quaternion q4 = new Quaternion();
+	
+	/** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation 
+	 * 
+	 * https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6a862d2607fb47ac48f54786b04e40be2ad866a4/src/interpolator.js
+	 * */
+	private static void cubic(Quaternion out, float t, float delta, Quaternion p0, Quaternion m0, Quaternion p1, Quaternion m1){
+		
+		// XXX not good, see https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/src/interpolator.js#L42
+		delta =- delta;
+		
+		// p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
+		float t2 = t*t;
+		float t3 = t2*t;
+		q1.set(p0).mul(2*t3 - 3*t2 + 1);
+		q2.set(m0).mul(delta).mul(t3 - 2*t2 + t);
+		q3.set(p1).mul(-2*t3 + 3*t2);
+		q4.set(m1).mul(delta).mul(t3-t2);
+		
+		out.set(q1).add(q2).add(q3).add(q4).nor();
+	}
+	
+	private static void cubic(WeightVector out, float t, WeightVector p0, WeightVector m0, WeightVector p1, WeightVector m1){
+		// p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
+		float t2 = t*t;
+		float t3 = t2*t;
+		out.set(p0).scl(2*t3 - 3*t2 + 1).mulAdd(m0, t3 - 2*t2 + t).mulAdd(p1, -2*t3 + 3*t2).mulAdd(m1, t3-t2);
+	}
+
 
 	private final static Quaternion getRotationAtTime (final NodeAnimation nodeAnim, final float time, final Quaternion out) {
 		if (nodeAnim.rotation == null) return out.set(nodeAnim.node.rotation);
 		if (nodeAnim.rotation.size == 1) return out.set(nodeAnim.rotation.get(0).value);
 
 		int index = getFirstKeyframeIndexAtTime(nodeAnim.rotation, time);
-		final NodeKeyframe firstKeyframe = nodeAnim.rotation.get(index);
-		out.set((Quaternion)firstKeyframe.value);
+		
 
-		if (++index < nodeAnim.rotation.size) {
-			final NodeKeyframe<Quaternion> secondKeyframe = nodeAnim.rotation.get(index);
-			final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
-			out.slerp(secondKeyframe.value, t);
+		Interpolation interpolation = null;
+		if(nodeAnim instanceof NodeAnimationHack){
+			interpolation = ((NodeAnimationHack) nodeAnim).rotationMode;
 		}
+		
+		if(interpolation == Interpolation.STEP){
+			final NodeKeyframe<Quaternion> firstKeyframe = nodeAnim.rotation.get(index);
+			out.set((Quaternion)firstKeyframe.value);
+		}
+		else if(interpolation == Interpolation.LINEAR){
+			final NodeKeyframe<Quaternion> firstKeyframe = nodeAnim.rotation.get(index);
+			out.set((Quaternion)firstKeyframe.value);
+			if (++index < nodeAnim.rotation.size) {
+				final NodeKeyframe<Quaternion> secondKeyframe = nodeAnim.rotation.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				out.slerp(secondKeyframe.value, t);
+			}
+		}else if(interpolation == Interpolation.CUBICSPLINE){
+			final NodeKeyframe<Quaternion> firstKeyframe = nodeAnim.rotation.get(index);
+			if (++index < nodeAnim.rotation.size) {
+				final NodeKeyframe<Quaternion> secondKeyframe = nodeAnim.rotation.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				
+				CubicQuaternion firstCV = (CubicQuaternion)firstKeyframe.value;
+				CubicQuaternion secondCV = (CubicQuaternion)secondKeyframe.value;
+				
+				cubic(out, t, secondKeyframe.keytime - firstKeyframe.keytime, firstCV, firstCV.tangentOut, secondCV, secondCV.tangentIn);
+			}else{
+				out.set((Quaternion)firstKeyframe.value);
+			}
+		}
+		
 		return out;
 	}
 
@@ -200,13 +296,38 @@ public class AnimationControllerHack extends AnimationController
 		if (nodeAnim.scaling.size == 1) return out.set(nodeAnim.scaling.get(0).value);
 
 		int index = getFirstKeyframeIndexAtTime(nodeAnim.scaling, time);
-		final NodeKeyframe firstKeyframe = nodeAnim.scaling.get(index);
-		out.set((Vector3)firstKeyframe.value);
-
-		if (++index < nodeAnim.scaling.size) {
-			final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.scaling.get(index);
-			final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
-			out.lerp(secondKeyframe.value, t);
+		
+		
+		Interpolation interpolation = null;
+		if(nodeAnim instanceof NodeAnimationHack){
+			interpolation = ((NodeAnimationHack) nodeAnim).scalingMode;
+		}
+		
+		if(interpolation == Interpolation.STEP){
+			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.scaling.get(index);
+			out.set((Vector3)firstKeyframe.value);
+		}
+		else if(interpolation == Interpolation.LINEAR){
+			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.scaling.get(index);
+			out.set((Vector3)firstKeyframe.value);
+			if (++index < nodeAnim.scaling.size) {
+				final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.scaling.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				out.lerp(secondKeyframe.value, t);
+			}
+		}else if(interpolation == Interpolation.CUBICSPLINE){
+			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.scaling.get(index);
+			if (++index < nodeAnim.scaling.size) {
+				final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.scaling.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				
+				CubicVector3 firstCV = (CubicVector3)firstKeyframe.value;
+				CubicVector3 secondCV = (CubicVector3)secondKeyframe.value;
+				
+				cubic(out, t, firstCV, firstCV.tangentOut, secondCV, secondCV.tangentIn);
+			}else{
+				out.set((Vector3)firstKeyframe.value);
+			}
 		}
 		return out;
 	}
@@ -216,14 +337,39 @@ public class AnimationControllerHack extends AnimationController
 		if (nodeAnim.weights.size == 1) return out.set(nodeAnim.weights.get(0).value);
 
 		int index = getFirstKeyframeIndexAtTime(nodeAnim.weights, time);
-		final NodeKeyframe firstKeyframe = nodeAnim.weights.get(index);
-		out.set((WeightVector)firstKeyframe.value);
-
-		if (++index < nodeAnim.weights.size) {
-			final NodeKeyframe<WeightVector> secondKeyframe = nodeAnim.weights.get(index);
-			final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
-			out.lerp(secondKeyframe.value, t);
+		
+		Interpolation interpolation = null;
+		if(nodeAnim instanceof NodeAnimationHack){
+			interpolation = ((NodeAnimationHack) nodeAnim).weightsMode;
 		}
+		
+		if(interpolation == Interpolation.STEP){
+			final NodeKeyframe<WeightVector> firstKeyframe = nodeAnim.weights.get(index);
+			out.set((WeightVector)firstKeyframe.value);
+		}
+		else if(interpolation == Interpolation.LINEAR){
+			final NodeKeyframe<WeightVector> firstKeyframe = nodeAnim.weights.get(index);
+			out.set((WeightVector)firstKeyframe.value);
+			if (++index < nodeAnim.weights.size) {
+				final NodeKeyframe<WeightVector> secondKeyframe = nodeAnim.weights.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				out.lerp(secondKeyframe.value, t);
+			}
+		}else if(interpolation == Interpolation.CUBICSPLINE){
+			final NodeKeyframe<WeightVector> firstKeyframe = nodeAnim.weights.get(index);
+			if (++index < nodeAnim.weights.size) {
+				final NodeKeyframe<WeightVector> secondKeyframe = nodeAnim.weights.get(index);
+				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
+				
+				CubicWeightVector firstCV = (CubicWeightVector)firstKeyframe.value;
+				CubicWeightVector secondCV = (CubicWeightVector)secondKeyframe.value;
+				
+				cubic(out, t, firstCV, firstCV.tangentOut, secondCV, secondCV.tangentIn);
+			}else{
+				out.set((WeightVector)firstKeyframe.value);
+			}
+		}
+		
 		return out;
 	}
 

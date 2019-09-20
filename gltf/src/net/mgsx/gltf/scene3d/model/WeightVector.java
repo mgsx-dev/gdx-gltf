@@ -63,4 +63,18 @@ public class WeightVector {
 		return values[index];
 	}
 
+	public WeightVector scl(float s) {
+		for(int i=0 ; i<count ; i++){
+			values[i] *= s;
+		}
+		return this;
+	}
+
+	public WeightVector mulAdd(WeightVector w, float s) {
+		for(int i=0 ; i<count ; i++){
+			values[i] += w.values[i] * s;
+		}
+		return this;
+	}
+
 }

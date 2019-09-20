@@ -20,6 +20,9 @@ import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.texture.GLTFSampler;
 import net.mgsx.gltf.loaders.shared.animation.Interpolation;
+import net.mgsx.gltf.scene3d.model.CubicQuaternion;
+import net.mgsx.gltf.scene3d.model.CubicVector3;
+import net.mgsx.gltf.scene3d.model.CubicWeightVector;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class GLTFTypes {
@@ -64,11 +67,43 @@ public class GLTFTypes {
 	public static Vector3 map(Vector3 v, float[] fv, int offset) {
 		return v.set(fv[offset+0], fv[offset+1], fv[offset+2]);
 	}
+	public static CubicVector3 map(CubicVector3 v, float[] fv, int offset) {
+		v.tangentIn.set(fv[offset+0], fv[offset+1], fv[offset+2]);
+		v.set(fv[offset+3], fv[offset+4], fv[offset+5]);
+		v.tangentOut.set(fv[offset+6], fv[offset+7], fv[offset+8]);
+		return v;
+	}
+	public static CubicQuaternion map(CubicQuaternion v, float[] fv, int offset) {
+		v.tangentIn.set(fv[offset+0], fv[offset+1], fv[offset+2], fv[offset+3]);
+		v.set(fv[offset+4], fv[offset+5], fv[offset+6], fv[offset+7]);
+		v.tangentOut.set(fv[offset+8], fv[offset+9], fv[offset+10], fv[offset+11]);
+		return v;
+	}
 	
 	public static WeightVector map(WeightVector w, float[] outputData, int offset)
 	{
 		for(int i=0 ; i<w.count ; i++){
 			w.values[i] = outputData[offset + i];
+		}
+		return w;
+	}
+	
+	/** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#animations end of chapter :
+	 * When used with CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes:
+	 * a1,a2,...an,v1,v2,...vn,b1,b2,...bn
+	 *  */
+	public static CubicWeightVector map(CubicWeightVector w, float[] outputData, int offset)
+	{
+		for(int i=0 ; i<w.count ; i++){
+			w.tangentIn.values[i] = outputData[offset + i];
+		}
+		offset += w.count;
+		for(int i=0 ; i<w.count ; i++){
+			w.values[i] = outputData[offset + i];
+		}
+		offset += w.count;
+		for(int i=0 ; i<w.count ; i++){
+			w.tangentOut.values[i] = outputData[offset + i];
 		}
 		return w;
 	}
