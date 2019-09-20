@@ -144,6 +144,7 @@ public class SceneManager implements Disposable {
 	public void disableDefaultLight(){
 		if(defaultLight != null){
 			environment.remove(defaultLight);
+			defaultLight = null;
 		}
 	}
 	

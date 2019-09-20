@@ -468,12 +468,6 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		this.scene = scene;
 		
-		if(scene.lights.size == 0){
-			sceneManager.enableDefaultLight();
-		}else{
-			sceneManager.disableDefaultLight();
-		}
-		
 		ui.setMaterials(scene.modelInstance.materials);
 		ui.setAnimations(scene.modelInstance.animations);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
