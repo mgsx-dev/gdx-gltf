@@ -9,7 +9,9 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
+import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -20,18 +22,33 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class PBRShaderProvider extends DefaultShaderProvider
 {
-	public static PBRShaderProvider createDefault(int maxBones){
+	public static PBRShaderConfig defaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
+		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
+		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.fs.glsl").readString();
+		return config;
+	};
+	
+	public static PBRShaderProvider createDefault(int maxBones){
+		PBRShaderConfig config = defaultConfig();
 		config.numBones = maxBones;
 		return createDefault(config);
 	}
 	
 	public static PBRShaderProvider createDefault(PBRShaderConfig config){
-		String mode = "gdx-pbr";
-		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".vs.glsl").readString();
-		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/" + mode + ".fs.glsl").readString();
-		
 		return new PBRShaderProvider(config);
+	}
+	
+	public static DepthShaderProvider createDepthShaderProvider(int maxBones){
+		DepthShader.Config config = new DepthShader.Config();
+		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.vs.glsl").readString();
+		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.fs.glsl").readString();
+		config.numBones = maxBones;
+		return createDepthShaderProvider(config);
+	}
+	
+	public static DepthShaderProvider createDepthShaderProvider(DepthShader.Config config){
+		return new DepthShaderProvider(config);
 	}
 	
 	public PBRShaderProvider(PBRShaderConfig config) {

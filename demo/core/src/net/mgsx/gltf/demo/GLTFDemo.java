@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
@@ -48,6 +49,7 @@ import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
@@ -98,6 +100,7 @@ public class GLTFDemo extends ApplicationAdapter
 	private String lastFileName;
 	
 	private ShapeRenderer shapeRenderer;
+	private final BoundingBox sceneBox = new BoundingBox();
 	
 	public GLTFDemo() {
 		this("models");
@@ -152,7 +155,7 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
 		
-		sceneManager = new SceneManager(createShaderProvider(shaderMode, 12));
+		sceneManager = new SceneManager();
 		
 		sceneManager.setSkyBox(new SceneSkybox(environmentCubemap));
 		
@@ -282,8 +285,36 @@ public class GLTFDemo extends ApplicationAdapter
 				load(ui.sceneSelector.getSelected());
 			}
 		});
+		
+		ui.lightShadow.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				setShadow(ui.lightShadow.inOn());
+			}
+		});
 	}
 	
+	protected void setShadow(boolean isOn) {
+		DirectionalLight oldLight = sceneManager.getDefaultLight();
+		boolean isShadowLight = oldLight instanceof DirectionalShadowLight;
+		DirectionalLight newLight = null;
+		
+		if(isOn && !isShadowLight){
+			newLight = new DirectionalShadowLight().setBounds(sceneBox);
+		}else if(!isOn && isShadowLight){
+			((DirectionalShadowLight)oldLight).dispose();
+			newLight = new DirectionalLight();
+		}
+		
+		if(newLight != null){
+			newLight.direction.set(oldLight.direction);
+			newLight.color.set(oldLight.color);
+			sceneManager.setDefaultLight(newLight);
+			
+			setShader(shaderMode);
+		}
+	}
+
 	protected void setImage(ModelEntry entry) {
 		if(entry.screenshot != null){
 			if(entry.url != null){
@@ -319,6 +350,7 @@ public class GLTFDemo extends ApplicationAdapter
 	private void setShader(ShaderMode shaderMode) {
 		this.shaderMode = shaderMode;
 		sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
+		sceneManager.setDepthShaderProvider(PBRShaderProvider.createDepthShaderProvider(rootModel.maxBones));
 	}
 	
 	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones){
@@ -337,7 +369,7 @@ public class GLTFDemo extends ApplicationAdapter
 //			// TODO SG shader variant
 		case PBR_MR:
 			{
-				PBRShaderConfig config = new PBRShaderConfig();
+				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.numBones = maxBones;
 				config.debug = ui.shaderDebug.toggle.isChecked();
@@ -468,6 +500,13 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		this.scene = scene;
 		
+		scene.modelInstance.calculateBoundingBox(sceneBox);
+		
+		DirectionalLight light = sceneManager.getDefaultLight();
+		if(light instanceof DirectionalShadowLight){
+			((DirectionalShadowLight)light).setBounds(sceneBox);
+		}
+		
 		ui.setMaterials(scene.modelInstance.materials);
 		ui.setAnimations(scene.modelInstance.animations);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
@@ -487,7 +526,7 @@ public class GLTFDemo extends ApplicationAdapter
 			PerspectiveCamera camera = new PerspectiveCamera(60, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 			camera.up.set(Vector3.Y);
 			
-			BoundingBox bb = scene.modelInstance.calculateBoundingBox(new BoundingBox());
+			BoundingBox bb = this.sceneBox;
 			
 			Vector3 center = bb.getCenter(new Vector3());
 			camera.position.set(bb.max).sub(center).scl(3).add(center);

@@ -151,7 +151,7 @@ varying vec3 v_shadowMapUv;
 float getShadowness(vec2 offset)
 {
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
-    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts)+(1.0/255.0));
+    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts));//+(1.0/255.0));
 }
 
 float getShadow()
@@ -517,9 +517,9 @@ void main() {
 
 #ifdef shadowMapFlag
 #ifdef ambientLightFlag
-    color = mix(ambientColor * u_ambientLight, ambientColor + color, getShadow());
+    color = mix(ambientColor * u_ambientLight, ambientColor + color, getShadow() * NdotL);
 #else
-    color = ambientColor + color * getShadow();
+    color = ambientColor + color * getShadow() * NdotL;
 #endif
 #else
     color = color + ambientColor;

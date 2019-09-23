@@ -70,6 +70,7 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<String> lightSelector;
 	public Label shaderCount;
 	public TextButton skeletonButton;
+	public BooleanUI lightShadow;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -179,6 +180,9 @@ public class GLTFDemoUI extends Table {
 		lightOptions.optTable.add("Dir Light");
 		lightOptions.optTable.add(lightDirectionControl = new Vector3UI(skin, new Vector3())).row();
 
+		lightOptions.optTable.add("Shadows");
+		lightOptions.optTable.add(lightShadow = new BooleanUI(skin, false)).row();
+		
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");
 		root.add(cameraSelector).row();

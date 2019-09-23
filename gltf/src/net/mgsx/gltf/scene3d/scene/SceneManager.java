@@ -8,12 +8,15 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+
+import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
 /**
  * Convient manager class for: model instances, animators, camera, environment, lights, batch/shaderProvider
@@ -25,6 +28,7 @@ public class SceneManager implements Disposable {
 	private Array<Scene> scenes = new Array<Scene>();
 	
 	private ModelBatch batch;
+	private ModelBatch shadowBatch;
 	
 	private DirectionalLight defaultLight;
 	
@@ -35,16 +39,24 @@ public class SceneManager implements Disposable {
 	private SceneSkybox skyBox;
 	
 	public SceneManager() {
-		this(new DefaultShaderProvider());
+		this(24);
 	}
 	
-	public SceneManager(ShaderProvider shaderProvider)
+	public SceneManager(int maxBones) {
+		this(PBRShaderProvider.createDefault(maxBones), PBRShaderProvider.createDepthShaderProvider(maxBones));
+	}
+	
+	public SceneManager(ShaderProvider shaderProvider, DepthShaderProvider depthShaderProvider)
 	{
 		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
 		
+		shadowBatch = new ModelBatch(depthShaderProvider);
+		
 		environment = new Environment();
 		
-		enableDefaultLight();
+		defaultLight = new DirectionalLight();
+		defaultLight.set(Color.WHITE, new Vector3(0,-1,0));
+		environment.add(defaultLight);
 		
 		float lum = .5f;
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
@@ -59,6 +71,10 @@ public class SceneManager implements Disposable {
 		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
 	}
 	
+	public void setDepthShaderProvider(DepthShaderProvider depthShaderProvider) {
+		shadowBatch.dispose();
+		shadowBatch = new ModelBatch(depthShaderProvider);
+	}
 	
 	public void addScene(Scene scene){
 		addScene(scene, true);
@@ -86,6 +102,30 @@ public class SceneManager implements Disposable {
 	
 	public void render(){
 		if(camera == null) return;
+		
+		renderShadows();
+		
+		renderScene();
+	}
+	
+	protected void renderShadows(){
+		if(defaultLight instanceof DirectionalShadowLight){
+			DirectionalShadowLight shadowLight = (DirectionalShadowLight)defaultLight;
+			shadowLight.begin();
+			shadowBatch.begin(shadowLight.getCamera());
+			for(Scene scene : scenes){
+				shadowBatch.render(scene.modelInstance);
+			}
+			shadowBatch.end();
+			shadowLight.end();
+			
+			environment.shadowMap = shadowLight;
+		}else{
+			environment.shadowMap = null;
+		}
+	}
+	
+	protected void renderScene(){
 		batch.begin(camera);
 		for(Scene scene : scenes){
 			batch.render(scene.modelInstance, environment);
@@ -93,8 +133,7 @@ public class SceneManager implements Disposable {
 		if(skyBox != null){
 			batch.render(skyBox);
 		}
-		batch.end();
-		
+		batch.end();		
 	}
 
 	public void setSkyBox(SceneSkybox skyBox) {
@@ -133,22 +172,16 @@ public class SceneManager implements Disposable {
 		batch.dispose();
 	}
 
-	public void enableDefaultLight() {
-		if(defaultLight == null){
-			defaultLight = new DirectionalLight();
-			defaultLight.set(Color.WHITE, new Vector3(0,-1,0));
-			environment.add(defaultLight);
-		}
-	}
-	
-	public void disableDefaultLight(){
-		if(defaultLight != null){
-			environment.remove(defaultLight);
-			defaultLight = null;
-		}
-	}
-	
 	public DirectionalLight getDefaultLight() {
 		return defaultLight;
+	}
+
+	public void setDefaultLight(DirectionalLight light) 
+	{
+		if(defaultLight != null){
+			environment.remove(defaultLight);
+		}
+		defaultLight = light;
+		environment.add(defaultLight);
 	}
 }

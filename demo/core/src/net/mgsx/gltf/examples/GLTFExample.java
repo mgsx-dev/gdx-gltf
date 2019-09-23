@@ -17,7 +17,6 @@ import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 
 public class GLTFExample extends ApplicationAdapter
@@ -39,7 +38,7 @@ public class GLTFExample extends ApplicationAdapter
 		// create scene
 		sceneAsset = new GLTFLoader().load(Gdx.files.internal("models/BoomBox/glTF/BoomBox.gltf"));
 		scene = new Scene(sceneAsset.scene);
-		sceneManager = new SceneManager(PBRShaderProvider.createDefault(12));
+		sceneManager = new SceneManager();
 		sceneManager.addScene(scene);
 		
 		// setup camera
