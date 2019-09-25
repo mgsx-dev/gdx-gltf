@@ -150,6 +150,16 @@ public class PBRShader extends DefaultShader
 		}
 	};
 	
+	public final static Uniform shadowBiasUniform = new Uniform("u_shadowBias");
+	public final static Setter shadowBiasSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute attribute = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.NormalScale);
+			float value = attribute == null ? 0f : attribute.value;
+			shader.set(inputID, value);
+		}
+	};
+
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
 	public final int u_metallicRoughness;
@@ -182,6 +192,8 @@ public class PBRShader extends DefaultShader
 	private int u_ambientLight;
 	
 	private long textureCoordinateMapMask;
+
+	private int u_ShadowBias;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -218,6 +230,8 @@ public class PBRShader extends DefaultShader
 		// normal map
 		u_NormalTexture = register(normalTextureUniform, normalTextureSetter);
 		u_NormalScale = register(normalScaleUniform, normalScaleSetter);
+		
+		u_ShadowBias = register(shadowBiasUniform, shadowBiasSetter);
 		
 	}
 
@@ -362,6 +376,11 @@ public class PBRShader extends DefaultShader
 	@Override
 	protected void bindLights(Renderable renderable, Attributes attributes) {
 		super.bindLights(renderable, attributes);
+			
+		PBRFloatAttribute shadowBias = attributes.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);
+		if(shadowBias != null){
+			program.setUniformf(u_ShadowBias, shadowBias.value);
+		}
 		
 		// XXX
 		ColorAttribute ambiantLight = attributes.get(ColorAttribute.class, ColorAttribute.AmbientLight);

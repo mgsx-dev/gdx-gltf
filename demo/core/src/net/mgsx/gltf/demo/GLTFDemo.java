@@ -48,6 +48,7 @@ import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -179,6 +180,8 @@ public class GLTFDemo extends ApplicationAdapter
 		if(brdfLUT != null){
 			sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
 		}
+		
+		sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0f));
 	}
 	
 	private void loadModelIndex() 
@@ -588,6 +591,9 @@ public class GLTFDemo extends ApplicationAdapter
 			sceneManager.getDefaultLight().color.r *= IBLScale;
 			sceneManager.getDefaultLight().color.g *= IBLScale;
 			sceneManager.getDefaultLight().color.b *= IBLScale;
+			
+			PBRFloatAttribute shadowBias = sceneManager.environment.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);
+			shadowBias.value = ui.shadowBias.getValue() / 50f;
 		}
 
 		sceneManager.render();

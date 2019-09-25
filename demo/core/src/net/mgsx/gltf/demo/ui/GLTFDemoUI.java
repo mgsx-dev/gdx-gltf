@@ -71,6 +71,7 @@ public class GLTFDemoUI extends Table {
 	public Label shaderCount;
 	public TextButton skeletonButton;
 	public BooleanUI lightShadow;
+	public FloatUI shadowBias;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -182,6 +183,11 @@ public class GLTFDemoUI extends Table {
 
 		lightOptions.optTable.add("Shadows");
 		lightOptions.optTable.add(lightShadow = new BooleanUI(skin, false)).row();
+		
+		lightOptions.optTable.add("Shadow Bias");
+		lightOptions.optTable.add(shadowBias = new FloatUI(skin, 0)).row();
+		
+		
 		
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");

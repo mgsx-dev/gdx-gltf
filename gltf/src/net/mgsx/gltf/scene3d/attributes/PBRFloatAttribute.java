@@ -17,6 +17,9 @@ public class PBRFloatAttribute extends FloatAttribute
 	public final static String OcclusionStrengthAlias = "OcclusionStrength";
 	public final static long OcclusionStrength = register(OcclusionStrengthAlias);
 	
+	public final static String ShadowBiasAlias = "ShadowBias";
+	public final static long ShadowBias = register(NormalScaleAlias);
+	
 	public PBRFloatAttribute(long type, float value) {
 		super(type, value);
 	}
