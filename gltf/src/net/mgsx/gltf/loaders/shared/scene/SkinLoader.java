@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFSkin;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 
 public class SkinLoader {
@@ -47,8 +47,9 @@ public class SkinLoader {
 				nodePart.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
 				for(int n=0 ; n<joints.size ; n++){
 					nodePart.bones[n] = new Matrix4().idt();
-					Node key = nodeResolver.get(joints.get(n));
-					if(key == null) throw new GdxRuntimeException("error !!!!!!!!"); // Node not already parsed !
+					int nodeIndex = joints.get(n);
+					Node key = nodeResolver.get(nodeIndex);
+					if(key == null) throw new GLTFIllegalException("node not found for bone: " + nodeIndex);
 					nodePart.invBoneBindTransforms.put(key, ibms.get(n));
 				}
 			}

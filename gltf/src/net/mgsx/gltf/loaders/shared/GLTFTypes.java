@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.texture.GLTFSampler;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.animation.Interpolation;
 import net.mgsx.gltf.scene3d.model.CubicQuaternion;
 import net.mgsx.gltf.scene3d.model.CubicVector3;
@@ -27,6 +28,24 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class GLTFTypes {
 
+	// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#accessor-element-size
+	
+	public static final String TYPE_SCALAR = "SCALAR";
+	public static final String TYPE_VEC2 = "VEC2";
+	public static final String TYPE_VEC3 = "VEC3";
+	public static final String TYPE_VEC4 = "VEC4";
+	public static final String TYPE_MAT2 = "MAT2";
+	public static final String TYPE_MAT3 = "MAT3";
+	public static final String TYPE_MAT4 = "MAT4";
+
+	public static final int C_BYTE = 5120;
+	public static final int C_UBYTE = 5121;
+	public static final int C_SHORT = 5122;
+	public static final int C_USHORT = 5123;
+	public static final int C_UINT = 5124;
+	public static final int C_FLOAT = 5126;
+	
+	
 	/** https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#primitivemode */
 	public static int mapPrimitiveMode(Integer glMode){
 		if(glMode == null) return GL20.GL_TRIANGLES; // TODO not sure
@@ -111,34 +130,37 @@ public class GLTFTypes {
 
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#accessor-element-size
 	public static int accessorTypeSize(GLTFAccessor accessor){
-		if("SCALAR".equals(accessor.type)){
+		if(TYPE_SCALAR.equals(accessor.type)){
 			return 1;
-		}else if("VEC2".equals(accessor.type)){
+		}else if(TYPE_VEC2.equals(accessor.type)){
 			return 2;
-		}else if("VEC3".equals(accessor.type)){
+		}else if(TYPE_VEC3.equals(accessor.type)){
 			return 3;
-		}else if("VEC4".equals(accessor.type)){
+		}else if(TYPE_VEC4.equals(accessor.type)){
 			return 4;
-		}else if("MAT2".equals(accessor.type)){
+		}else if(TYPE_MAT2.equals(accessor.type)){
 			return 4;
-		}else if("MAT3".equals(accessor.type)){
+		}else if(TYPE_MAT3.equals(accessor.type)){
 			return 9;
-		}else if("MAT4".equals(accessor.type)){
+		}else if(TYPE_MAT4.equals(accessor.type)){
 			return 16;
 		}else{
-			throw new GdxRuntimeException("type not known yet : " + accessor.type);
+			throw new GLTFIllegalException("illegal accessor type: " + accessor.type);
 		}
 	}
 	public static int accessorComponentTypeSize(GLTFAccessor accessor){
 		switch(accessor.componentType){
-		case 5120: return 1; // ubyte
-		case 5121: return 1; // byte
-		case 5122: return 2; // short
-		case 5123: return 2; // ushort
-		case 5125: return 4; // uint
-		case 5126: return 4; // float
+		case C_UBYTE: 
+		case C_BYTE:   
+			return 1; 
+		case C_SHORT:
+		case C_USHORT: 
+			return 2; 
+		case C_UINT:
+		case C_FLOAT:  
+			return 4; 
 		default:
-			throw new GdxRuntimeException("type not known yet : " + accessor.componentType);
+			throw new GLTFIllegalException("illegal accessor component type: " + accessor.componentType);
 		}
 	}
 	public static int accessorStrideSize(GLTFAccessor accessor){

@@ -37,6 +37,8 @@ import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 public class GLTFLoaderBase implements Disposable {
 
+	public static final String TAG = "GLTF";
+	
 	/** whenether error logged or exception thrown when not implemented feature is present */
 	public static boolean FAIL_NOT_IMPLEMENTED = false;
 

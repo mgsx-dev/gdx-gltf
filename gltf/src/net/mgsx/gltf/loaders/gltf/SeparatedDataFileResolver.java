@@ -6,13 +6,13 @@ import java.nio.ByteOrder;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Base64Coder;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBuffer;
 import net.mgsx.gltf.data.texture.GLTFImage;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 
@@ -67,7 +67,7 @@ public class SeparatedDataFileResolver implements DataFileResolver
 	@Override
 	public Pixmap load(GLTFImage glImage) {
 		if(glImage.uri == null){
-			throw new GdxRuntimeException("GLTF image URI cannot be null");
+			throw new GLTFIllegalException("GLTF image URI cannot be null");
 		}else if(glImage.uri.startsWith("data:")){
 			// data:application/octet-stream;base64,
 			String [] headerBody = glImage.uri.split(",", 2);

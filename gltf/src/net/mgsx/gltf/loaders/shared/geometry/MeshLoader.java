@@ -24,6 +24,9 @@ import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.geometry.GLTFMesh;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
+import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
@@ -54,8 +57,8 @@ public class MeshLoader {
 				Array<VertexAttribute> vertexAttributes = new Array<VertexAttribute>();
 				Array<GLTFAccessor> glAccessors = new Array<GLTFAccessor>();
 				
-				int [][] bonesIndices = {null, null};
-				float [][] bonesWeights = {null, null};
+				Array<int[]> bonesIndices = new Array<int[]>();
+				Array<float[]> bonesWeights = new Array<float[]>();
 				
 				boolean hasNormals = false;
 				
@@ -73,52 +76,50 @@ public class MeshLoader {
 					}else if(attributeName.equals("TANGENT")){
 						vertexAttributes.add(new VertexAttribute(Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE));
 					}else if(attributeName.startsWith("TEXCOORD_")){
-						int unit = Integer.parseInt(attributeName.substring("TEXCOORD_".length()));
+						int unit = parseAttributeUnit(attributeName);
 						vertexAttributes.add(VertexAttribute.TexCoords(unit));
 					}else if(attributeName.startsWith("COLOR_")){
-						int unit = Integer.parseInt(attributeName.substring("COLOR_".length()));
+						int unit = parseAttributeUnit(attributeName);
 						if(unit == 0){
 							vertexAttributes.add(VertexAttribute.ColorUnpacked());
 						}else{
-							vertexAttributes.add(new VertexAttribute(VertexAttributes.Usage.Generic, 4, ShaderProgram.COLOR_ATTRIBUTE + unit));
+							vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE + unit, unit));
 						}
 					}else if(attributeName.startsWith("WEIGHTS_")){
 						rawAttribute = false;
-						// TODO could be var sizes ...
-						int numComponentsBytes = 0;
-						if("VEC4".equals(accessor.type)){
-							numComponentsBytes = 4;
-						}else{
-							throw new GdxRuntimeException("type not known yet : " + accessor.type);
+						
+						if(!GLTFTypes.TYPE_VEC4.equals(accessor.type)){
+							throw new GLTFIllegalException("illegal weight attribute type: " + accessor.type);
 						}
-						if(accessor.componentType == 5126){ // float
-							numComponentsBytes *= 4;
+						
+						int unit = parseAttributeUnit(attributeName);
+						if(unit >= bonesWeights.size) bonesWeights.setSize(unit+1);
+
+						if(accessor.componentType == GLTFTypes.C_FLOAT){
+							bonesWeights.set(unit, dataResolver.readBufferFloat(accessorId));
+						}else if(accessor.componentType == GLTFTypes.C_USHORT){ 
+							throw new GLTFUnsupportedException("unsigned short weight attribute not supported");
+						}else if(accessor.componentType == GLTFTypes.C_UBYTE){ 
+							throw new GLTFUnsupportedException("unsigned byte weight attribute not supported");
 						}else{
-							throw new GdxRuntimeException("type not known yet : " + accessor.componentType);
-						}
-						int unit = Integer.parseInt(attributeName.substring("WEIGHTS_".length()));
-						if(numComponentsBytes == 16){
-							bonesWeights[unit] = dataResolver.readBufferFloat(accessorId);
-							// vertexAttributes.add(VertexAttribute.BoneWeight(unit));
-						}else if(numComponentsBytes % 4 == 0){
-							throw new GdxRuntimeException("NYI !!");
-							// vertexAttributes.add(new VertexAttribute(VertexAttributes.Usage.Generic, numComponentsBytes/4, "a_weight_gltf" + unit));
-						}else{
-							throw new GdxRuntimeException("bad alignement " + numComponentsBytes + " bytes");
+							throw new GLTFIllegalException("illegal weight attribute type: " + accessor.componentType);
 						}
 					}else if(attributeName.startsWith("JOINTS_")){
 						rawAttribute = false;
 						
-						if(!"VEC4".equals(accessor.type)){
-							throw new GdxRuntimeException("joint must be VEC4 found " + accessor.type);
+						if(!GLTFTypes.TYPE_VEC4.equals(accessor.type)){
+							throw new GLTFIllegalException("illegal joints attribute type: " + accessor.type);
 						}
-						int unit = Integer.parseInt(attributeName.substring("JOINTS_".length()));
-						if(accessor.componentType == 5121){ // unsigned byte
-							bonesIndices[unit] = dataResolver.readBufferUByte(accessorId);
-						}else if(accessor.componentType == 5123){ // unsigned short
-							bonesIndices[unit] = dataResolver.readBufferUShort(accessorId);
+						
+						int unit = parseAttributeUnit(attributeName);
+						if(unit >= bonesIndices.size) bonesIndices.setSize(unit+1);
+						
+						if(accessor.componentType == GLTFTypes.C_UBYTE){ // unsigned byte
+							bonesIndices.set(unit, dataResolver.readBufferUByte(accessorId));
+						}else if(accessor.componentType == GLTFTypes.C_USHORT){ // unsigned short
+							bonesIndices.set(unit, dataResolver.readBufferUShort(accessorId));
 						}else{
-							throw new GdxRuntimeException("type not supported : " + accessor.componentType);
+							throw new GLTFIllegalException("illegal type for joints: " + accessor.componentType);
 						}
 						if(accessor.max != null){
 							for(float boneIndex : accessor.max){
@@ -126,16 +127,15 @@ public class MeshLoader {
 							}
 						}else{
 							// compute from data
-							for(int [] ids : bonesIndices){
-								if(ids != null){
-									for(int boneIndex : ids){
-										maxBones = Math.max(maxBones, boneIndex + 1);
-									}
-								}
+							for(int boneIndex : bonesIndices.get(unit)){
+								maxBones = Math.max(maxBones, boneIndex + 1);
 							}
 						}
+					}
+					else if(attributeName.startsWith("_")){
+						Gdx.app.error("GLTF", "skip unsupported custom attribute: " + attributeName);
 					}else{
-						throw new GdxRuntimeException("unsupported attribute type " + attributeName);
+						throw new GLTFIllegalException("illegal attribute type " + attributeName);
 					}
 					
 					if(rawAttribute){
@@ -163,16 +163,14 @@ public class MeshLoader {
 							}else if(attributeName.equals("TANGENT")){
 								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.TangentTarget, 3, ShaderProgram.TANGENT_ATTRIBUTE + unit, unit));
 							}else{
-								throw new GdxRuntimeException("unsupported target attribute type " + attributeName);
+								throw new GLTFIllegalException("illegal morph target attribute type " + attributeName);
 							}
 						}
 					}
 					
 				}
 				
-				int bSize = 0;
-				if(bonesIndices[0] != null) bSize = 4;
-				if(bonesIndices[1] != null) bSize = 8;
+				int bSize = bonesIndices.size * 4;
 
 				Array<VertexAttribute> bonesAttributes = new Array<VertexAttribute>();
 				for(int b=0 ; b<bSize ; b++){
@@ -191,15 +189,14 @@ public class MeshLoader {
 				int vertexFloats = attributesGroup.vertexSize/4;
 				
 				int maxVertices = glAccessors.first().count;
-				// TODO no need to go futher if maxVertices > 32767 ...
 
 				float [] vertices = new float [maxVertices * vertexFloats];
 				
 				for(int b=0 ; b<bSize ; b++){
 					VertexAttribute boneAttribute = bonesAttributes.get(b);
 					for(int i=0 ; i<maxVertices ; i++){
-						vertices[i * vertexFloats + boneAttribute.offset/4] = bonesIndices[b/4][i * 4 + b%4];
-						vertices[i * vertexFloats + boneAttribute.offset/4+1] = bonesWeights[b/4][i * 4 + b%4];
+						vertices[i * vertexFloats + boneAttribute.offset/4] = bonesIndices.get(b/4)[i * 4 + b%4];
+						vertices[i * vertexFloats + boneAttribute.offset/4+1] = bonesWeights.get(b/4)[i * 4 + b%4];
 					}
 				}
 				
@@ -314,6 +311,15 @@ public class MeshLoader {
 		node.parts.addAll(parts);
 	}
 
+	private int parseAttributeUnit(String attributeName) {
+		int lastUnderscoreIndex = attributeName.lastIndexOf('_');
+		try{
+			return Integer.parseInt(attributeName.substring(lastUnderscoreIndex+1));
+		}catch(NumberFormatException e){
+			throw new GLTFIllegalException("illegal attribute name " + attributeName);
+		}
+	}
+
 	private short[] loadIndices(GLTFPrimitive primitive, DataResolver dataResolver) {
 		short [] indices = null;
 		
@@ -321,62 +327,51 @@ public class MeshLoader {
 			
 			GLTFAccessor indicesAccessor = dataResolver.getAccessor(primitive.indices);
 			
-			// Accessor Element Size
-			// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#accessor-element-size
-			// 5120 : byte
-			// 5121 : ubyte
-			// 5122 : short
-			// 5123 : ushort
-			// 5125 : uint
-			// 5126 : float (not in this case)
+			if(!indicesAccessor.type.equals(GLTFTypes.TYPE_SCALAR)){
+				throw new GLTFIllegalException("indices accessor must be SCALAR but was " + indicesAccessor.type);
+			}
+				
+			int maxIndices = indicesAccessor.count;
+			indices = new short[maxIndices];
 			
-			if(indicesAccessor.type.equals("SCALAR")){
-				
-				int maxIndices = indicesAccessor.count;
-				indices = new short[maxIndices];
-				
-				switch(indicesAccessor.componentType){
-				case 5125: // unsigned int
-					{
-						IntBuffer intBuffer = dataResolver.getBufferInt(indicesAccessor);
-						long maxIndex = 0;
-						for(int i=0 ; i<maxIndices ; i++){
-							long index = intBuffer.get() & 0xFFFFFFFFL;
-							maxIndex = Math.max(index, maxIndex);
-							indices[i] = (short)(index);
-						}
-						checkMaxIndex(maxIndex);
-					}
-					break;
-				case 5123: // unsigned short
-				case 5122: // short
-					dataResolver.getBufferShort(indicesAccessor).get(indices);
-					
-					int maxIndex;
-					if(indicesAccessor.max != null){
-						maxIndex = (int)indicesAccessor.max[0];
-					}else{
-						maxIndex = 0;
-						for(short i : indices){
-							maxIndex = Math.max(maxIndex, i & 0xFFFF);
-						}
+			switch(indicesAccessor.componentType){
+			case GLTFTypes.C_UINT:
+				{
+					IntBuffer intBuffer = dataResolver.getBufferInt(indicesAccessor);
+					long maxIndex = 0;
+					for(int i=0 ; i<maxIndices ; i++){
+						long index = intBuffer.get() & 0xFFFFFFFFL;
+						maxIndex = Math.max(index, maxIndex);
+						indices[i] = (short)(index);
 					}
 					checkMaxIndex(maxIndex);
-					break;
-				case 5121: // unsigned bytes
-					ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
-					for(int i=0 ; i<maxIndices ; i++){
-						indices[i] = (short)(byteBuffer.get() & 0xFF);
-					}
-					break;
-				default:
-					throw new GdxRuntimeException("unsupported componentType " + indicesAccessor.componentType);
 				}
+				break;
+			case GLTFTypes.C_USHORT:
+			case GLTFTypes.C_SHORT:
+				dataResolver.getBufferShort(indicesAccessor).get(indices);
 				
-				
-			}else{
-				throw new GdxRuntimeException("indices accessor must be SCALAR but was " + indicesAccessor.type);
+				int maxIndex;
+				if(indicesAccessor.max != null){
+					maxIndex = (int)indicesAccessor.max[0];
+				}else{
+					maxIndex = 0;
+					for(short i : indices){
+						maxIndex = Math.max(maxIndex, i & 0xFFFF);
+					}
+				}
+				checkMaxIndex(maxIndex);
+				break;
+			case GLTFTypes.C_UBYTE:
+				ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
+				for(int i=0 ; i<maxIndices ; i++){
+					indices[i] = (short)(byteBuffer.get() & 0xFF);
+				}
+				break;
+			default:
+				throw new GLTFIllegalException("illegal componentType " + indicesAccessor.componentType);
 			}
+					
 		}
 		
 		return indices;
@@ -392,9 +387,9 @@ public class MeshLoader {
 
 	private void checkMaxIndex(long maxIndex){
 		if(maxIndex >= 1<<16){
-			throw new GdxRuntimeException("high index detected: " + maxIndex + ". Not supported");
+			throw new GLTFUnsupportedException("high index detected: " + maxIndex + ". Not supported");
 		}else if(maxIndex >= 1<<15){
-			Gdx.app.error("GLTF", "high index detected: " + maxIndex + ". Unsigned short indices are supported but still experimental");
+			Gdx.app.error(GLTFLoaderBase.TAG, "high index detected: " + maxIndex + ". Unsigned short indices are supported but still experimental");
 		}
 	}
 	

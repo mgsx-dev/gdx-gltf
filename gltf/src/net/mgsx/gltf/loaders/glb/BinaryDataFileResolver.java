@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -16,6 +17,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
+import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 
@@ -48,9 +51,9 @@ public class BinaryDataFileResolver implements DataFileResolver
 	
 	private void loadInternal(LittleEndianInputStream stream) throws IOException {
 		long magic = stream.readInt(); // & 0xFFFFFFFFL;
-		if(magic != 0x46546C67) throw new GdxRuntimeException("bad magic");
+		if(magic != 0x46546C67) throw new GLTFIllegalException("bad magic");
 		int version = stream.readInt();
-		if(version != 2) throw new GdxRuntimeException("bad version");
+		if(version != 2) throw new GLTFIllegalException("bad version");
 		long length = stream.readInt();// & 0xFFFFFFFFL;
 		
 		String jsonData = null;
@@ -70,7 +73,7 @@ public class BinaryDataFileResolver implements DataFileResolver
 				bufferData.flip();
 				bufferMap.put(bufferMap.size, bufferData);
 			}else{
-				System.out.println("skip buffer type " + chunkType);
+				Gdx.app.log(GLTFLoaderBase.TAG, "skip buffer type " + chunkType);
 				if(chunkLen > 0){
 					stream.skip(chunkLen);
 				}
@@ -101,7 +104,7 @@ public class BinaryDataFileResolver implements DataFileResolver
 			buffer.get(data);
 			return PixmapBinaryLoaderHack.load(data, 0, data.length);
 		}else{
-			throw new GdxRuntimeException("GLB image should have bufferView");
+			throw new GLTFIllegalException("GLB image should have bufferView");
 		}
 	}
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -22,6 +23,8 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class PBRShaderProvider extends DefaultShaderProvider
 {
+	public static final String TAG = "PBRShader";
+	
 	public static PBRShaderConfig defaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
 		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
@@ -83,8 +86,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			prefix += "#define USE_DERIVATIVES_EXT\n";
 		}
 		
+		final int maxMorphTarget = 8;
+		
 		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
-			for(int i=0 ; i<8 ; i++){
+			for(int i=0 ; i<maxMorphTarget ; i++){
 				if(att.alias.equals(ShaderProgram.POSITION_ATTRIBUTE + i)){
 					prefix += "#define " + "position" + i + "Flag\n";
 				}else if(att.alias.equals(ShaderProgram.NORMAL_ATTRIBUTE + i)){
@@ -216,12 +221,48 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(maxUVIndex == 1){
 			prefix += "#define textureCoord1Flag\n";
 		}else if(maxUVIndex > 1){
-			throw new GdxRuntimeException("multi UVs > 1 not supported");
+			throw new GdxRuntimeException("more than 2 texture coordinates attribute not supported");
+		}
+		
+		int numBoneInfluence = 0;
+		int numMorphTarget = 0;
+		int numColor = 0;
+		
+		for(VertexAttribute attribute : renderable.meshPart.mesh.getVertexAttributes()){
+			if(attribute.usage == VertexAttributes.Usage.ColorPacked){
+				throw new GdxRuntimeException("color packed attribute not supported");
+			}else if(attribute.usage == VertexAttributes.Usage.ColorUnpacked){
+				numColor = Math.max(numColor, attribute.unit+1);
+			}else if(attribute.usage == VertexAttributes.Usage.Position && attribute.unit>=maxMorphTarget ||
+					attribute.usage == VertexAttributes.Usage.Normal && attribute.unit>=maxMorphTarget ||
+					attribute.usage == VertexAttributes.Usage.Tangent && attribute.unit>=maxMorphTarget ){
+				numMorphTarget = Math.max(numMorphTarget, attribute.unit+1);
+			}else if(attribute.usage == VertexAttributes.Usage.BoneWeight){
+				numBoneInfluence = Math.max(numBoneInfluence, attribute.unit+1);
+			}
+		}
+		
+		if(numBoneInfluence > 8){
+			Gdx.app.error(TAG, "more than 8 bones influence attributes not supported: " + numBoneInfluence + " found.");
+		}
+		if(numMorphTarget > maxMorphTarget){
+			Gdx.app.error(TAG, "more than 8 morph target attributes not supported: " + numMorphTarget + " found.");
+		}
+		if(numColor > 1){
+			Gdx.app.error(TAG, "more than 1 color attributes not supported: " + numColor + " found.");
 		}
 		
 		PBRShader shader = new PBRShader(renderable, config, prefix);
 		String shaderLog = shader.program.getLog();
-		Gdx.app.log("Shader compilation", shaderLog.isEmpty() ? "success" : shaderLog);
+		if(shader.program.isCompiled()){
+			if(shaderLog.isEmpty()){
+				Gdx.app.log(TAG, "Shader compilation success");
+			}else{
+				Gdx.app.error(TAG, "Shader compilation warnings:\n" + shaderLog);
+			}
+		}else{
+			throw new GdxRuntimeException("Shader compilation failed:\n" + shaderLog);
+		}
 		
 		// prevent infinite loop
 		if(!shader.canRender(renderable)){

@@ -183,8 +183,9 @@ public class GLTFInspector {
 		loga(indexed ? "indices" : "vertices", part.meshPart.size, indexed ? "" : " not indexed", 
 				part.meshPart.size/3, "poly");
 		elementCount += part.meshPart.size;
+		
 		if(part.bones != null){
-			log("bones influence", part.bones.length);
+			log("bones count", part.bones.length);
 		}
 	}
 
