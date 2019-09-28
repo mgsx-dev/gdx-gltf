@@ -295,6 +295,17 @@ public class GLTFDemo extends ApplicationAdapter
 				setShadow(ui.lightShadow.inOn());
 			}
 		});
+		
+		ui.btAllAnimations.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(ui.btAllAnimations.isChecked()){
+					scene.animations.playAll();
+				}else{
+					scene.animations.stopAll();
+				}
+			}
+		});
 	}
 	
 	protected void setShadow(boolean isOn) {

@@ -72,6 +72,8 @@ public class GLTFDemoUI extends Table {
 	public TextButton skeletonButton;
 	public BooleanUI lightShadow;
 	public FloatUI shadowBias;
+
+	public TextButton btAllAnimations;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -198,8 +200,10 @@ public class GLTFDemoUI extends Table {
 		root.add(lightSelector).row();
 		
 		animationSelector = new SelectBox<String>(skin);
+		btAllAnimations = new TextButton("All", skin, "toggle");
 		root.add("Animation");
-		root.add(animationSelector).row();
+		root.add(animationSelector);
+		root.add(btAllAnimations).row();
 		
 		skeletonButton = new TextButton("Skeletons", getSkin(), "toggle");
 		root.add("Skeletons");
@@ -241,6 +245,13 @@ public class GLTFDemoUI extends Table {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				showHideOtherNodes(btNodeExclusive.isChecked());
+			}
+		});
+		
+		btAllAnimations.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				
 			}
 		});
 	}

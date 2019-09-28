@@ -98,6 +98,7 @@ public class AnimationControllerHack extends AnimationController
 	};
 	private final static ObjectMap<Node, Transform> transforms = new ObjectMap<Node, Transform>();
 	private boolean applying = false;
+	public boolean calculateTransforms = true;
 
 	/** Begin applying multiple animations to the instance, must followed by one or more calls to {
 	 * {@link #apply(Animation, float, float)} and finally {{@link #end()}. */
@@ -124,7 +125,7 @@ public class AnimationControllerHack extends AnimationController
 			transformPool.free(entry.value);
 		}
 		transforms.clear();
-		target.calculateTransforms();
+		if(calculateTransforms) target.calculateTransforms();
 		applying = false;
 	}
 
@@ -133,7 +134,7 @@ public class AnimationControllerHack extends AnimationController
 	protected void applyAnimation (final Animation animation, final float time) {
 		if (applying) throw new GdxRuntimeException("Call end() first");
 		applyAnimationPlus(null, (Pool<Transform>)null, 1.f, animation, time);
-		target.calculateTransforms();
+		if(calculateTransforms) target.calculateTransforms();
 	}
 
 	/** Apply two animations, blending the second onto to first using weight. */
@@ -447,4 +448,9 @@ public class AnimationControllerHack extends AnimationController
 			}
 		}
 	}
+
+	public void setAnimation(Animation animation) {
+		setAnimation(animation, 0f, animation.duration, 1, 1f, null); // loop count: 0 paused, -1 infinite
+	}
+
 }

@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
+import net.mgsx.gltf.scene3d.animation.AnimationsPlayer;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 public class Scene {
@@ -26,6 +27,7 @@ public class Scene {
 	
 	public final ObjectMap<BaseLight, Node> lights = new ObjectMap<BaseLight, Node>();
 	public final ObjectMap<Camera, Node> cameras = new ObjectMap<Camera, Node>();
+	public final AnimationsPlayer animations;
 	
 	private static final Matrix4 transform = new Matrix4();
 	
@@ -105,15 +107,14 @@ public class Scene {
 		if(animated){
 			this.animationController = new AnimationControllerHack(modelInstance);
 		}
+		animations = new AnimationsPlayer(this);
 	}
 	public Scene(Model model, boolean animated) {
 		this(new ModelInstanceHack(model), animated);
 	}
 
 	public void update(float delta){
-		if(animationController != null){
-			animationController.update(delta);
-		}
+		animations.update(delta);
 		for(Entry<Camera, Node> e : cameras){
 			Node node = e.value;
 			Camera camera = e.key;
