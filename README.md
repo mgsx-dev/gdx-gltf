@@ -1,18 +1,33 @@
 
-LibGDX GLTF 2.0 and PBR shader implementation **Work In Progress**
+[![status](https://img.shields.io/badge/glTF-2%2E0-green.svg?style=flat)](https://github.com/KhronosGroup/glTF) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/badge/semver-2.0-brightgreen)](https://semver.org/) [![Release](https://jitpack.io/v/mgsx-dev/gdx-gltf.svg)](https://jitpack.io/#mgsx-dev/gdx-gltf) ![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/mgsx-dev/gdx-gltf?include_prereleases&sort=semver)
 
-![status](https://img.shields.io/badge/glTF-2%2E0-green.svg?style=flat)
+LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D format.
 
-[![Release](https://jitpack.io/v/mgsx-dev/gdx-gltf.svg)](https://jitpack.io/#mgsx-dev/gdx-gltf)
+# Introduction
 
-# LibGDX - GL Transmission Format (glTF) 2.0 Support
+**What's glTF befenits over G3D/FBX in libGDX?**
 
-Implementation based on official [glTF 2.0 Specification](https://github.com/KhronosGroup/glTF/tree/master/specification/2.0)
+* Simpler workflow : no fbx-conv required, you can load gltf files directly.
+* Shape keys / Animated shape keys (aka MorphTarget) feature.
+* Non linear animations keyframes interpolation ("step" and "cubic" supported)
+* Custom properties
+* Out of the box shaders for normal maps, metallic/roughness, Image based lighting (IBL) and more.
+* Texture coordinates transform.
+* 64k vertices supported (instead of 32k)
 
-Shaders inspiried by glTF-WebGL-PBR demo :
+**What's more than a 3D format parser in gdx-gltf library?**
 
-* https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/master/shaders/pbr-vert.glsl
-* https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/master/shaders/pbr-frag.glsl
+* Scene management facility : Sky box, shadows, and more.
+* Physic Based Rendering (PBR) shaders : for realistic (or not) high quality rendering.
+
+**What limitation over G3D?**
+
+* gdx-gltf only support one directional light for now : multiple lights, point lights, spot lights will come up.
+
+**Can i only load glTF files and use them with regular libgdx 3D API?**
+
+* Yes, it's the same API, only materials differs : by default gdx-gltf uses its own shader (PBR) to enable all glTF features.
+* If you don't want/need high quality rendering (PBR), you still can configure loaders to use libgdx materials (and libgdx DefaultShader).
 
 ## Demo
 
@@ -20,7 +35,17 @@ Shaders inspiried by glTF-WebGL-PBR demo :
 * Desktop : the desktop demo is available [here](https://github.com/mgsx-dev/gdx-gltf/releases). It remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
 * Android : the Android demo is available [on Play Store](https://play.google.com/store/apps/details?id=net.mgsx.gltf.demo) and only contains few examples (same as HTML version).
 
-## GLTF extensions implemented
+# GL Transmission Format (glTF) 2.0 Support
+
+Implementation based on official [glTF 2.0 Specification](https://github.com/KhronosGroup/glTF/tree/master/specification/2.0)
+
+Shaders inspired by glTF-WebGL-PBR demo :
+
+* https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/glTF-WebGL-PBR-final/shaders/pbr-vert.glsl
+* https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/glTF-WebGL-PBR-final/shaders/pbr-frag.glsl
+
+
+GLTF extensions implemented:
 
 * [KHR_texture_transform](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_texture_transform)
 * [KHR_lights_punctual](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual)
@@ -30,7 +55,7 @@ Shaders inspiried by glTF-WebGL-PBR demo :
 
 ## Install
 
-gdx-gltf is avilable via Jitpack.
+gdx-gltf is available via Jitpack.
 
 ensure you have jitpack repository declared in your Gradle configuration : 
 
@@ -43,7 +68,7 @@ allprojects {
 }
 ```
 
-Add dependency in your core project : 
+Add dependency in your core project (replace master-SNAPSHOT by latest release to use a stable version) : 
 
 ```
 project(":core") {
@@ -97,39 +122,18 @@ If you want to change it, please [read IBL guide](IBL.md)
 
 This repository is made of a library and a demo :
 
-* **gltf** project aims to be a LibGDX extension in the future.
+* **gltf** library module (LibGDX extension).
   see [gdx-gltf readme](gltf/README.md) for futher information.
 * **demo** folder contains a LibGDX demo project with usual modules (core, desktop, android, html, ...)
   see [gdx-gltf-demo readme](demo/README.md) for futher information.
 
 
-## LibGDX integration notes
-
-### Morph targets
-
-Several classes has been hacked in order to support morph targets :
-
-* ModelInstance
-* Node
-* NodePart
-* NodeAnimation
-* AnimationController
-
-LibGDX could be modified to remove all this hacks by either : 
-
-* adding morph target full support
-* allowing proper overrides
-
-### Loading process
-
-One of GLTF design goal is "Fast loading" : glTF data structures have been designed to mirror the GPU API data as closely as possible.
-
-Due to LibGDX platform abstraction, this implementation require to process data (mainly vertices), so loading performances are not optimal for now but could be improved by directly loading mesh data.
-
+## Limitations
 
 ### Mesh limitations
 
-LibGDX only support signed short indices, mesh are then limited to 32768 vertices. 
+LibGDX only support signed short indices, a mesh is limited to 32767 vertices.
+However, gdx-gltf supports unsigned short indices : a mesh is then limited to 65535 vertices.
 
 ### WebGL limitations
 
@@ -159,6 +163,4 @@ Note that this limitation is per mesh, not for a whole scene.
 
 Note that Blender vertex count can be misleading because exported geometry may contains more vertices because of
 normal split, texture coordinates split or vertex color split.
-
-
 

@@ -1,5 +1,11 @@
 # Bugs & Hacks
 
+# Loading process
+
+One of GLTF design goal is "Fast loading" : glTF data structures have been designed to mirror the GPU API data as closely as possible.
+
+Due to LibGDX platform abstraction, this implementation require to process data (mainly vertices), so loading performances are not optimal for now but could be improved by directly loading mesh data.
+
 # Morph Targets normal
 
 Normals are not OK when tangent attribute missing ... 
