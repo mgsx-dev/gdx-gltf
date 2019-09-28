@@ -8,9 +8,10 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 **What's glTF befenits over G3D/FBX in libGDX?**
 
 * Simpler workflow : no fbx-conv required, you can load gltf files directly.
+* Load cameras, lights, custom properties from Blender and other 3D softwares.
 * Shape keys / Animated shape keys (aka MorphTarget) feature.
+* Multiple animations playback
 * Non linear animations keyframes interpolation ("step" and "cubic" supported)
-* Custom properties
 * Out of the box shaders for normal maps, metallic/roughness, Image based lighting (IBL) and more.
 * Texture coordinates transform.
 * 64k vertices supported (instead of 32k)
