@@ -1,5 +1,5 @@
 
-[![status](https://img.shields.io/badge/glTF-2%2E0-green.svg?style=flat)](https://github.com/KhronosGroup/glTF) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/badge/semver-2.0-brightgreen)](https://semver.org/) [![Release](https://jitpack.io/v/mgsx-dev/gdx-gltf.svg)](https://jitpack.io/#mgsx-dev/gdx-gltf) ![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/mgsx-dev/gdx-gltf?include_prereleases&sort=semver)
+[![status](https://img.shields.io/badge/glTF-2%2E0-green.svg?style=flat)](https://github.com/KhronosGroup/glTF) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/badge/semver-2.0-brightgreen)](https://semver.org/) [![Release](https://jitpack.io/v/mgsx-dev/gdx-gltf.svg)](https://jitpack.io/#mgsx-dev/gdx-gltf) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/mgsx-dev/gdx-gltf?include_prereleases&sort=semver)](https://github.com/mgsx-dev/gdx-gltf/releases)
 
 LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D format.
 
@@ -31,9 +31,9 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 
 ## Demo
 
-* HTML : the online demo is available [here](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
-* Desktop : the desktop demo is available [here](https://github.com/mgsx-dev/gdx-gltf/releases). It remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
-* Android : the Android demo is available [on Play Store](https://play.google.com/store/apps/details?id=net.mgsx.gltf.demo) and only contains few examples (same as HTML version).
+* HTML : [Online demo](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
+* Desktop : [Desktop demo](https://github.com/mgsx-dev/gdx-gltf/releases) remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
+* Android : [Android demo](https://play.google.com/store/apps/details?id=net.mgsx.gltf.demo) only contains few examples (same as HTML version).
 
 # GL Transmission Format (glTF) 2.0 Support
 
@@ -108,13 +108,15 @@ for more information.
 
 ## Export models from Blender
 
+As Blender 2.80, glTF exporter addon is included and enabled by default.
+
+* - 2.80+  : https://github.com/KhronosGroup/glTF-Blender-IO
 * - 2.79b- : https://github.com/KhronosGroup/glTF-Blender-Exporter
-* - 2.8+   : https://github.com/KhronosGroup/glTF-Blender-IO
 
 ## Image Based Lighting (IBL)
 
 Demo is shipped with a pre-generated lighting environment.
-If you want to change it, please [read IBL guide](IBL.md)
+If you want to use others or generate them yourself, please [read IBL guide](IBL.md)
 
 # More about the library
 
