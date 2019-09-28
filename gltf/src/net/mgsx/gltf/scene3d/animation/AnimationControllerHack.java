@@ -164,7 +164,7 @@ public class AnimationControllerHack extends AnimationController
 				return i;
 			}
 		}
-		return 0;
+		return n;
 	}
 
 	private final static Vector3 getTranslationAtTime (final NodeAnimation nodeAnim, final float time, final Vector3 out) {
@@ -189,6 +189,8 @@ public class AnimationControllerHack extends AnimationController
 				final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.translation.get(index);
 				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
 				out.lerp(secondKeyframe.value, t);
+			}else{
+				out.set((Vector3)firstKeyframe.value);
 			}
 		}else if(interpolation == Interpolation.CUBICSPLINE){
 			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.translation.get(index);
@@ -272,6 +274,8 @@ public class AnimationControllerHack extends AnimationController
 				final NodeKeyframe<Quaternion> secondKeyframe = nodeAnim.rotation.get(index);
 				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
 				out.slerp(secondKeyframe.value, t);
+			}else{
+				out.set((Quaternion)firstKeyframe.value);
 			}
 		}else if(interpolation == Interpolation.CUBICSPLINE){
 			final NodeKeyframe<Quaternion> firstKeyframe = nodeAnim.rotation.get(index);
@@ -314,6 +318,8 @@ public class AnimationControllerHack extends AnimationController
 				final NodeKeyframe<Vector3> secondKeyframe = nodeAnim.scaling.get(index);
 				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
 				out.lerp(secondKeyframe.value, t);
+			}else{
+				out.set((Vector3)firstKeyframe.value);
 			}
 		}else if(interpolation == Interpolation.CUBICSPLINE){
 			final NodeKeyframe<Vector3> firstKeyframe = nodeAnim.scaling.get(index);
@@ -354,6 +360,8 @@ public class AnimationControllerHack extends AnimationController
 				final NodeKeyframe<WeightVector> secondKeyframe = nodeAnim.weights.get(index);
 				final float t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime);
 				out.lerp(secondKeyframe.value, t);
+			}else{
+				out.set((WeightVector)firstKeyframe.value);
 			}
 		}else if(interpolation == Interpolation.CUBICSPLINE){
 			final NodeKeyframe<WeightVector> firstKeyframe = nodeAnim.weights.get(index);
