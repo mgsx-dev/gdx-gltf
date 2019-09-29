@@ -156,7 +156,7 @@ public class PBRShader extends DefaultShader
 	public final static Setter shadowBiasSetter = new LocalSetter() {
 		@Override
 		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-			PBRFloatAttribute attribute = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.NormalScale);
+			PBRFloatAttribute attribute = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);
 			float value = attribute == null ? 0f : attribute.value;
 			shader.set(inputID, value);
 		}
