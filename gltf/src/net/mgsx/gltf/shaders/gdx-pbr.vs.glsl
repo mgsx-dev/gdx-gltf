@@ -206,11 +206,6 @@ varying vec3 v_lightSpecular;
 uniform vec4 u_cameraPosition;
 #endif // cameraPositionFlag
 
-#ifdef fogFlag
-varying vec3 v_eyeDistance;
-#endif // fogFlag
-
-
 #if numDirectionalLights > 0
 struct DirectionalLight
 {
@@ -369,11 +364,6 @@ void main() {
 	#endif // normalFlag
 
 	
-		
-    #ifdef fogFlag
-        v_eyeDistance = u_cameraPosition.xyz - pos.xyz;
-    #endif
-
 	#ifdef lightingFlag
 		#if	defined(ambientLightFlag)
         	vec3 ambientLight = u_ambientLight;

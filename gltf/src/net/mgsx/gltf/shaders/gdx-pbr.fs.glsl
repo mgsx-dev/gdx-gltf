@@ -173,7 +173,6 @@ varying vec3 v_ambientLight;
 
 #ifdef fogFlag
 uniform vec4 u_fogColor;
-varying vec3 v_eyeDistance;
 
 #ifdef fogEquationFlag
 uniform vec3 u_fogEquation;
@@ -474,8 +473,12 @@ void main() {
     vec3 specularEnvironmentR0 = specularColor.rgb;
     vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
 
+    vec3 surfaceToCamera = u_cameraPosition.xyz - v_position;
+    float eyeDistance = length(surfaceToCamera);
+
     vec3 n = getNormal();                             // normal at surface point
-    vec3 v = normalize(u_cameraPosition.xyz - v_position);        // Vector from surface point to camera
+    vec3 v = surfaceToCamera / eyeDistance;        // Vector from surface point to camera
+
     vec3 l = normalize(-u_dirLights[0].direction);             // Vector from surface point to light
     vec3 h = normalize(l+v);                          // Half vector between both l and v
     vec3 reflection = -normalize(reflect(v, n));
@@ -587,13 +590,12 @@ void main() {
 #endif
     
 #ifdef fogFlag
-	float dist = length(v_eyeDistance);
 #ifdef fogEquationFlag
-    float fog = (dist - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+    float fog = (eyeDistance - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
     fog = clamp(fog, 0.0, 1.0);
     fog = pow(fog, u_fogEquation.z);
 #else
-	float fog = min(1.0, dist * dist * u_cameraPosition.w);
+	float fog = min(1.0, eyeDistance * eyeDistance * u_cameraPosition.w);
 #endif
 	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog);
 #endif
