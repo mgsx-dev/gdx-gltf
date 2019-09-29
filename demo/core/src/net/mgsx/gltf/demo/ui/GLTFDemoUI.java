@@ -415,11 +415,11 @@ public class GLTFDemoUI extends Table {
 		}
 	}
 
-	public void setCameras(ObjectMap<Camera, Node> cameras) {
+	public void setCameras(ObjectMap<Node, Camera> cameras) {
 		Array<String> cameraNames = new Array<String>();
 		cameraNames.add("");
-		for(Entry<Camera, Node> e : cameras){
-			cameraNames.add(e.value.id);
+		for(Entry<Node, Camera> e : cameras){
+			cameraNames.add(e.key.id);
 		}
 		cameraSelector.setItems();
 		cameraSelector.setItems(cameraNames);
@@ -468,11 +468,11 @@ public class GLTFDemoUI extends Table {
 		}
 	}
 
-	public void setLights(ObjectMap<BaseLight, Node> lights) {
+	public void setLights(ObjectMap<Node, BaseLight> lights) {
 		Array<String> names = new Array<String>();
 		names.add("");
-		for(Entry<BaseLight, Node> entry : lights){
-			names.add(entry.value.id);
+		for(Entry<Node, BaseLight> entry : lights){
+			names.add(entry.key.id);
 		}
 		lightSelector.setItems(names);
 	}

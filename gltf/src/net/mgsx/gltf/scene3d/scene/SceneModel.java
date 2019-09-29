@@ -11,8 +11,8 @@ public class SceneModel implements Disposable
 {
 	public String name;
 	public Model model;
-	public ObjectMap<Camera, Node> cameras = new ObjectMap<Camera, Node>();
-	public ObjectMap<BaseLight, Node> lights = new ObjectMap<BaseLight, Node>();
+	public ObjectMap<Node, Camera> cameras = new ObjectMap<Node, Camera>();
+	public ObjectMap<Node, BaseLight> lights = new ObjectMap<Node, BaseLight>();
 	
 	@Override
 	public void dispose() {

@@ -203,12 +203,12 @@ public class GLTFLoaderBase implements Disposable {
 		// add scene cameras (filter from all scenes cameras)
 		for(Entry<String, Integer> entry : cameraMap){
 			Node node = sceneModel.model.getNode(entry.key, true);
-			if(node != null) sceneModel.cameras.put(cameras.get(entry.value), node);
+			if(node != null) sceneModel.cameras.put(node, cameras.get(entry.value));
 		}
 		// add scene lights (filter from all scenes lights)
 		for(Entry<String, Integer> entry : lightMap){
 			Node node = sceneModel.model.getNode(entry.key, true);
-			if(node != null) sceneModel.lights.put(lights.get(entry.value), node);
+			if(node != null) sceneModel.lights.put(node, lights.get(entry.value));
 		}
 		sceneModel.model.meshes.addAll(meshLoader.getMeshes());
 		// TODO add materials and meshParts as well

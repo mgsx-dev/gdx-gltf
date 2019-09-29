@@ -25,19 +25,19 @@ public class Scene {
 	public ModelInstance modelInstance;
 	public AnimationController animationController;
 	
-	public final ObjectMap<BaseLight, Node> lights = new ObjectMap<BaseLight, Node>();
-	public final ObjectMap<Camera, Node> cameras = new ObjectMap<Camera, Node>();
+	public final ObjectMap<Node, BaseLight> lights = new ObjectMap<Node, BaseLight>();
+	public final ObjectMap<Node, Camera> cameras = new ObjectMap<Node, Camera>();
 	public final AnimationsPlayer animations;
 	
 	private static final Matrix4 transform = new Matrix4();
 	
 	public Scene(SceneModel sceneModel) {
 		this(new ModelInstanceHack(sceneModel.model));
-		for(Entry<Camera, Node> entry : sceneModel.cameras){
-			cameras.put(createCamera(entry.key), modelInstance.getNode(entry.value.id, true));
+		for(Entry<Node, Camera> entry : sceneModel.cameras){
+			cameras.put(modelInstance.getNode(entry.key.id, true), createCamera(entry.value));
 		}
-		for(Entry<BaseLight, Node> entry : sceneModel.lights){
-			lights.put(createLight(entry.key), modelInstance.getNode(entry.value.id, true));
+		for(Entry<Node, BaseLight> entry : sceneModel.lights){
+			lights.put(modelInstance.getNode(entry.key.id, true), createLight(entry.value));
 		}
 	}
 	
@@ -115,18 +115,18 @@ public class Scene {
 
 	public void update(float delta){
 		animations.update(delta);
-		for(Entry<Camera, Node> e : cameras){
-			Node node = e.value;
-			Camera camera = e.key;
+		for(Entry<Node, Camera> e : cameras){
+			Node node = e.key;
+			Camera camera = e.value;
 			transform.set(node.globalTransform).mul(modelInstance.transform);
 			camera.position.setZero().mul(transform);
 			camera.direction.set(0,0,-1).rot(transform);
 			camera.up.set(Vector3.Y).rot(transform);
 			camera.update();
 		}
-		for(Entry<BaseLight, Node> e : lights){
-			Node node = e.value;
-			BaseLight light = e.key;
+		for(Entry<Node, BaseLight> e : lights){
+			Node node = e.key;
+			BaseLight light = e.value;
 			if(light instanceof DirectionalLight){
 				((DirectionalLight)light).direction.set(Vector3.X).rot(node.globalTransform).rot(modelInstance.transform);
 			}else if(light instanceof PointLight){
@@ -138,7 +138,11 @@ public class Scene {
 	}
 
 	public Camera getCamera(String name) {
-		Node node = modelInstance.getNode(name, true);
-		return cameras.findKey(node, true);
+		for(Entry<Node, Camera> e : cameras){
+			if(name.equals(e.key.id)){
+				return e.value;
+			}
+		}
+		return null;
 	}
 }
