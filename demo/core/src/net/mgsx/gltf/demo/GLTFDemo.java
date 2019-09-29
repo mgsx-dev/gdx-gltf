@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
@@ -25,6 +26,7 @@ import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -47,6 +49,7 @@ import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -102,6 +105,7 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private ShapeRenderer shapeRenderer;
 	private final BoundingBox sceneBox = new BoundingBox();
+	private SceneSkybox skybox;
 	
 	public GLTFDemo() {
 		this("models");
@@ -158,7 +162,7 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		sceneManager = new SceneManager();
 		
-		sceneManager.setSkyBox(new SceneSkybox(environmentCubemap));
+		sceneManager.setSkyBox(skybox = new SceneSkybox(environmentCubemap));
 		
 		// light direction based on environnement map SUN
 		if(sceneManager.getDefaultLight() != null){
@@ -292,7 +296,7 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.lightShadow.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				setShadow(ui.lightShadow.inOn());
+				setShadow(ui.lightShadow.isOn());
 			}
 		});
 		
@@ -306,6 +310,36 @@ public class GLTFDemo extends ApplicationAdapter
 				}
 			}
 		});
+		
+		ui.fogEnabled.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(ui.fogEnabled.isOn()){
+					sceneManager.environment.set(new ColorAttribute(ColorAttribute.Fog, ui.fogColor.value));
+					sceneManager.environment.set(new FogAttribute(FogAttribute.FogEquation));
+					setShader(shaderMode);
+				}else{
+					sceneManager.environment.remove(ColorAttribute.Fog);
+					sceneManager.environment.remove(FogAttribute.FogEquation);
+				}
+			}
+		});
+		
+		ui.skyBoxEnabled.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(ui.skyBoxEnabled.isOn()){
+					sceneManager.setSkyBox(skybox);
+				}else{
+					sceneManager.setSkyBox(null);
+				}
+				setShader(shaderMode);
+			}
+		});
+		
+		
 	}
 	
 	protected void setShadow(boolean isOn) {
@@ -584,12 +618,23 @@ public class GLTFDemo extends ApplicationAdapter
 			cameraControl.update();
 		}
 		
-		float l = 0f;
-		
-		Gdx.gl.glClearColor(l,l,l, 0);
+		Gdx.gl.glClearColor(ui.fogColor.value.r, ui.fogColor.value.g, ui.fogColor.value.b, 0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
 		sceneManager.setAmbientLight(ui.ambiantSlider.getValue());
+		
+		ColorAttribute fog = sceneManager.environment.get(ColorAttribute.class, ColorAttribute.Fog);
+		if(fog != null) fog.color.set(ui.fogColor.value);
+		
+		FogAttribute fogEquation = sceneManager.environment.get(FogAttribute.class, FogAttribute.FogEquation);
+		if(fogEquation != null){
+			fogEquation.value.set(
+					MathUtils.lerp(sceneManager.camera.near, sceneManager.camera.far, (ui.fogEquation.value.x + 1f) / 2f),
+					MathUtils.lerp(sceneManager.camera.near, sceneManager.camera.far, (ui.fogEquation.value.y + 1f) / 2f),
+					10f * (ui.fogEquation.value.z + 1f) / 2f
+					);
+		}
+		
 		
 		float IBLScale = ui.lightFactorSlider.getValue();
 		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;

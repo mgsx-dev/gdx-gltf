@@ -11,10 +11,11 @@ public class BooleanUI extends Table
 	public BooleanUI(Skin skin, boolean defaultValue) {
 		super(skin);
 		bt = new TextButton("enabled", skin, "toggle");
+		bt.setChecked(defaultValue);
 		add(bt);
 	}
 	
-	public boolean inOn(){
+	public boolean isOn(){
 		return bt.isChecked();
 	}
 	

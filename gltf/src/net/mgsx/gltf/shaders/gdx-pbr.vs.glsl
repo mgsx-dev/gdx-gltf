@@ -207,7 +207,7 @@ uniform vec4 u_cameraPosition;
 #endif // cameraPositionFlag
 
 #ifdef fogFlag
-varying float v_fog;
+varying vec3 v_eyeDistance;
 #endif // fogFlag
 
 
@@ -371,9 +371,7 @@ void main() {
 	
 		
     #ifdef fogFlag
-        vec3 flen = u_cameraPosition.xyz - pos.xyz;
-        float fog = dot(flen, flen) * u_cameraPosition.w;
-        v_fog = min(fog, 1.0);
+        v_eyeDistance = u_cameraPosition.xyz - pos.xyz;
     #endif
 
 	#ifdef lightingFlag

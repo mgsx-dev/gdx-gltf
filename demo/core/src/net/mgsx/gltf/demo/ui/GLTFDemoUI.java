@@ -2,6 +2,7 @@ package net.mgsx.gltf.demo.ui;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -72,8 +73,11 @@ public class GLTFDemoUI extends Table {
 	public TextButton skeletonButton;
 	public BooleanUI lightShadow;
 	public FloatUI shadowBias;
-
 	public TextButton btAllAnimations;
+	public BooleanUI fogEnabled;
+	public BooleanUI skyBoxEnabled;
+	public Vector4UI fogColor;
+	public Vector3UI fogEquation;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -139,6 +143,20 @@ public class GLTFDemoUI extends Table {
 		shaderOptions.optTable.add(shaderSRGB = new SelectBox<SRGB>(skin)).row();
 		shaderSRGB.setItems(SRGB.values());
 		shaderSRGB.setSelected(SRGB.ACCURATE);
+
+		// Fog
+		shaderOptions.optTable.add("Fog");
+		shaderOptions.optTable.add(fogEnabled = new BooleanUI(skin, false)).row();
+		
+		shaderOptions.optTable.add("Fog Color");
+		shaderOptions.optTable.add(fogColor = new Vector4UI(skin, new Color())).row();
+
+		shaderOptions.optTable.add("Fog Equation");
+		shaderOptions.optTable.add(fogEquation = new Vector3UI(skin, new Vector3(-1f, 1f, -0.8f))).row();
+
+		// Skybox
+		shaderOptions.optTable.add("SkyBox");
+		shaderOptions.optTable.add(skyBoxEnabled = new BooleanUI(skin, true)).row();
 		
 		root.add();
 		root.add(shaderDebug = new CollapsableUI(skin, "Debug Mode", false)).row();

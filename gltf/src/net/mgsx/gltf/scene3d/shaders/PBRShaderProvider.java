@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -223,6 +224,15 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}else if(maxUVIndex > 1){
 			throw new GdxRuntimeException("more than 2 texture coordinates attribute not supported");
 		}
+		
+		// Fog
+		
+		if(renderable.environment.has(FogAttribute.FogEquation)){
+			prefix += "#define fogEquationFlag\n";
+		}
+		
+		
+		// 
 		
 		int numBoneInfluence = 0;
 		int numMorphTarget = 0;

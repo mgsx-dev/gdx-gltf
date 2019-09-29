@@ -173,7 +173,12 @@ varying vec3 v_ambientLight;
 
 #ifdef fogFlag
 uniform vec4 u_fogColor;
-varying float v_fog;
+varying vec3 v_eyeDistance;
+
+#ifdef fogEquationFlag
+uniform vec3 u_fogEquation;
+#endif
+
 #endif // fogFlag
 
 
@@ -581,6 +586,18 @@ void main() {
     out_FragColor = vec4(color, baseColor.a);
 #endif
     
+#ifdef fogFlag
+	float dist = length(v_eyeDistance);
+#ifdef fogEquationFlag
+    float fog = (dist - u_fogEquation.x) / (u_fogEquation.y - u_fogEquation.x);
+    fog = clamp(fog, 0.0, 1.0);
+    fog = pow(fog, u_fogEquation.z);
+#else
+	float fog = min(1.0, dist * dist * u_cameraPosition.w);
+#endif
+	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog);
+#endif
+
 #ifdef DEBUG_NORMALS
 #ifndef tangentFlag
     out_FragColor = vec4(out_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);

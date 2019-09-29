@@ -12,7 +12,9 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
+import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
@@ -160,6 +162,16 @@ public class PBRShader extends DefaultShader
 		}
 	};
 
+	public final static Uniform fogEquationUniform = new Uniform("u_fogEquation");
+	public final static Setter fogEquationSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			FogAttribute attribute = combinedAttributes.get(FogAttribute.class, FogAttribute.FogEquation);
+			Vector3 value = attribute == null ? Vector3.Zero : attribute.value;
+			shader.set(inputID, value);
+		}
+	};
+
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
 	public final int u_metallicRoughness;
@@ -194,6 +206,8 @@ public class PBRShader extends DefaultShader
 	private long textureCoordinateMapMask;
 
 	private int u_ShadowBias;
+	
+	private int u_FogEquation;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -232,6 +246,8 @@ public class PBRShader extends DefaultShader
 		u_NormalScale = register(normalScaleUniform, normalScaleSetter);
 		
 		u_ShadowBias = register(shadowBiasUniform, shadowBiasSetter);
+		
+		u_FogEquation = register(fogEquationUniform, fogEquationSetter);
 		
 	}
 
@@ -386,6 +402,11 @@ public class PBRShader extends DefaultShader
 		ColorAttribute ambiantLight = attributes.get(ColorAttribute.class, ColorAttribute.AmbientLight);
 		if(ambiantLight != null){
 			program.setUniformf(u_ambientLight, ambiantLight.color.r, ambiantLight.color.g, ambiantLight.color.b);
+		}
+		
+		FogAttribute fogEquation = attributes.get(FogAttribute.class, FogAttribute.FogEquation);
+		if(fogEquation != null){
+			program.setUniformf(u_FogEquation, fogEquation.value);
 		}
 	}
 	
