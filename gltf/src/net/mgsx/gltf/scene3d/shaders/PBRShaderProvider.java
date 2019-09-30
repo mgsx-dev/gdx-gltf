@@ -267,13 +267,11 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		LightUtils.getLightsInfo(lightsInfo, renderable.environment);
-		if(lightsInfo.dirLights < 1){
-			Gdx.app.error(TAG, "at least one directional light required."); // TODO is it true ?
-		}if(lightsInfo.dirLights > 1){
-			Gdx.app.error(TAG, "multiple directional lights not supported.");
+		if(lightsInfo.dirLights > config.numDirectionalLights){
+			Gdx.app.error(TAG, "too many directional lights detected: " + lightsInfo.dirLights + "/" + config.numDirectionalLights);
 		}
-		if(lightsInfo.pointLights > 0){
-			Gdx.app.error(TAG, "point lights not supported.");
+		if(lightsInfo.pointLights > config.numPointLights){
+			Gdx.app.error(TAG, "too many point lights detected: " + lightsInfo.pointLights + "/" + config.numPointLights);
 		}
 		if(lightsInfo.spotLights > 0){
 			Gdx.app.error(TAG, "spot lights not supported.");

@@ -59,7 +59,11 @@ abstract public class KHRLightsPunctual {
 		}else if(GLTFLight.TYPE_POINT.equals(light.type)){
 			PointLight pl = new PointLight();
 			pl.color.set(GLTFTypes.mapColor(light.color, Color.WHITE));
-			pl.intensity = light.intensity;
+			// Blender exported intensity is the raw value in Watts
+			// GLTF spec. states it's in Candela which is lumens per square radian (lm/sr).
+			// adjustement is made empirically here (comparing with Blender rendering)
+			// TODO find if it's a GLTF Blender exporter issue and find the right conversion.
+			pl.intensity = light.intensity / 10f;
 			return pl;
 		}else if(GLTFLight.TYPE_SPOT.equals(light.type)){
 			SpotLight sl = new SpotLight();
