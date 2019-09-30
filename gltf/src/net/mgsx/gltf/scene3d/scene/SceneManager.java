@@ -1,16 +1,15 @@
 package net.mgsx.gltf.scene3d.scene;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -29,8 +28,6 @@ public class SceneManager implements Disposable {
 	
 	private ModelBatch batch;
 	private ModelBatch shadowBatch;
-	
-	private DirectionalLight defaultLight;
 	
 	public Environment environment;
 	
@@ -53,10 +50,6 @@ public class SceneManager implements Disposable {
 		shadowBatch = new ModelBatch(depthShaderProvider);
 		
 		environment = new Environment();
-		
-		defaultLight = new DirectionalLight();
-		defaultLight.set(Color.WHITE, new Vector3(0,-1,0));
-		environment.add(defaultLight);
 		
 		float lum = .5f;
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
@@ -108,9 +101,11 @@ public class SceneManager implements Disposable {
 		renderScene();
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected void renderShadows(){
-		if(defaultLight instanceof DirectionalShadowLight){
-			DirectionalShadowLight shadowLight = (DirectionalShadowLight)defaultLight;
+		DirectionalLight light = getFirstDirectionalLight();
+		if(light instanceof DirectionalShadowLight){
+			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
 			shadowLight.begin();
 			shadowBatch.begin(shadowLight.getCamera());
 			for(Scene scene : scenes){
@@ -134,6 +129,18 @@ public class SceneManager implements Disposable {
 			batch.render(skyBox);
 		}
 		batch.end();		
+	}
+	
+	public DirectionalLight getFirstDirectionalLight(){
+		DirectionalLightsAttribute dla = environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+		if(dla != null){
+			for(DirectionalLight dl : dla.lights){
+				if(dl instanceof DirectionalLight){
+					return (DirectionalLight)dl;
+				}
+			}
+		}
+		return null;
 	}
 
 	public void setSkyBox(SceneSkybox skyBox) {
@@ -170,18 +177,5 @@ public class SceneManager implements Disposable {
 	@Override
 	public void dispose() {
 		batch.dispose();
-	}
-
-	public DirectionalLight getDefaultLight() {
-		return defaultLight;
-	}
-
-	public void setDefaultLight(DirectionalLight light) 
-	{
-		if(defaultLight != null){
-			environment.remove(defaultLight);
-		}
-		defaultLight = light;
-		environment.add(defaultLight);
 	}
 }

@@ -145,4 +145,14 @@ public class Scene {
 		}
 		return null;
 	}
+
+	public int getDirectionalLightCount() {
+		int count = 0;
+		for(Entry<Node, BaseLight> entry : lights){
+			if(entry.value instanceof DirectionalLight){
+				count++;
+			}
+		}
+		return count;
+	}
 }

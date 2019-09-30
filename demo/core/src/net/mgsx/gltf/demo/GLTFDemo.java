@@ -106,6 +106,7 @@ public class GLTFDemo extends ApplicationAdapter
 	private ShapeRenderer shapeRenderer;
 	private final BoundingBox sceneBox = new BoundingBox();
 	private SceneSkybox skybox;
+	private DirectionalLight defaultLight;
 	
 	public GLTFDemo() {
 		this("models");
@@ -164,12 +165,6 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		sceneManager.setSkyBox(skybox = new SceneSkybox(environmentCubemap));
 		
-		// light direction based on environnement map SUN
-		if(sceneManager.getDefaultLight() != null){
-			sceneManager.getDefaultLight().direction.set(-.5f,-.5f,-.7f).nor();
-			ui.lightDirectionControl.set(sceneManager.getDefaultLight().direction);
-		}
-
 		setEnvironment();
 	}
 	
@@ -186,6 +181,10 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 		
 		sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0f));
+		
+		defaultLight = new DirectionalLight();
+		resetDefaultLight();
+		sceneManager.environment.add(defaultLight);
 	}
 	
 	private void loadModelIndex() 
@@ -343,7 +342,7 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 	
 	protected void setShadow(boolean isOn) {
-		DirectionalLight oldLight = sceneManager.getDefaultLight();
+		DirectionalLight oldLight = sceneManager.getFirstDirectionalLight();
 		boolean isShadowLight = oldLight instanceof DirectionalShadowLight;
 		DirectionalLight newLight = null;
 		
@@ -357,7 +356,11 @@ public class GLTFDemo extends ApplicationAdapter
 		if(newLight != null){
 			newLight.direction.set(oldLight.direction);
 			newLight.color.set(oldLight.color);
-			sceneManager.setDefaultLight(newLight);
+			if(oldLight == defaultLight){
+				defaultLight = newLight;
+			}
+			sceneManager.environment.remove(oldLight);
+			sceneManager.environment.add(newLight);
 			
 			setShader(shaderMode);
 		}
@@ -550,23 +553,36 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		scene.modelInstance.calculateBoundingBox(sceneBox);
 		
-		DirectionalLight light = sceneManager.getDefaultLight();
-		if(light instanceof DirectionalShadowLight){
-			((DirectionalShadowLight)light).setBounds(sceneBox);
-		}
-		
 		ui.setMaterials(scene.modelInstance.materials);
 		ui.setAnimations(scene.modelInstance.animations);
 		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
 		ui.setCameras(scene.cameras);
 		ui.setLights(scene.lights);
 		
+		sceneManager.environment.remove(defaultLight);
+		if(scene.getDirectionalLightCount() == 0){
+			resetDefaultLight();
+			sceneManager.environment.add(defaultLight);
+		}
+		
+		sceneManager.addScene(scene, true);
+		
+		DirectionalLight light = sceneManager.getFirstDirectionalLight();
+		if(light instanceof DirectionalShadowLight){
+			((DirectionalShadowLight)light).setBounds(sceneBox);
+		}
+		
 		// XXX force shader provider to compile new shaders based on model
 		setShader(shaderMode);
-		
-		sceneManager.addScene(scene, false);
 	}
 	
+	private void resetDefaultLight() {
+		// light direction based on environnement map SUN
+		defaultLight.direction.set(-.5f,-.5f,-.7f).nor();
+		defaultLight.color.set(Color.WHITE);
+		ui.lightDirectionControl.set(defaultLight.direction);
+	}
+
 	protected void setCamera(String name) 
 	{
 		if(name == null) return;
@@ -640,13 +656,14 @@ public class GLTFDemo extends ApplicationAdapter
 		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;
 		PBRShader.ScaleIBLAmbient.g = ui.debugSpecularSlider.getValue() * IBLScale;
 		
-		if(sceneManager.getDefaultLight() != null){
+		DirectionalLight light = sceneManager.getFirstDirectionalLight();
+		if(light != null){
 			float lum = ui.lightSlider.getValue();
-			sceneManager.getDefaultLight().color.set(lum, lum, lum, 1);
-			sceneManager.getDefaultLight().direction.set(ui.lightDirectionControl.value).nor();
-			sceneManager.getDefaultLight().color.r *= IBLScale;
-			sceneManager.getDefaultLight().color.g *= IBLScale;
-			sceneManager.getDefaultLight().color.b *= IBLScale;
+			light.color.set(lum, lum, lum, 1);
+			light.direction.set(ui.lightDirectionControl.value).nor();
+			light.color.r *= IBLScale;
+			light.color.g *= IBLScale;
+			light.color.b *= IBLScale;
 			
 			PBRFloatAttribute shadowBias = sceneManager.environment.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);
 			shadowBias.value = ui.shadowBias.getValue() / 50f;
