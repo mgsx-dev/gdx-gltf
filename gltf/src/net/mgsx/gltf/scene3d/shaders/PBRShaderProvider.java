@@ -21,10 +21,14 @@ import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
+import net.mgsx.gltf.scene3d.utils.LightUtils;
+import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
 
 public class PBRShaderProvider extends DefaultShaderProvider
 {
 	public static final String TAG = "PBRShader";
+	
+	private static final LightsInfo lightsInfo = new LightsInfo();
 	
 	public static PBRShaderConfig defaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
@@ -260,6 +264,22 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		if(numColor > 1){
 			Gdx.app.error(TAG, "more than 1 color attributes not supported: " + numColor + " found.");
+		}
+		
+		LightUtils.getLightsInfo(lightsInfo, renderable.environment);
+		if(lightsInfo.dirLights < 1){
+			Gdx.app.error(TAG, "at least one directional light required."); // TODO is it true ?
+		}if(lightsInfo.dirLights > 1){
+			Gdx.app.error(TAG, "multiple directional lights not supported.");
+		}
+		if(lightsInfo.pointLights > 0){
+			Gdx.app.error(TAG, "point lights not supported.");
+		}
+		if(lightsInfo.spotLights > 0){
+			Gdx.app.error(TAG, "spot lights not supported.");
+		}
+		if(lightsInfo.miscLights > 0){
+			Gdx.app.error(TAG, "unknow type lights not supported.");
 		}
 		
 		PBRShader shader = new PBRShader(renderable, config, prefix);

@@ -2,7 +2,6 @@ package net.mgsx.gltf.data.extensions;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
 import com.badlogic.gdx.math.MathUtils;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 
 /**
  * {@link net.mgsx.gltf.data.scene.GLTFNode} and {@link net.mgsx.gltf.data.GLTF} (root) extension
@@ -32,6 +32,11 @@ abstract public class KHRLightsPunctual {
 		
 		public String name = "";
 		public float [] color = {1f, 1f, 1f};
+		
+		/** 
+		 * in Candela for point/spot lights : Ev(lx) = Iv(cd) / (d(m))2 
+		 * in Lux for directional lights : Ev(lx)
+		 */
 		public float intensity = 1f;
 		public String type;
 		public float range;
@@ -47,8 +52,9 @@ abstract public class KHRLightsPunctual {
 	
 	public static BaseLight map(GLTFLight light) {
 		if(GLTFLight.TYPE_DIRECTIONAL.equals(light.type)){
-			DirectionalLight dl = new DirectionalLight();
-			dl.color.set(GLTFTypes.mapColor(light.color, Color.WHITE));
+			DirectionalLightEx dl = new DirectionalLightEx();
+			dl.baseColor.set(GLTFTypes.mapColor(light.color, Color.WHITE));
+			dl.intensity = light.intensity;
 			return dl;
 		}else if(GLTFLight.TYPE_POINT.equals(light.type)){
 			PointLight pl = new PointLight();

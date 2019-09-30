@@ -53,12 +53,12 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
-import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
@@ -182,7 +182,7 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0f));
 		
-		defaultLight = new DirectionalLight();
+		defaultLight = new DirectionalLightEx();
 		resetDefaultLight();
 		sceneManager.environment.add(defaultLight);
 	}
@@ -347,20 +347,20 @@ public class GLTFDemo extends ApplicationAdapter
 		DirectionalLight newLight = null;
 		
 		if(isOn && !isShadowLight){
-			newLight = new DirectionalShadowLight().setBounds(sceneBox);
+			newLight = new DirectionalShadowLight().setBounds(sceneBox).set(oldLight);
 		}else if(!isOn && isShadowLight){
 			((DirectionalShadowLight)oldLight).dispose();
-			newLight = new DirectionalLight();
+			newLight = new DirectionalLightEx().set(oldLight);
 		}
 		
 		if(newLight != null){
-			newLight.direction.set(oldLight.direction);
-			newLight.color.set(oldLight.color);
 			if(oldLight == defaultLight){
 				defaultLight = newLight;
 			}
 			sceneManager.environment.remove(oldLight);
 			sceneManager.environment.add(newLight);
+			
+			ui.lightDirectionControl.set(newLight.direction);
 			
 			setShader(shaderMode);
 		}
@@ -580,6 +580,11 @@ public class GLTFDemo extends ApplicationAdapter
 		// light direction based on environnement map SUN
 		defaultLight.direction.set(-.5f,-.5f,-.7f).nor();
 		defaultLight.color.set(Color.WHITE);
+		if(defaultLight instanceof DirectionalLightEx){
+			DirectionalLightEx light = (DirectionalLightEx)defaultLight;
+			light.intensity = 1f;
+			light.updateColor();
+		}
 		ui.lightDirectionControl.set(defaultLight.direction);
 	}
 
@@ -651,19 +656,15 @@ public class GLTFDemo extends ApplicationAdapter
 					);
 		}
 		
-		
-		float IBLScale = ui.lightFactorSlider.getValue();
-		PBRShader.ScaleIBLAmbient.r = ui.debugAmbiantSlider.getValue() * IBLScale;
-		PBRShader.ScaleIBLAmbient.g = ui.debugSpecularSlider.getValue() * IBLScale;
-		
 		DirectionalLight light = sceneManager.getFirstDirectionalLight();
 		if(light != null){
 			float lum = ui.lightSlider.getValue();
-			light.color.set(lum, lum, lum, 1);
+			if(light instanceof DirectionalLightEx){
+				DirectionalLightEx lightEx = (DirectionalLightEx)light;
+				lightEx.intensity = lum;
+				lightEx.updateColor();
+			}
 			light.direction.set(ui.lightDirectionControl.value).nor();
-			light.color.r *= IBLScale;
-			light.color.g *= IBLScale;
-			light.color.b *= IBLScale;
 			
 			PBRFloatAttribute shadowBias = sceneManager.environment.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);
 			shadowBias.value = ui.shadowBias.getValue() / 50f;

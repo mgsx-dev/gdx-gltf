@@ -50,7 +50,6 @@ public class GLTFDemoUI extends Table {
 	public Slider lightSlider;
 	public Slider debugSpecularSlider; 
 	public SelectBox<String> cameraSelector;
-	public Slider lightFactorSlider;
 	
 	public final Vector3UI lightDirectionControl;
 	public SelectBox<ShaderMode> shaderSelector;
@@ -183,20 +182,10 @@ public class GLTFDemoUI extends Table {
 		root.add(lightOptions = new CollapsableUI(skin, "Light Options", false)).row();
 		
 		
-		ambiantSlider = new Slider(0, 1, .01f, false, skin);
-		lightOptions.optTable.add("Ambient Light");
-		lightOptions.optTable.add(ambiantSlider).row();
-		ambiantSlider.setValue(.5f);
-
-		lightSlider = new Slider(0, 1, .01f, false, skin);
-		lightOptions.optTable.add("Diffuse Light");
+		lightSlider = new Slider(0, 100, .01f, false, skin);
+		lightOptions.optTable.add("Light intensity");
 		lightOptions.optTable.add(lightSlider).row();
 		lightSlider.setValue(1f);
-		
-		lightFactorSlider = new Slider(0, 10, .01f, false, skin);
-		lightOptions.optTable.add("Light factor");
-		lightOptions.optTable.add(lightFactorSlider).row();
-		lightFactorSlider.setValue(1f);
 		
 		lightOptions.optTable.add("Dir Light");
 		lightOptions.optTable.add(lightDirectionControl = new Vector3UI(skin, new Vector3())).row();
@@ -207,8 +196,11 @@ public class GLTFDemoUI extends Table {
 		lightOptions.optTable.add("Shadow Bias");
 		lightOptions.optTable.add(shadowBias = new FloatUI(skin, 0)).row();
 		
-		
-		
+		ambiantSlider = new Slider(0, 1, .01f, false, skin);
+		lightOptions.optTable.add("Ambient Light");
+		lightOptions.optTable.add(ambiantSlider).row();
+		ambiantSlider.setValue(.5f);
+
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");
 		root.add(cameraSelector).row();

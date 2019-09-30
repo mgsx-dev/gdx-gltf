@@ -18,6 +18,8 @@ import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFSkin;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
+import net.mgsx.gltf.scene3d.utils.LightUtils;
+import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
 
 public class GLTFInspector {
 	
@@ -82,7 +84,17 @@ public class GLTFInspector {
 		log("scene", scene.name);
 		logz("cameras", scene.cameras.size);
 		logz("lights", scene.lights.size);
+		logLights(scene);
+		
 		log(scene.model);
+	}
+
+	private void logLights(SceneModel scene) {
+		LightsInfo info = LightUtils.getLightsInfo(new LightsInfo(), scene.lights.values());
+		if(info.dirLights > 0) logz("Directional lights", info.dirLights);
+		if(info.pointLights > 0) logz("Point lights", info.pointLights);
+		if(info.spotLights > 0) logz("Spot lights", info.spotLights);
+		if(info.miscLights > 0) logz("Unknown lights", info.miscLights);
 	}
 
 	private void log(Model model) {

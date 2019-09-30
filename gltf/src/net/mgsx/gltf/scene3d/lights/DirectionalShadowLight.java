@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -18,7 +17,7 @@ import com.badlogic.gdx.utils.Disposable;
 /**
  * Copied from original deprecated DirectionalShadowLight with new features.
  */
-public class DirectionalShadowLight extends DirectionalLight implements ShadowMap, Disposable
+public class DirectionalShadowLight extends DirectionalLightEx implements ShadowMap, Disposable
 {
 	protected static final float SQRT2 = (float)Math.sqrt(2.0);
 	
