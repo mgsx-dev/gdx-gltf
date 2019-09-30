@@ -20,14 +20,12 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 
 * Scene management facility : Sky box, shadows, and more.
 * Physic Based Rendering (PBR) shaders : for realistic (or not) high quality rendering.
-
-**What limitation over G3D?**
-
-* gdx-gltf doesn't support spot lights for now (only directional and point lights).
+* Spot light support.
 
 **Can i only load glTF files and use them with regular libgdx 3D API?**
 
 * Yes, it's the same API, only materials differs : by default gdx-gltf uses its own shader (PBR) to enable all glTF features.
+* Note that libgdx default shader doesn't implements spot lights.
 * If you don't want/need high quality rendering (PBR), you still can configure loaders to use libgdx materials (and libgdx DefaultShader).
 
 ## Demo

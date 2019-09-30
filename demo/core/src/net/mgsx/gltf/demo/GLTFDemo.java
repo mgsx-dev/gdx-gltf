@@ -64,6 +64,8 @@ import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
+import net.mgsx.gltf.scene3d.utils.LightUtils;
+import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
 
 public class GLTFDemo extends ApplicationAdapter
 {
@@ -188,6 +190,9 @@ public class GLTFDemo extends ApplicationAdapter
 		defaultLight = new DirectionalLightEx();
 		resetDefaultLight();
 		sceneManager.environment.add(defaultLight);
+		
+		sceneManager.setAmbientLight(1f);
+		ui.ambiantSlider.setValue(1f);
 	}
 	
 	private void loadModelIndex() 
@@ -432,12 +437,24 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones){
 		
+		// fit lights and bones to current scene.
+		LightsInfo info = LightUtils.getLightsInfo(new LightsInfo(), sceneManager.environment);
+		
+		System.out.println("lights:");
+		System.out.println("dirs: " + info.dirLights);
+		System.out.println("points: " + info.pointLights);
+		System.out.println("spots: " + info.spotLights);
+		
 		switch(shaderMode){
 		default:
 		case GOURAUD:
 			{
 				Config config = new DefaultShader.Config();
 				config.numBones = maxBones;
+				config.numDirectionalLights = info.dirLights;
+				config.numPointLights = info.pointLights;
+				config.numSpotLights = info.spotLights;
+				
 				return new DefaultShaderProvider(config);
 			}
 //		case PHONG:
@@ -448,8 +465,11 @@ public class GLTFDemo extends ApplicationAdapter
 			{
 				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
-				config.numBones = maxBones;
 				config.debug = ui.shaderDebug.toggle.isChecked();
+				config.numBones = maxBones;
+				config.numDirectionalLights = info.dirLights;
+				config.numPointLights = info.pointLights;
+				config.numSpotLights = info.spotLights;
 				return PBRShaderProvider.createDefault(config);
 			}
 		}

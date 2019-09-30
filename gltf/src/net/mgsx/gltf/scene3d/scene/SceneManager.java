@@ -51,7 +51,7 @@ public class SceneManager implements Disposable {
 		
 		environment = new Environment();
 		
-		float lum = .5f;
+		float lum = 1f;
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
 	}
 	

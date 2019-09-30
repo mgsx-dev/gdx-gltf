@@ -38,6 +38,10 @@ out vec4 out_FragColor;
 #define out_FragColor gl_FragColor
 #endif
 
+// Utilities
+#define saturate(_v) clamp((_v), 0.0, 1.0)
+
+
 #if defined(specularTextureFlag) || defined(specularColorFlag)
 #define specularFlag
 #endif
@@ -234,6 +238,19 @@ struct PointLight
 uniform PointLight u_pointLights[numPointLights];
 #endif // numPointLights
 
+#if numSpotLights > 0
+struct SpotLight
+{
+	vec3 color;
+	vec3 position;
+	vec3 direction;
+	float cutoffAngle;
+	float exponent;
+};
+uniform SpotLight u_spotLights[numSpotLights];
+#endif // numSpotLights
+
+
 uniform vec4 u_cameraPosition;
 
 uniform vec2 u_MetallicRoughnessValues;
@@ -250,24 +267,9 @@ uniform vec4 u_ScaleTextureBNEO;
 varying vec3 v_position;
 
 // Encapsulate the various inputs used by the various functions in the shading equation
-// We store values in this struct to simplify the integration of alternative implementations
-// of the shading terms, outlined in the Readme.MD Appendix.
-struct PBRInfo
-{
-    float NdotL;                  // cos angle between normal and light direction
-    float NdotV;                  // cos angle between normal and view direction
-    float NdotH;                  // cos angle between normal and half vector
-    float LdotH;                  // cos angle between light direction and half vector
-    float VdotH;                  // cos angle between view direction and half vector
-    float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)
-    float metalness;              // metallic value at the surface
-    vec3 reflectance0;            // full reflectance color (normal incidence angle)
-    vec3 reflectance90;           // reflectance color at grazing angle
-    float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])
-    vec3 diffuseColor;            // color contribution from diffuse lighting
-    vec3 specularColor;           // color contribution from specular lighting
-};
-
+// We store values in structs to simplify the integration of alternative implementations
+// PBRSurfaceInfo contains light independant information (surface/material only)
+// PBRLightInfo contains light information (incident rays)
 struct PBRSurfaceInfo
 {
 	vec3 n;						  // Normal vector at surface point
@@ -492,21 +494,48 @@ vec3 getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l)
 	return NdotL * (diffuseContrib + specContrib);
 }
 
+#if numDirectionalLights > 0
 vec3 getDirectionalLightContribution(PBRSurfaceInfo pbrSurface, DirectionalLight light)
 {
     vec3 l = normalize(-light.direction);  // Vector from surface point to light
     return getLightContribution(pbrSurface, l) * light.color;
 }
+#endif
 
+#if numPointLights > 0
 vec3 getPointLightContribution(PBRSurfaceInfo pbrSurface, PointLight light)
 {
 	// light direction and distance
-	vec3 l = light.position - v_position.xyz;
-	float dist2 = dot(l, l);
-	l *= inversesqrt(dist2);
+	vec3 d = light.position - v_position.xyz;
+	float dist2 = dot(d, d);
+	d *= inversesqrt(dist2);
 
-	return getLightContribution(pbrSurface, l) * light.color / (1.0 + dist2);
+	return getLightContribution(pbrSurface, d) * light.color / (1.0 + dist2);
 }
+#endif
+
+#if numSpotLights > 0
+vec3 getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight light)
+{
+	// light distance
+	vec3 d = light.position - v_position.xyz;
+	float dist2 = dot(d, d);
+	d *= inversesqrt(dist2);
+
+	// light direction
+	vec3 l = normalize(-light.direction);  // Vector from surface point to light
+
+	// from https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
+	float lightAngleOffset = light.cutoffAngle;
+	float lightAngleScale = light.exponent;
+
+	float cd = dot(l, d);
+	float angularAttenuation = saturate(cd * lightAngleScale + lightAngleOffset);
+	angularAttenuation *= angularAttenuation;
+
+	return getLightContribution(pbrSurface, d) * light.color * (angularAttenuation / (1.0 + dist2));
+}
+#endif
 
 void main() {
 	
@@ -585,7 +614,9 @@ void main() {
 #endif
 
     // Calculate lighting contribution from image based lighting source (IBL)
-#if defined(USE_IBL)
+#if defined(USE_IBL) && defined(ambientLightFlag)
+    vec3 ambientColor = getIBLContribution(pbrSurface, n, reflection) * u_ambientLight;
+#elif defined(USE_IBL)
     vec3 ambientColor = getIBLContribution(pbrSurface, n, reflection);
 #elif defined(ambientLightFlag)
     vec3 ambientColor = u_ambientLight;
@@ -596,13 +627,9 @@ void main() {
 #ifdef shadowMapFlag
     vec3 l0 = normalize(-u_dirLights[0].direction);
     float NdotL0 = clamp(dot(n, l0), 0.001, 1.0);
-#ifdef ambientLightFlag
-    color = mix(ambientColor * u_ambientLight, ambientColor + color, getShadow() * NdotL0);
-#else
     color = ambientColor + color * getShadow() * NdotL0;
-#endif
 #else
-    color = color + ambientColor;
+    color += ambientColor;
 #endif
 
 #if (numPointLights > 0)
@@ -611,6 +638,13 @@ void main() {
     	color += getPointLightContribution(pbrSurface, u_pointLights[i]);
     }
 #endif // numPointLights
+
+#if (numSpotLights > 0)
+    // Spot lights calculation
+    for(int i=0 ; i<numSpotLights ; i++){
+    	color += getSpotLightContribution(pbrSurface, u_spotLights[i]);
+    }
+#endif // numSpotLights
 
 
     // Apply optional PBR terms for additional (optional) shading

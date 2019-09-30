@@ -273,8 +273,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(lightsInfo.pointLights > config.numPointLights){
 			Gdx.app.error(TAG, "too many point lights detected: " + lightsInfo.pointLights + "/" + config.numPointLights);
 		}
-		if(lightsInfo.spotLights > 0){
-			Gdx.app.error(TAG, "spot lights not supported.");
+		if(lightsInfo.spotLights > config.numSpotLights){
+			Gdx.app.error(TAG, "too many spot lights detected: " + lightsInfo.spotLights + "/" + config.numSpotLights);
 		}
 		if(lightsInfo.miscLights > 0){
 			Gdx.app.error(TAG, "unknow type lights not supported.");

@@ -32,7 +32,6 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 * AssetManager loader utilities
 * sparse accessors
 * emulate default shader based on some PBR information
-* add more lighting support : spot lights
 
 ## Morph Targets full implementation
 

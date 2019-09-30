@@ -199,7 +199,6 @@ public class GLTFDemoUI extends Table {
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
 		lightOptions.optTable.add("Ambient Light");
 		lightOptions.optTable.add(ambiantSlider).row();
-		ambiantSlider.setValue(.5f);
 
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");

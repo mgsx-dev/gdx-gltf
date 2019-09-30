@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
@@ -19,6 +21,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class PBRShader extends DefaultShader
@@ -391,6 +394,17 @@ public class PBRShader extends DefaultShader
 	
 	@Override
 	protected void bindLights(Renderable renderable, Attributes attributes) {
+		
+		// XXX update color (to apply intensity) before default binding
+		DirectionalLightsAttribute dla = attributes.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+		if(dla != null){
+			for(DirectionalLight light : dla.lights){
+				if(light instanceof DirectionalLightEx){
+					((DirectionalLightEx) light).updateColor();
+				}
+			}
+		}
+		
 		super.bindLights(renderable, attributes);
 			
 		PBRFloatAttribute shadowBias = attributes.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);

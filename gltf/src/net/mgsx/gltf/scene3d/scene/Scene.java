@@ -129,11 +129,12 @@ public class Scene {
 			Node node = e.key;
 			BaseLight light = e.value;
 			if(light instanceof DirectionalLight){
-				((DirectionalLight)light).direction.set(Vector3.X).rot(node.globalTransform).rot(modelInstance.transform);
+				((DirectionalLight)light).direction.set(0,0,-1).rot(node.globalTransform).rot(modelInstance.transform);
 			}else if(light instanceof PointLight){
 				((PointLight)light).position.setZero().mul(node.globalTransform).mul(modelInstance.transform);
 			}else if(light instanceof SpotLight){
 				((SpotLight)light).position.setZero().mul(node.globalTransform).mul(modelInstance.transform);
+				((SpotLight)light).direction.set(0,0,-1).rot(node.globalTransform).rot(modelInstance.transform).nor();
 			}
 		}
 	}
