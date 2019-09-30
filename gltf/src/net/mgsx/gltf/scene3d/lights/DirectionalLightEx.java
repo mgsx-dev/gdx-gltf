@@ -23,7 +23,7 @@ public class DirectionalLightEx extends DirectionalLight
 
 	public DirectionalLightEx set(Color baseColor, Vector3 direction, float intensity) {
 		this.intensity = intensity;
-		this.baseColor.set(color);
+		this.baseColor.set(baseColor);
 		this.direction.set(direction);
 		updateColor();
 		return this;
@@ -33,5 +33,14 @@ public class DirectionalLightEx extends DirectionalLight
 		this.color.r = baseColor.r * intensity;
 		this.color.g = baseColor.g * intensity;
 		this.color.b = baseColor.b * intensity;
+	}
+	
+	@Override
+	public boolean equals(DirectionalLight other) {
+		return (other instanceof DirectionalLightEx) ? equals((DirectionalLightEx)other) : false;
+	}
+	
+	public boolean equals(DirectionalLightEx other) {
+		return (other != null) && ((other == this) || ((baseColor.equals(other.baseColor) && Float.compare(intensity, other.intensity) == 0 && direction.equals(other.direction))));
 	}
 }

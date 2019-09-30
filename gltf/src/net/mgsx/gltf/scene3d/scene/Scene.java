@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
 import net.mgsx.gltf.scene3d.animation.AnimationsPlayer;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 public class Scene {
@@ -67,7 +68,7 @@ public class Scene {
 	
 	protected BaseLight createLight(BaseLight from) {
 		if(from instanceof DirectionalLight){
-			return new DirectionalLight().set((DirectionalLight)from);
+			return new DirectionalLightEx().set((DirectionalLight)from);
 		}
 		if(from instanceof PointLight){
 			return new PointLight().set((PointLight)from);

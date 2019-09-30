@@ -137,4 +137,13 @@ public class DirectionalShadowLight extends DirectionalLightEx implements Shadow
 		if (fbo != null) fbo.dispose();
 		fbo = null;
 	}
+	
+	@Override
+	public boolean equals(DirectionalLightEx other) {
+		return (other instanceof DirectionalShadowLight) ? equals((DirectionalShadowLight)other) : false;
+	}
+	
+	public boolean equals(DirectionalShadowLight other) {
+		return (other != null) && (other == this); // No comparaison, same as identity ==
+	}
 }
