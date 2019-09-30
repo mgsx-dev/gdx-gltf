@@ -23,7 +23,7 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 
 **What limitation over G3D?**
 
-* gdx-gltf only support one directional light for now : multiple lights, point lights, spot lights will come up.
+* gdx-gltf doesn't support spot lights for now (only directional and point lights).
 
 **Can i only load glTF files and use them with regular libgdx 3D API?**
 
