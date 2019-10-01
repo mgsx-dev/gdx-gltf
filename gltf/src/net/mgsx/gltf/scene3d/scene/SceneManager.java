@@ -93,16 +93,25 @@ public class SceneManager implements Disposable {
 		}
 	}
 	
+	/**
+	 * render all scenes.
+	 * because shadows use frame buffers, if you need to render scenes to a frame buffer, you should instead
+	 * first call {@link #renderShadows()}, bind your frame buffer and then call {@link #renderColors()}
+	 */
 	public void render(){
 		if(camera == null) return;
 		
 		renderShadows();
 		
-		renderScene();
+		renderColors();
 	}
 	
+	/**
+	 * Render shadows only to interal frame buffers.
+	 * (useful when you're using your own frame buffer to render scenes)
+	 */
 	@SuppressWarnings("deprecation")
-	protected void renderShadows(){
+	public void renderShadows(){
 		DirectionalLight light = getFirstDirectionalLight();
 		if(light instanceof DirectionalShadowLight){
 			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
@@ -120,7 +129,11 @@ public class SceneManager implements Disposable {
 		}
 	}
 	
-	protected void renderScene(){
+	/**
+	 * Render colors only. You should call {@link #renderShadows()} before.
+	 * (useful when you're using your own frame buffer to render scenes)
+	 */
+	public void renderColors(){
 		batch.begin(camera);
 		for(Scene scene : scenes){
 			batch.render(scene.modelInstance, environment);
@@ -128,7 +141,7 @@ public class SceneManager implements Disposable {
 		if(skyBox != null){
 			batch.render(skyBox);
 		}
-		batch.end();		
+		batch.end();
 	}
 	
 	public DirectionalLight getFirstDirectionalLight(){
