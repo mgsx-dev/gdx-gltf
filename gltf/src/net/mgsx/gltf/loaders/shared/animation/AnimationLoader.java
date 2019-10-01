@@ -27,8 +27,8 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class AnimationLoader {
 	
-	public static boolean useCubicIntepolation = false;
-	public static boolean useStepIntepolation = false;
+	public static boolean useCubicIntepolation = true;
+	public static boolean useStepIntepolation = true;
 	
 	public final Array<Animation> animations = new Array<Animation>();
 	
