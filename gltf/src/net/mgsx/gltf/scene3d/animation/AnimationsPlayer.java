@@ -16,6 +16,12 @@ public class AnimationsPlayer {
 	}
 	
 	public void playAll(){
+		playAll(false);
+	}
+	public void loopAll(){
+		playAll(true);
+	}
+	public void playAll(boolean loop){
 		if(scene.animationController != null){
 			scene.animationController.setAnimation(null);
 		}
@@ -23,7 +29,7 @@ public class AnimationsPlayer {
 		for(int i=0, n=count() ; i<n ; i++){
 			AnimationControllerHack c = new AnimationControllerHack(scene.modelInstance);
 			c.calculateTransforms = false;
-			c.setAnimation(scene.modelInstance.animations.get(i));
+			c.setAnimation(scene.modelInstance.animations.get(i), loop ? -1 : 1);
 			controllers.add(c);
 		}
 	}

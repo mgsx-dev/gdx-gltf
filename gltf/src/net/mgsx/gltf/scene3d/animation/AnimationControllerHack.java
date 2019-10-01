@@ -450,7 +450,16 @@ public class AnimationControllerHack extends AnimationController
 	}
 
 	public void setAnimation(Animation animation) {
-		setAnimation(animation, 0f, animation.duration, 1, 1f, null); // loop count: 0 paused, -1 infinite
+		setAnimation(animation, 1);
+	}
+	
+	/**
+	 * 
+	 * @param animation animation to play
+	 * @param loopCount loop count : 0 paused, -1 infinite, n for n loops
+	 */
+	public void setAnimation(Animation animation, int loopCount) {
+		setAnimation(animation, 0f, animation.duration, loopCount, 1f, null); // loop count: 0 paused, -1 infinite
 	}
 
 }
