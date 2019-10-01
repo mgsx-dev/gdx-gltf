@@ -40,6 +40,8 @@ public class Scene {
 		for(Entry<Node, BaseLight> entry : sceneModel.lights){
 			lights.put(modelInstance.getNode(entry.key.id, true), createLight(entry.value));
 		}
+		syncCameras();
+		syncLights();
 	}
 	
 	public Camera createCamera(Camera from) 
@@ -116,6 +118,11 @@ public class Scene {
 
 	public void update(float delta){
 		animations.update(delta);
+		syncCameras();
+		syncLights();
+	}
+
+	private void syncCameras(){
 		for(Entry<Node, Camera> e : cameras){
 			Node node = e.key;
 			Camera camera = e.value;
@@ -125,22 +132,35 @@ public class Scene {
 			camera.up.set(Vector3.Y).rot(transform);
 			camera.update();
 		}
+	}
+	
+	private void syncLights(){
 		for(Entry<Node, BaseLight> e : lights){
 			Node node = e.key;
 			BaseLight light = e.value;
+			transform.set(node.globalTransform).mul(modelInstance.transform);
 			if(light instanceof DirectionalLight){
-				((DirectionalLight)light).direction.set(0,0,-1).rot(node.globalTransform).rot(modelInstance.transform);
+				((DirectionalLight)light).direction.set(0,0,-1).rot(transform);
 			}else if(light instanceof PointLight){
-				((PointLight)light).position.setZero().mul(node.globalTransform).mul(modelInstance.transform);
+				((PointLight)light).position.setZero().mul(transform);
 			}else if(light instanceof SpotLight){
-				((SpotLight)light).position.setZero().mul(node.globalTransform).mul(modelInstance.transform);
-				((SpotLight)light).direction.set(0,0,-1).rot(node.globalTransform).rot(modelInstance.transform).nor();
+				((SpotLight)light).position.setZero().mul(transform);
+				((SpotLight)light).direction.set(0,0,-1).rot(transform);
 			}
 		}
 	}
-
+	
 	public Camera getCamera(String name) {
 		for(Entry<Node, Camera> e : cameras){
+			if(name.equals(e.key.id)){
+				return e.value;
+			}
+		}
+		return null;
+	}
+	
+	public BaseLight getLight(String name) {
+		for(Entry<Node, BaseLight> e : lights){
 			if(name.equals(e.key.id)){
 				return e.value;
 			}
