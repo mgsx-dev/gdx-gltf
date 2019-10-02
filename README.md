@@ -105,6 +105,8 @@ This library provides a convenient scene manager to handle glTF models and PBR s
 see [Example code](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFExample.java)
 for more information.
 
+For advanced usage, please read [full documentation](DOC.md)
+
 ## Export models from Blender
 
 As Blender 2.80, glTF exporter addon is included and enabled by default.
