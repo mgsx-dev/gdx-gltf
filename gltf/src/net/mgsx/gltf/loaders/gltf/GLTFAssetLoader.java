@@ -1,7 +1,6 @@
 package net.mgsx.gltf.loaders.gltf;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
@@ -17,11 +16,12 @@ import net.mgsx.gltf.data.texture.GLTFSampler;
 import net.mgsx.gltf.data.texture.GLTFTexture;
 import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
+import net.mgsx.gltf.loaders.shared.SceneAssetLoaderParameters;
 import net.mgsx.gltf.loaders.shared.texture.ImageResolver;
 import net.mgsx.gltf.loaders.shared.texture.TextureResolver;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
-public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, AssetLoaderParameters<SceneAsset>>{
+public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneAssetLoaderParameters>{
 
 	private class ManagedTextureResolver extends TextureResolver {
 		
@@ -84,17 +84,19 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, AssetL
 
 	@Override
 	public void loadAsync(AssetManager manager, String fileName, FileHandle file,
-			AssetLoaderParameters<SceneAsset> parameter) {
+			SceneAssetLoaderParameters parameter) {
 		
 		textureResolver.fetch(manager);
 	}
 
 	@Override
 	public SceneAsset loadSync(AssetManager manager, String fileName, FileHandle file,
-			AssetLoaderParameters<SceneAsset> parameter) {
+			SceneAssetLoaderParameters parameter) {
+		
+		final boolean withData = parameter != null && parameter.withData;
 		
 		GLTFLoaderBase loader = new GLTFLoaderBase(textureResolver);
-		SceneAsset sceneAsset = loader.load(dataFileResolver);
+		SceneAsset sceneAsset = loader.load(dataFileResolver, withData);
 		this.textureResolver = null;
 		this.dataFileResolver = null;
 		return sceneAsset;
@@ -102,7 +104,7 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, AssetL
 
 	@Override
 	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
-			AssetLoaderParameters<SceneAsset> parameter) {
+			SceneAssetLoaderParameters parameter) {
 		
 		Array<AssetDescriptor> deps = new Array<AssetDescriptor>();
 		

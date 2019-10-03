@@ -79,15 +79,7 @@ public class GLTFLoaderBase implements Disposable {
 		skinLoader = new SkinLoader();
 	}
 	
-	/**
-	 * Expose glModel to user code in order to retreive some user define properties {@link net.mgsx.gltf.model.GLTFExtras}
-	 * @return parsed GLTF root object
-	 */
-	public GLTF getGlModel() {
-		return glModel;
-	}
-	
-	public SceneAsset load(DataFileResolver dataFileResolver){
+	public SceneAsset load(DataFileResolver dataFileResolver, boolean withData){
 		try{
 			this.dataFileResolver = dataFileResolver;
 			
@@ -132,6 +124,7 @@ public class GLTFLoaderBase implements Disposable {
 			
 			// create scene asset
 			SceneAsset model = new SceneAsset();
+			if(withData) model.data = glModel;
 			model.scenes = scenes;
 			model.scene = scenes.get(glModel.scene);
 			model.maxBones = meshLoader.getMaxBones();
