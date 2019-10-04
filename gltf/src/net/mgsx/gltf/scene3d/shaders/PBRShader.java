@@ -1,6 +1,5 @@
 package net.mgsx.gltf.scene3d.shaders;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -10,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
-import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
@@ -194,11 +192,6 @@ public class PBRShader extends DefaultShader
 	private int u_morphTargets1;
 	private int u_morphTargets2;
 	
-	// debug uniforms
-	private int u_ScaleDiffBaseMR;
-	private int u_ScaleFGDSpec;
-	private int u_ScaleIBLAmbient;
-
 	private int u_mipmapScale;
 
 	private int u_texCoord0Transform;
@@ -214,10 +207,6 @@ public class PBRShader extends DefaultShader
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
-	public static final Color ScaleDiffBaseMR = new Color();
-	public static final Color ScaleFGDSpec = new Color();
-	public static final Color ScaleIBLAmbient = new Color(.5f, .5f, 0, 0);
-
 	public PBRShader(Renderable renderable, Config config, String prefix) {
 		super(renderable, config, prefix);
 		
@@ -296,9 +285,6 @@ public class PBRShader extends DefaultShader
 	@Override
 	public void init(ShaderProgram program, Renderable renderable) {
 		super.init(program, renderable);
-		u_ScaleDiffBaseMR = program.fetchUniformLocation("u_ScaleDiffBaseMR", false);
-		u_ScaleFGDSpec = program.fetchUniformLocation("u_ScaleFGDSpec", false);
-		u_ScaleIBLAmbient = program.fetchUniformLocation("u_ScaleIBLAmbient", false);
 		u_mipmapScale = program.fetchUniformLocation("u_mipmapScale", false);
 		
 		u_texCoord0Transform = program.fetchUniformLocation("u_texCoord0Transform", false);
@@ -308,17 +294,6 @@ public class PBRShader extends DefaultShader
 		u_morphTargets2 = program.fetchUniformLocation("u_morphTargets2", false);
 		
 		u_ambientLight = program.fetchUniformLocation("u_ambientLight", false);
-	}
-	
-	@Override
-	public void begin(Camera camera, RenderContext context) {
-		super.begin(camera, context);
-		
-		program.setUniformf(u_ScaleDiffBaseMR, ScaleDiffBaseMR);
-		program.setUniformf(u_ScaleFGDSpec, ScaleFGDSpec);
-		if(u_ScaleIBLAmbient >= 0){
-			program.setUniformf(u_ScaleIBLAmbient, ScaleIBLAmbient);
-		}
 	}
 	
 	@Override

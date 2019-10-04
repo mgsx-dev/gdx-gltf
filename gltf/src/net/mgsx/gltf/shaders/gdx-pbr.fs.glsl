@@ -66,10 +66,6 @@ varying float v_alphaTest;
 #endif //alphaTestFlag
 #endif //blendedFlag
 
-#if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
-#define textureFlag
-#endif
-
 #ifdef textureFlag
 varying MED vec2 v_texCoord0;
 #endif // textureFlag
@@ -135,23 +131,11 @@ uniform vec4 u_emissiveColor;
 uniform sampler2D u_emissiveTexture;
 #endif
 
-#ifdef lightingFlag
-varying vec3 v_lightDiffuse;
-
-#if	defined(ambientLightFlag) || defined(ambientCubemapFlag) || defined(sphericalHarmonicsFlag)
-#define ambientFlag
-#endif //ambientFlag
-
-#ifdef specularFlag
-varying vec3 v_lightSpecular;
-#endif //specularFlag
-
 #ifdef shadowMapFlag
 uniform float u_shadowBias;
 uniform sampler2D u_shadowTexture;
 uniform float u_shadowPCFOffset;
 varying vec3 v_shadowMapUv;
-#define separateAmbientFlag
 
 float getShadowness(vec2 offset)
 {
@@ -169,12 +153,6 @@ float getShadow()
 }
 #endif //shadowMapFlag
 
-#if defined(ambientFlag) && defined(separateAmbientFlag)
-varying vec3 v_ambientLight;
-#endif //separateAmbientFlag
-
-#endif //lightingFlag
-
 #ifdef fogFlag
 uniform vec4 u_fogColor;
 
@@ -188,7 +166,6 @@ uniform vec3 u_fogEquation;
 #ifdef ambientLightFlag
 uniform vec3 u_ambientLight;
 #endif // ambientLightFlag
-
 
 
 #ifdef USE_IBL
@@ -254,15 +231,6 @@ uniform SpotLight u_spotLights[numSpotLights];
 uniform vec4 u_cameraPosition;
 
 uniform vec2 u_MetallicRoughnessValues;
-
-
-// debugging flags used for shader output of intermediate PBR variables
-#ifdef DEBUG
-uniform vec4 u_ScaleIBLAmbient;
-uniform vec4 u_ScaleDiffBaseMR;
-uniform vec4 u_ScaleFGDSpec;
-uniform vec4 u_ScaleTextureBNEO;
-#endif
 
 varying vec3 v_position;
 
@@ -375,12 +343,6 @@ vec3 getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;
     vec3 specular = specularLight * (pbrSurface.specularColor * brdf.x + brdf.y);
 
-    // For presentation, this allows us to disable IBL terms
-#ifdef DEBUG
-    diffuse *= u_ScaleIBLAmbient.x;
-    specular *= u_ScaleIBLAmbient.y;
-#endif
-    
     return diffuse + specular;
 }
 #endif
@@ -667,34 +629,6 @@ void main() {
 #endif
 
     
-    // This section uses mix to override final color for reference app visualization
-    // of various parameters in the lighting equation.
-#ifdef DEBUG
-    color = mix(color, F, u_ScaleFGDSpec.x);
-    color = mix(color, vec3(G), u_ScaleFGDSpec.y);
-    color = mix(color, vec3(D), u_ScaleFGDSpec.z);
-    color = mix(color, specContrib, u_ScaleFGDSpec.w);
-
-    color = mix(color, diffuseContrib, u_ScaleDiffBaseMR.x);
-    color = mix(color, baseColor.rgb, u_ScaleDiffBaseMR.y);
-    color = mix(color, vec3(metallic), u_ScaleDiffBaseMR.z);
-    color = mix(color, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
-    
-#ifdef diffuseTextureFlag
-    color = mix(color, texture2D(u_diffuseTexture, v_diffuseUV).rgb, u_ScaleTextureBNEO.x);
-#endif
-#ifdef normalTextureFlag
-    color = mix(color, texture2D(u_normalTexture, v_normalUV).rgb, u_ScaleTextureBNEO.y);
-#endif
-#ifdef emissiveTextureFlag
-    color = mix(color, texture2D(u_emissiveTexture, v_emissiveUV).rgb, u_ScaleTextureBNEO.z);
-#endif
-#ifdef occlusionTextureFlag
-    color = mix(color, texture2D(u_OcclusionSampler, v_occlusionUV).rgb, u_ScaleTextureBNEO.w);
-#endif
-    
-#endif
-    
     // final frag color
 #ifdef MANUAL_SRGB
     out_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
@@ -713,14 +647,6 @@ void main() {
 	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog);
 #endif
 
-#ifdef DEBUG_NORMALS
-#ifndef tangentFlag
-    out_FragColor = vec4(out_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
-#else
-    out_FragColor = vec4(out_FragColor.rgb * 0.0001 + (n * 0.5 + 0.5).xyz, 1.0);
-#endif
-#endif
-    
     // Blending and Alpha Test
 #ifdef blendedFlag
 	out_FragColor.a = baseColor.a * v_opacity;

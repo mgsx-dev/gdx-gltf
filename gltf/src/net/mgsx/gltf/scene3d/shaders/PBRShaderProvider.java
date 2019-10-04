@@ -176,11 +176,6 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		
-		// DEBUG
-		if(config.debug){
-			prefix += "#define DEBUG\n";
-		}
-		
 		// multi UVs
 		int maxUVIndex = 0;
 		

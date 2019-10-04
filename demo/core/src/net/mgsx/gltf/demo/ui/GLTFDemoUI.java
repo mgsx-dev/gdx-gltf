@@ -35,7 +35,6 @@ import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
-import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class GLTFDemoUI extends Table {
@@ -62,7 +61,6 @@ public class GLTFDemoUI extends Table {
 	private Table nodeTable;
 	private TextButton btNodeExclusive;
 	private Node selectedNode;
-	public CollapsableUI shaderDebug;
 	protected CollapsableUI shaderOptions;
 	public SelectBox<SRGB> shaderSRGB;
 	private CollapsableUI lightOptions;
@@ -156,25 +154,6 @@ public class GLTFDemoUI extends Table {
 		// Skybox
 		shaderOptions.optTable.add("SkyBox");
 		shaderOptions.optTable.add(skyBoxEnabled = new BooleanUI(skin, true)).row();
-		
-		root.add();
-		root.add(shaderDebug = new CollapsableUI(skin, "Debug Mode", false)).row();
-		
-		debugAmbiantSlider = new Slider(0, 1, .01f, false, skin);
-		shaderDebug.optTable.add("Ambient Light");
-		shaderDebug.optTable.add(debugAmbiantSlider).row();
-		debugAmbiantSlider.setValue(1f);
-
-		debugSpecularSlider = new Slider(0, 1, .01f, false, skin);
-		shaderDebug.optTable.add("Specular Light");
-		shaderDebug.optTable.add(debugSpecularSlider).row();
-		debugSpecularSlider.setValue(1f);
-		
-		shaderDebug.optTable.add("ScaleFGDSpec");
-		shaderDebug.optTable.add(new Vector4UI(skin, PBRShader.ScaleFGDSpec)).row();
-		
-		shaderDebug.optTable.add("ScaleDiffBaseMR");
-		shaderDebug.optTable.add(new Vector4UI(skin, PBRShader.ScaleDiffBaseMR)).row();
 		
 		// Lighting options
 		

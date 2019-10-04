@@ -291,7 +291,6 @@ public class GLTFDemo extends ApplicationAdapter
 		};
 		
 		ui.shaderSRGB.addListener(shaderOptionListener);
-		ui.shaderDebug.toggle.addListener(shaderOptionListener);
 		
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
@@ -465,7 +464,6 @@ public class GLTFDemo extends ApplicationAdapter
 			{
 				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
-				config.debug = ui.shaderDebug.toggle.isChecked();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
