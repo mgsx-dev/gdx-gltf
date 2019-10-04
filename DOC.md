@@ -56,6 +56,18 @@ TODO explain provided shadow light, only dirs, how to enable, etc...
 
 TODO explain DiLightEx with intensity parameter...
 
+## Animations
+
+Scene own a AnimationController to play animation on its modelInstance (regular libgdx animation player).
+
+When your scene is an individual model (single skeleton) you typically use `scene.animationController` to play
+single animation and actions.
+
+Also, Scene own a more advanced animation player providing some features like playing multiple animations.
+
+When your scene is made of several individual models with their own animation (cinematic scene), you want to play a bunch
+of animation on the same modelInstance. In this case use `scene.animationsPlayer` instead of `scene.animationController`.
+
 
 ## Export from Blender (2.80+)
 
