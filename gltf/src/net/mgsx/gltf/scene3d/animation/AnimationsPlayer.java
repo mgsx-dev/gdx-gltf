@@ -1,6 +1,7 @@
 package net.mgsx.gltf.scene3d.animation;
 
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationDesc;
 import com.badlogic.gdx.utils.Array;
 
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -15,6 +16,24 @@ public class AnimationsPlayer {
 		this.scene = scene;
 	}
 	
+	public void addAnimations(Array<AnimationDesc> animations){
+		for(AnimationDesc animation : animations){
+			addAnimation(animation);
+		}
+	}
+	public void addAnimation(AnimationDesc animation){
+		AnimationControllerHack c = new AnimationControllerHack(scene.modelInstance);
+		c.calculateTransforms = false;
+		c.setAnimationDesc(animation);
+		controllers.add(c);
+	}
+	public void clearAnimations(){
+		controllers.clear();
+		if(scene.animationController != null){
+			scene.animationController.setAnimation(null);
+		}
+	}
+	
 	public void playAll(){
 		playAll(false);
 	}
@@ -22,11 +41,8 @@ public class AnimationsPlayer {
 		playAll(true);
 	}
 	public void playAll(boolean loop){
-		if(scene.animationController != null){
-			scene.animationController.setAnimation(null);
-		}
-		controllers.clear();
-		for(int i=0, n=count() ; i<n ; i++){
+		clearAnimations();
+		for(int i=0, n=scene.modelInstance.animations.size ; i<n ; i++){
 			AnimationControllerHack c = new AnimationControllerHack(scene.modelInstance);
 			c.calculateTransforms = false;
 			c.setAnimation(scene.modelInstance.animations.get(i), loop ? -1 : 1);
@@ -34,15 +50,8 @@ public class AnimationsPlayer {
 		}
 	}
 	
-	private int count() {
-		return scene.modelInstance.animations.size;
-	}
-
 	public void stopAll(){
-		controllers.clear();
-		if(scene.animationController != null){
-			scene.animationController.setAnimation(null);
-		}
+		clearAnimations();
 	}
 	
 	public void update(float delta){

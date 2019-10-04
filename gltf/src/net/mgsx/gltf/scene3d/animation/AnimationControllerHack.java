@@ -449,6 +449,10 @@ public class AnimationControllerHack extends AnimationController
 		}
 	}
 
+	public void setAnimationDesc(AnimationDesc anim){
+		setAnimation(anim.animation, anim.offset, anim.duration, anim.loopCount, anim.speed, anim.listener);
+	}
+	
 	public void setAnimation(Animation animation) {
 		setAnimation(animation, 1);
 	}
