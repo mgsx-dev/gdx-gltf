@@ -1,6 +1,5 @@
 package net.mgsx.gltf.loaders.shared.animation;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
@@ -26,9 +25,6 @@ import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class AnimationLoader {
-	
-	public static boolean useCubicIntepolation = true;
-	public static boolean useStepIntepolation = true;
 	
 	public final Array<Animation> animations = new Array<Animation>();
 	
@@ -67,28 +63,14 @@ public class AnimationLoader {
 			float[] inputData = dataResolver.readBufferFloat(glSampler.input);
 			float[] outputData = dataResolver.readBufferFloat(glSampler.output);
 
-			Interpolation originalInterpolation = GLTFTypes.mapInterpolation(glSampler.interpolation);
+			final Interpolation interpolation = GLTFTypes.mapInterpolation(glSampler.interpolation);
 			
 			// case of cubic spline, we skip anchor vectors if cubic is disabled.
 			int dataOffset = 0;
 			int dataStride = 1;
-			if(originalInterpolation == Interpolation.CUBICSPLINE){
+			if(interpolation == Interpolation.CUBICSPLINE){
 				dataOffset = 1;
 				dataStride = 3;
-			}
-			
-			// change interpolation depending on configuration
-			Interpolation interpolation = originalInterpolation;
-			if(originalInterpolation == Interpolation.CUBICSPLINE){
-				if(!useCubicIntepolation){
-					Gdx.app.log("GLTF", "interpolation " + originalInterpolation + ", processed as LINEAR");
-					interpolation = Interpolation.LINEAR;
-				}
-			}else if(originalInterpolation == Interpolation.STEP){
-				if(!useStepIntepolation){
-					Gdx.app.log("GLTF", "interpolation " + originalInterpolation + ", processed as LINEAR");
-					interpolation = Interpolation.LINEAR;
-				}
 			}
 			
 			GLTFAccessor inputAccessor = dataResolver.getAccessor(glSampler.input);
