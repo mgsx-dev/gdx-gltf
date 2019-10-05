@@ -2,6 +2,8 @@ package net.mgsx.gltf.loaders.shared.texture;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -50,6 +52,13 @@ public class TextureResolver implements Disposable
 		if(glTexture.sampler != null){
 			GLTFSampler glSampler = glSamplers.get(glTexture.sampler);
 			GLTFTypes.mapTextureSampler(textureDescriptor, glSampler);
+		}else{
+			// default sampler options.
+			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#texture
+			textureDescriptor.minFilter = TextureFilter.Linear;
+			textureDescriptor.magFilter = TextureFilter.Linear;
+			textureDescriptor.uWrap = TextureWrap.Repeat;
+			textureDescriptor.vWrap = TextureWrap.Repeat;
 		}
 		textureDescriptor.texture = texture;
 		return textureDescriptor;
