@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Net.HttpMethods;
 import com.badlogic.gdx.Net.HttpRequest;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
@@ -43,6 +44,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileChangeEvent;
+import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.GLTFInspector;
 import net.mgsx.gltf.demo.util.NodeUtil;
@@ -195,6 +197,74 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.ambiantSlider.setValue(1f);
 	}
 	
+	protected void loadIBL(FileHandle file) 
+	{
+		// format from CMFT
+		Cubemap newEnvironmentCubemap = null;
+		Cubemap newDiffuseCubemap = null;
+		Cubemap newSpecularCubemap = null;
+		
+		try{
+			newEnvironmentCubemap = EnvironmentUtil.createCubemap(new AbsoluteFileHandleResolver(), 
+					file.path() + "/environment/environment_", ".jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
+			
+			newDiffuseCubemap = EnvironmentUtil.createCubemap(new AbsoluteFileHandleResolver(), 
+					file.path() + "/diffuse/diffuse_", ".jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
+			
+			newSpecularCubemap = EnvironmentUtil.createCubemap(new AbsoluteFileHandleResolver(), 
+					file.path() + "/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
+		}catch(GdxRuntimeException e){
+			e.printStackTrace();
+			return;
+		}
+		
+		// cleanup
+		if(diffuseCubemap != null){
+			diffuseCubemap.dispose();
+			diffuseCubemap = null;
+		}
+		if(specularCubemap != null){
+			specularCubemap.dispose();
+			specularCubemap = null;
+		}
+		if(environmentCubemap != null){
+			environmentCubemap.dispose();
+			environmentCubemap = null;
+		}
+		
+		// update
+		diffuseCubemap = newDiffuseCubemap;
+		specularCubemap = newSpecularCubemap;
+		environmentCubemap = newEnvironmentCubemap;
+
+		// update skybox
+		skybox.set(environmentCubemap);
+		
+		changeIBLOptions();
+	}
+	
+	protected void changeIBLOptions() {
+		
+		// remove all
+		sceneManager.environment.remove(PBRCubemapAttribute.DiffuseEnv);
+		sceneManager.environment.remove(PBRCubemapAttribute.SpecularEnv);
+		sceneManager.environment.remove(PBRTextureAttribute.BRDFLUTTexture);
+		
+		// enable some of them
+		if(ui.IBLEnabled.isOn()){
+			sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+			if(ui.IBLSpecular.isOn()){
+				sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+			}
+			if(ui.IBLLookup.isOn()){
+				sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+			}
+		}
+		
+		invalidateShaders();
+	}
+
+	
 	private void loadModelIndex() 
 	{
 		rootFolder = Gdx.files.internal(samplesPath);	
@@ -243,6 +313,8 @@ public class GLTFDemo extends ApplicationAdapter
 					ui.entrySelector.setSelectedIndex(0);
 					ui.variantSelector.setSelectedIndex(0);
 					load(((FileChangeEvent) event).file);
+				}else if(event instanceof IBLFolderChangeEvent){
+					loadIBL(((IBLFolderChangeEvent) event).file);
 				}
 			}
 		});
@@ -344,6 +416,29 @@ public class GLTFDemo extends ApplicationAdapter
 			}
 		});
 		
+		ui.IBLEnabled.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				changeIBLOptions();
+			}
+		});
+		
+		ui.IBLSpecular.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				changeIBLOptions();
+			}
+		});
+		
+		ui.IBLLookup.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				changeIBLOptions();
+			}
+		});
 		
 	}
 	

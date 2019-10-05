@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.Scaling;
 import net.mgsx.gltf.demo.GLTFDemo.ShaderMode;
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileChangeEvent;
+import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -75,6 +76,16 @@ public class GLTFDemoUI extends Table {
 	public BooleanUI skyBoxEnabled;
 	public Vector4UI fogColor;
 	public Vector3UI fogEquation;
+
+	public BooleanUI IBLEnabled;
+
+	private Table IBLChooser;
+
+	private CollapsableUI IBLOptions;
+
+	public BooleanUI IBLSpecular;
+
+	public BooleanUI IBLLookup;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -179,6 +190,42 @@ public class GLTFDemoUI extends Table {
 		lightOptions.optTable.add("Ambient Light");
 		lightOptions.optTable.add(ambiantSlider).row();
 
+		// IBL options
+		
+		root.add();
+		root.add(IBLOptions = new CollapsableUI(skin, "IBL Options", false)).row();
+		
+		IBLOptions.optTable.add("Overall");
+		IBLOptions.optTable.add(IBLEnabled = new BooleanUI(skin, true)).row();
+		
+		IBLOptions.optTable.add("Radiance");
+		IBLOptions.optTable.add(IBLSpecular = new BooleanUI(skin, true)).row();
+
+		IBLOptions.optTable.add("BSDF");
+		IBLOptions.optTable.add(IBLLookup = new BooleanUI(skin, true)).row();
+
+		IBLOptions.optTable.add("Files");
+		IBLOptions.optTable.add(IBLChooser = new Table(skin)).row();
+		
+		if(fileSelector != null){
+			TextButton btOpenFile = new TextButton("Change", skin);
+			IBLChooser.add(btOpenFile);
+			
+			btOpenFile.addListener(new ChangeListener() {
+				@Override
+				public void changed(ChangeEvent event, Actor actor) {
+					fileSelector.selectFolder(new Runnable() {
+						@Override
+						public void run() {
+							GLTFDemoUI.this.fire(new IBLFolderChangeEvent(fileSelector.lastFile));
+						}
+					});
+				}
+			});
+		}
+		
+		// Scene options
+		
 		cameraSelector = new SelectBox<String>(skin);
 		root.add("Camera");
 		root.add(cameraSelector).row();
@@ -186,6 +233,7 @@ public class GLTFDemoUI extends Table {
 		lightSelector = new SelectBox<String>(skin);
 		root.add("Lights");
 		root.add(lightSelector).row();
+		
 		
 		animationSelector = new SelectBox<String>(skin);
 		btAllAnimations = new TextButton("All", skin, "toggle");

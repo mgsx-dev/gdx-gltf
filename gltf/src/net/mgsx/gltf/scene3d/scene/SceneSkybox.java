@@ -53,6 +53,11 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		box.shader = shaderProvider.getShader(box);
 	}
 	
+	public SceneSkybox set(Cubemap cubemap){
+		box.environment.set(new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap));
+		return this;
+	}
+	
 	
 	public void update(Camera camera){
 		// scale skybox to camera range.

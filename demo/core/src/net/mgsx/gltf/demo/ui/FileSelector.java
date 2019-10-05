@@ -6,6 +6,10 @@ abstract public class FileSelector {
 
 	public FileHandle lastFile;
 
+	/** open a file */
 	abstract public void open(Runnable runnable);
+	
+	/** select a folder */
+	abstract public void selectFolder(Runnable runnable);
 
 }

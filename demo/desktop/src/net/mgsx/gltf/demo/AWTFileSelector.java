@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 import com.badlogic.gdx.Gdx;
 
@@ -54,5 +55,39 @@ public class AWTFileSelector extends FileSelector
 			// callback.cancel();
 		}
 		applet.destroy();
+	}
+
+	@Override
+	public void selectFolder(final Runnable callback) {
+		final boolean save = false;
+		JApplet applet = new JApplet(); // TODO fail safe
+		final JFileChooser fc = new JFileChooser(new File(path));
+		fc.setFileFilter(new FileFilter() {
+			@Override
+			public String getDescription() {
+				return "Folder";
+			}
+			@Override
+			public boolean accept(File f) {
+				return f.isDirectory();
+			}
+		});
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		int r = save ? fc.showSaveDialog(applet) : fc.showOpenDialog(applet);
+		if(r == JFileChooser.APPROVE_OPTION){
+			final File file = fc.getSelectedFile();
+			path = file.getPath();
+			Gdx.app.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					lastFile = Gdx.files.absolute(file.getAbsolutePath());
+					callback.run();
+				}
+			});
+		}else{
+			// callback.cancel();
+		}
+		applet.destroy();
+		
 	}
 }
