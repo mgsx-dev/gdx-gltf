@@ -30,6 +30,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	
 	private static final LightsInfo lightsInfo = new LightsInfo();
 	
+	private static final int MAX_MORPH_TARGETS = 8;
+	
 	public static PBRShaderConfig defaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
 		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
@@ -67,6 +69,22 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		return shaders.size;
 	}
 	
+	public static String morphTargetsPrefix(Renderable renderable){
+		String prefix = "";
+		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
+			for(int i=0 ; i<MAX_MORPH_TARGETS ; i++){
+				if(att.alias.equals(ShaderProgram.POSITION_ATTRIBUTE + i)){
+					prefix += "#define " + "position" + i + "Flag\n";
+				}else if(att.alias.equals(ShaderProgram.NORMAL_ATTRIBUTE + i)){
+					prefix += "#define " + "normal" + i + "Flag\n";
+				}else if(att.alias.equals(ShaderProgram.TANGENT_ATTRIBUTE + i)){
+					prefix += "#define " + "tangent" + i + "Flag\n";
+				}
+			}
+		}
+		return prefix;
+	}
+	
 	protected Shader createShader(Renderable renderable) {
 		
 		PBRShaderConfig config = (PBRShaderConfig)this.config;
@@ -91,19 +109,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			prefix += "#define USE_DERIVATIVES_EXT\n";
 		}
 		
-		final int maxMorphTarget = 8;
-		
-		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
-			for(int i=0 ; i<maxMorphTarget ; i++){
-				if(att.alias.equals(ShaderProgram.POSITION_ATTRIBUTE + i)){
-					prefix += "#define " + "position" + i + "Flag\n";
-				}else if(att.alias.equals(ShaderProgram.NORMAL_ATTRIBUTE + i)){
-					prefix += "#define " + "normal" + i + "Flag\n";
-				}else if(att.alias.equals(ShaderProgram.TANGENT_ATTRIBUTE + i)){
-					prefix += "#define " + "tangent" + i + "Flag\n";
-				}
-			}
-		}
+		prefix += morphTargetsPrefix(renderable);
 		
 		// Lighting
 		
@@ -242,9 +248,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				throw new GdxRuntimeException("color packed attribute not supported");
 			}else if(attribute.usage == VertexAttributes.Usage.ColorUnpacked){
 				numColor = Math.max(numColor, attribute.unit+1);
-			}else if(attribute.usage == VertexAttributes.Usage.Position && attribute.unit>=maxMorphTarget ||
-					attribute.usage == VertexAttributes.Usage.Normal && attribute.unit>=maxMorphTarget ||
-					attribute.usage == VertexAttributes.Usage.Tangent && attribute.unit>=maxMorphTarget ){
+			}else if(attribute.usage == VertexAttributes.Usage.Position && attribute.unit>=MAX_MORPH_TARGETS ||
+					attribute.usage == VertexAttributes.Usage.Normal && attribute.unit>=MAX_MORPH_TARGETS ||
+					attribute.usage == VertexAttributes.Usage.Tangent && attribute.unit>=MAX_MORPH_TARGETS ){
 				numMorphTarget = Math.max(numMorphTarget, attribute.unit+1);
 			}else if(attribute.usage == VertexAttributes.Usage.BoneWeight){
 				numBoneInfluence = Math.max(numBoneInfluence, attribute.unit+1);
@@ -254,7 +260,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(numBoneInfluence > 8){
 			Gdx.app.error(TAG, "more than 8 bones influence attributes not supported: " + numBoneInfluence + " found.");
 		}
-		if(numMorphTarget > maxMorphTarget){
+		if(numMorphTarget > MAX_MORPH_TARGETS){
 			Gdx.app.error(TAG, "more than 8 morph target attributes not supported: " + numMorphTarget + " found.");
 		}
 		if(numColor > 1){
