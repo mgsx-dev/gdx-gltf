@@ -177,6 +177,21 @@ for(GLTFNode node : nodes){
 }
 ```
 
+Note that in Blender you can manually define key/value pairs (with float value) only. However you can define any JSON structure
+via scripting. For instance, you can copy some Blender specific settings like Empty type and size this way :
+
+```
+import bpy;
+for object in bpy.data.objects:
+    if not object.data:
+        object["Empty"] = {
+            "size": object.empty_display_size,
+            "type": object.empty_display_type
+        }
+```
+
+You can the retreive this structured data structure from GLTF nodes in your game.
+
 
 ### Blending
 
