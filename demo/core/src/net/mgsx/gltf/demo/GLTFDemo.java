@@ -533,11 +533,7 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		// fit lights and bones to current scene.
 		LightsInfo info = LightUtils.getLightsInfo(new LightsInfo(), sceneManager.environment);
-		
-		System.out.println("lights:");
-		System.out.println("dirs: " + info.dirLights);
-		System.out.println("points: " + info.pointLights);
-		System.out.println("spots: " + info.spotLights);
+		Gdx.app.log(TAG, "Reset shaders. Lights( dirs: " + info.dirLights + ", points: " + info.pointLights + ", spots: " + info.spotLights + " )");
 		
 		switch(shaderMode){
 		default:
