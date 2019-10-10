@@ -56,7 +56,9 @@ GLTF extensions implemented:
 
 gdx-gltf is available via Jitpack.
 
-ensure you have jitpack repository declared in your Gradle configuration : 
+ensure you have jitpack repository declared in your Gradle configuration and add a gltfVersion variable.
+
+Version can be any release (latest release is recommended) or master-SNAPSHOT
 
 ```
 allprojects {
@@ -64,6 +66,10 @@ allprojects {
 		...
 		maven { url 'https://jitpack.io' }
 	}
+	ext {
+        ...
+        gltfVersion = 'master-SNAPSHOT'
+    }
 }
 ```
 
@@ -73,10 +79,29 @@ Add dependency in your core project (replace master-SNAPSHOT by latest release t
 project(":core") {
     dependencies {
     	...
-        compile "com.github.mgsx-dev.gdx-gltf:gltf:master-SNAPSHOT"
+        compile "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
     }
 }
 ```
+
+For GWT (html) projects you need to add source dependency and inherit GWT module in your core .gwt.xml file.
+
+```
+project(":html") {
+    dependencies {
+    	...
+        compile "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion:sources"
+    }
+}
+```
+
+```
+<module>
+	<inherits name='GLTF' />
+	...
+</module>
+```
+ 
 
 ## Loading asset files
 
