@@ -29,6 +29,13 @@ public class ModelInstanceHack extends ModelInstance
 		copyAnimations(model.animations, defaultShareKeyframes);
 	}
 	
+	public ModelInstanceHack(Model model, final String... rootNodeIds){
+		super(model, rootNodeIds);
+		// patch animation copy because of private method
+		animations.clear();
+		copyAnimations(model.animations, defaultShareKeyframes);
+	}
+	
 	private void copyAnimations (final Iterable<Animation> source, boolean shareKeyframes) {
 		for (final Animation anim : source) {
 			Animation animation = new Animation();
