@@ -187,6 +187,7 @@ public class PBRShader extends DefaultShader
 	public final int u_NormalTexture;
 	public final int u_EmissiveTexture;
 	public final int u_BaseColorFactor;
+	public final int u_FogEquation;
 
 	// morph targets
 	private int u_morphTargets1;
@@ -203,7 +204,6 @@ public class PBRShader extends DefaultShader
 
 	private int u_ShadowBias;
 	
-	private int u_FogEquation;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -391,11 +391,6 @@ public class PBRShader extends DefaultShader
 		ColorAttribute ambiantLight = attributes.get(ColorAttribute.class, ColorAttribute.AmbientLight);
 		if(ambiantLight != null){
 			program.setUniformf(u_ambientLight, ambiantLight.color.r, ambiantLight.color.g, ambiantLight.color.b);
-		}
-		
-		FogAttribute fogEquation = attributes.get(FogAttribute.class, FogAttribute.FogEquation);
-		if(fogEquation != null){
-			program.setUniformf(u_FogEquation, fogEquation.value);
 		}
 	}
 	
