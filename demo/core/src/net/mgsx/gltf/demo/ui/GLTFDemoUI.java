@@ -86,6 +86,8 @@ public class GLTFDemoUI extends Table {
 	public BooleanUI IBLSpecular;
 
 	public BooleanUI IBLLookup;
+
+	public Vector4UI skyBoxColor;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -165,6 +167,9 @@ public class GLTFDemoUI extends Table {
 		// Skybox
 		shaderOptions.optTable.add("SkyBox");
 		shaderOptions.optTable.add(skyBoxEnabled = new BooleanUI(skin, true)).row();
+		
+		shaderOptions.optTable.add("SkyBox Color");
+		shaderOptions.optTable.add(skyBoxColor = new Vector4UI(skin, new Color(Color.WHITE))).row();
 		
 		// Lighting options
 		

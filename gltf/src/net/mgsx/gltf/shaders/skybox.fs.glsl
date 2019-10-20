@@ -13,6 +13,14 @@ varying vec3 v_position;
 
 uniform samplerCube u_environmentCubemap;
 
+#ifdef diffuseColorFlag
+uniform vec4 u_diffuseColor;
+#endif
+
 void main() {
-    gl_FragColor = vec4(textureCube(u_environmentCubemap, v_position.xyz).rgb, 1.0);
+	vec4 color = textureCube(u_environmentCubemap, v_position.xyz);
+#ifdef diffuseColorFlag
+	color *= u_diffuseColor;
+#endif
+    gl_FragColor = vec4(color.rgb, 1.0);
 }

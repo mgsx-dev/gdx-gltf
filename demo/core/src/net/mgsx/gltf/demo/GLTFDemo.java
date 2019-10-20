@@ -794,6 +794,8 @@ public class GLTFDemo extends ApplicationAdapter
 					);
 		}
 		
+		skybox.getColor().set(ui.skyBoxColor.value);
+		
 		DirectionalLight light = sceneManager.getFirstDirectionalLight();
 		if(light != null){
 			float lum = ui.lightSlider.getValue();

@@ -49,6 +49,9 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		// set hint to render last but before transparent ones
 		box.userData = SceneRenderableSorter.Hints.OPAQUE_LAST;
 		
+		// set material options
+		box.material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
+
 		// assign shader
 		box.shader = shaderProvider.getShader(box);
 	}
@@ -58,6 +61,12 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		return this;
 	}
 	
+	/**
+	 * @return skybox material color to be modified (default is white)
+	 */
+	public Color getColor(){
+		return box.material.get(ColorAttribute.class, ColorAttribute.Diffuse).color;
+	}
 	
 	public void update(Camera camera){
 		// scale skybox to camera range.
