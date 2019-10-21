@@ -190,5 +190,6 @@ public class SceneManager implements Disposable {
 	@Override
 	public void dispose() {
 		batch.dispose();
+		shadowBatch.dispose();
 	}
 }
