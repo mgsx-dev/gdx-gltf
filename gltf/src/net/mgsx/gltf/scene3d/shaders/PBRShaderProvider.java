@@ -140,9 +140,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define USE_IBL\n";
 				
 				boolean textureLodSupported;
-				if(Gdx.app.getType() == ApplicationType.WebGL){
-					textureLodSupported = Gdx.graphics.supportsExtension("EXT_shader_texture_lod");
-				}else if(Gdx.app.getType() == ApplicationType.Android){
+				if(Gdx.app.getType() != ApplicationType.Desktop){
 					if(openGL3){
 						textureLodSupported = true;
 					}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
