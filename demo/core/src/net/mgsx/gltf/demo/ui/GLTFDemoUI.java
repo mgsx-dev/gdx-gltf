@@ -380,7 +380,15 @@ public class GLTFDemoUI extends Table {
 		if(attribute != null){
 			final TextButton bt = new TextButton(name, getSkin(), "toggle");
 			bt.setChecked(true);
-			materialTable.add(bt).row();
+			materialTable.add(bt);
+			
+			Image pict = new Image(attribute.textureDescription.texture);
+			
+			pict.setScaling(Scaling.fit);
+			
+			materialTable.add(pict).size(64);
+			
+			materialTable.row();
 			
 			bt.addListener(new ChangeListener() {
 				@Override
@@ -466,11 +474,12 @@ public class GLTFDemoUI extends Table {
 		nodeMap.clear();
 		
 		Array<String> names = new Array<String>();
-		names.add("");
 		for(Node e : nodes){
 			names.add(e.id);
 			nodeMap.put(e.id, e);
 		}
+		names.sort();
+		names.insert(0, "");
 		nodeSelector.setItems();
 		nodeSelector.setItems(names);
 	}
