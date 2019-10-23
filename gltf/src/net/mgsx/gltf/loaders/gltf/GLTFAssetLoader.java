@@ -9,6 +9,8 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.texture.GLTFImage;
@@ -25,7 +27,8 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 
 	private class ManagedTextureResolver extends TextureResolver {
 		
-		private Array<AssetDescriptor<Texture>> textureDescriptors = new Array<AssetDescriptor<Texture>>();
+		private ObjectMap<Integer, AssetDescriptor<Texture>> textureDescriptorsSimple = new ObjectMap<Integer, AssetDescriptor<Texture>>();
+		private ObjectMap<Integer, AssetDescriptor<Texture>> textureDescriptorsMipMap = new ObjectMap<Integer, AssetDescriptor<Texture>>();
 		
 		private GLTF glModel;
 		
@@ -39,8 +42,11 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 		}
 
 		public void fetch(AssetManager manager) {
-			for(int i=0 ; i<textureDescriptors.size ; i++){
-				textures.put(i, manager.get(textureDescriptors.get(i)));
+			for(Entry<Integer, AssetDescriptor<Texture>> e : textureDescriptorsSimple){
+				texturesSimple.put(e.key, manager.get(e.value));
+			}
+			for(Entry<Integer, AssetDescriptor<Texture>> e : textureDescriptorsMipMap){
+				texturesMipmap.put(e.key, manager.get(e.value));
 			}
 		}
 
@@ -53,18 +59,22 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 					
 					GLTFImage glImage = glModel.images.get(glTexture.source);
 					FileHandle imageFile = dataFileResolver.getImageFile(glImage);
-					if(imageFile != null){
-						TextureParameter textureParameter = new TextureParameter();
-						if(glTexture.sampler != null){
-							GLTFSampler sampler = glSamplers.get(glTexture.sampler);
-							if(GLTFTypes.isMipMapFilter(sampler)){
-								textureParameter.genMipMaps = true;
-							}
-							GLTFTypes.mapTextureSampler(textureParameter, sampler);
+					TextureParameter textureParameter = new TextureParameter();
+					if(glTexture.sampler != null){
+						GLTFSampler sampler = glSamplers.get(glTexture.sampler);
+						if(GLTFTypes.isMipMapFilter(sampler)){
+							textureParameter.genMipMaps = true;
 						}
-						AssetDescriptor<Texture> assetDescriptor = new AssetDescriptor<Texture>(imageFile, Texture.class, textureParameter);
-						deps.add(assetDescriptor);
-						textureDescriptors.add(assetDescriptor);
+						GLTFTypes.mapTextureSampler(textureParameter, sampler);
+					}else{
+						GLTFTypes.mapTextureSampler(textureParameter);
+					}
+					AssetDescriptor<Texture> assetDescriptor = new AssetDescriptor<Texture>(imageFile, Texture.class, textureParameter);
+					deps.add(assetDescriptor);
+					if(textureParameter.genMipMaps){
+						textureDescriptorsMipMap.put(glTexture.source, assetDescriptor);
+					}else{
+						textureDescriptorsSimple.put(glTexture.source, assetDescriptor);
 					}
 				}
 			}

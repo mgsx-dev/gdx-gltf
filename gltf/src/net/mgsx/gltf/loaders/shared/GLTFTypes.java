@@ -204,6 +204,12 @@ public class GLTFTypes {
 		textureParameter.wrapU = GLTFTypes.mapTextureWrap(glSampler.wrapS);
 		textureParameter.wrapV = GLTFTypes.mapTextureWrap(glSampler.wrapT);
 	}
+	public static void mapTextureSampler(TextureParameter textureParameter) {
+		textureParameter.minFilter = GLTFTypes.mapTextureMinFilter(null);
+		textureParameter.magFilter = GLTFTypes.mapTextureMagFilter(null);
+		textureParameter.wrapU = GLTFTypes.mapTextureWrap(null);
+		textureParameter.wrapV = GLTFTypes.mapTextureWrap(null);
+	}
 	
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#samplerwraps
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#samplerwrapt
