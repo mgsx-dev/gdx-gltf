@@ -42,7 +42,7 @@ public class GLTFTypes {
 	public static final int C_UBYTE = 5121;
 	public static final int C_SHORT = 5122;
 	public static final int C_USHORT = 5123;
-	public static final int C_UINT = 5124;
+	public static final int C_UINT = 5125;
 	public static final int C_FLOAT = 5126;
 	
 	
