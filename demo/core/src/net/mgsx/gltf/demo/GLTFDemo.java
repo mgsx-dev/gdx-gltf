@@ -52,6 +52,7 @@ import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
 import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
@@ -71,6 +72,9 @@ import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
 
 public class GLTFDemo extends ApplicationAdapter
 {
+	// change this to test asset manager or direct loading
+	private static boolean USE_ASSET_MANAGER = true;
+	
 	public static String AUTOLOAD_ENTRY = null;
 	public static String AUTOLOAD_VARIANT = null;
 	public static String alternateMaps = null;
@@ -590,7 +594,9 @@ public class GLTFDemo extends ApplicationAdapter
 			rootModel.dispose();
 			rootModel = null;
 			if(lastFileName != null){
-				assetManager.unload(lastFileName);
+				if(USE_ASSET_MANAGER){
+					assetManager.unload(lastFileName);
+				}
 				lastFileName = null;
 			}
 		}
@@ -650,9 +656,17 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		lastFileName = glFile.path();
 		
-		assetManager.load(lastFileName, SceneAsset.class);
-		assetManager.finishLoading();
-		rootModel = assetManager.get(lastFileName, SceneAsset.class);
+		if(USE_ASSET_MANAGER){
+			assetManager.load(lastFileName, SceneAsset.class);
+			assetManager.finishLoading();
+			rootModel = assetManager.get(lastFileName, SceneAsset.class);
+		}else{
+			if(glFile.extension().equalsIgnoreCase("glb")){
+				rootModel = new GLBLoader().load(glFile);
+			}else if(glFile.extension().equalsIgnoreCase("gltf")){
+				rootModel = new GLTFLoader().load(glFile);
+			}
+		}
 		
 		load();
 		
