@@ -106,7 +106,15 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		if(Gdx.app.getType() == ApplicationType.WebGL || !openGL3){
-			prefix += "#define USE_DERIVATIVES_EXT\n";
+			// extension required to auto compute tangents
+			if(renderable.meshPart.mesh.getVertexAttribute(VertexAttributes.Usage.Tangent) == null){
+				// not that WebGL need that call to allow extension to be enabled in shaders.
+				if(Gdx.graphics.supportsExtension("GL_OES_standard_derivatives")){
+					prefix += "#define USE_DERIVATIVES_EXT\n";
+				}else{
+					throw new GdxRuntimeException("GL_OES_standard_derivatives extension or tangent vertex attribute required");
+				}
+			}
 		}
 		
 		prefix += morphTargetsPrefix(renderable);
@@ -140,17 +148,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define USE_IBL\n";
 				
 				boolean textureLodSupported;
-				if(Gdx.app.getType() != ApplicationType.Desktop){
-					if(openGL3){
-						textureLodSupported = true;
-					}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
-						prefix += "#define USE_TEXTURE_LOD_EXT\n";
-						textureLodSupported = true;
-					}else{
-						textureLodSupported = false;
-					}
-				}else{
+				if(openGL3){
 					textureLodSupported = true;
+				}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
+					prefix += "#define USE_TEXTURE_LOD_EXT\n";
+					textureLodSupported = true;
+				}else{
+					textureLodSupported = false;
 				}
 				
 				TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();

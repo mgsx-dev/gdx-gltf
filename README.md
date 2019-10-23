@@ -192,3 +192,11 @@ Note that this limitation is per mesh, not for a whole scene.
 Note that Blender vertex count can be misleading because exported geometry may contains more vertices because of
 normal split, texture coordinates split or vertex color split.
 
+## Tangent vertex attributes
+
+Without tangents, some old GPUs / OpenGL version, require an extension which may not be available.
+
+In this case you'll get the following error : `GL_OES_standard_derivatives extension or tangent vertex attribute required`
+
+It's then highly recommended to always provide tangent vertex attributes, it improve performances as well.
+
