@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultRenderableSorter;
 
 /**
- * Advnaced RenderableSorter providing hints.
+ * Advanced RenderableSorter providing hints.
  * Usefull for Skybox : should be rendererd before transparent renderables but after all opaque renderables. 
  */
 public class SceneRenderableSorter extends DefaultRenderableSorter {
@@ -13,8 +13,6 @@ public class SceneRenderableSorter extends DefaultRenderableSorter {
 	public static enum Hints {
 		OPAQUE_LAST
 	}
-	
-	public static final Object o = null;
 	
 	@Override
 	public int compare(Renderable o1, Renderable o2) 

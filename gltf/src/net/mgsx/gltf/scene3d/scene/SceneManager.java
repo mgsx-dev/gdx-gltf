@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -35,6 +36,8 @@ public class SceneManager implements Disposable {
 
 	private SceneSkybox skyBox;
 	
+	private RenderableSorter renderableSorter;
+	
 	public SceneManager() {
 		this(24);
 	}
@@ -45,7 +48,14 @@ public class SceneManager implements Disposable {
 	
 	public SceneManager(ShaderProvider shaderProvider, DepthShaderProvider depthShaderProvider)
 	{
-		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
+		this(shaderProvider, depthShaderProvider, new SceneRenderableSorter());
+	}
+	
+	public SceneManager(ShaderProvider shaderProvider, DepthShaderProvider depthShaderProvider, RenderableSorter renderableSorter)
+	{
+		this.renderableSorter = renderableSorter;
+		
+		batch = new ModelBatch(shaderProvider, renderableSorter);
 		
 		shadowBatch = new ModelBatch(depthShaderProvider);
 		
@@ -61,7 +71,7 @@ public class SceneManager implements Disposable {
 	
 	public void setShaderProvider(ShaderProvider shaderProvider) {
 		batch.dispose();
-		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
+		batch = new ModelBatch(shaderProvider, renderableSorter);
 	}
 	
 	public void setDepthShaderProvider(DepthShaderProvider depthShaderProvider) {
