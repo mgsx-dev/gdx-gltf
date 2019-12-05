@@ -169,13 +169,19 @@ LibGDX Pixmap loading from binary data is not supported by its GWT emulation. So
 
 # Troubleshooting
 
-## Max uniform: Constant register limit exceeded
+## Max uniforms: Constant register limit exceeded, do not fit in N vectors
 
 You may encounter this shader compilation error in case too many uniform needed on current hardware.
 
 `Constant register limit exceeded at ... more than 1024 registers needed to compiled program`
 
-It means you may have too many bone weights or shape keys. Try to reduce or split then before exporting to GLTF. 
+or 
+
+`Error: uniform variables in vertex shader do not fit in 256 vectors.`
+
+It typically means you may have too many bones. A single bone takes 4 uniforms (mat4), desktop GPU typically supports 1024 uniforms and lowend mobile 256 uniforms.
+That mean you should keep bones count under 50 per skeleton.
+
 
 ## Max vertices: high index detected
 
