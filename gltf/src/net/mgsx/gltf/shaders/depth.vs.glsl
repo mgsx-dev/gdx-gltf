@@ -1,6 +1,25 @@
 attribute vec3 a_position;
 uniform mat4 u_projViewWorldTrans;
 
+
+#ifdef position0Flag
+#ifndef morphTargetsFlag
+#define morphTargetsFlag
+#endif
+attribute vec3 a_position0;
+#endif //position0Flag
+
+#ifdef position1Flag
+attribute vec3 a_position1;
+#endif //position0Flag
+
+
+#ifdef morphTargetsFlag
+uniform vec4 u_morphTargets1;
+uniform vec4 u_morphTargets2;
+#endif //position0Flag
+
+
 #if defined(diffuseTextureFlag) && defined(blendedFlag)
 #define blendedTextureFlag
 attribute vec2 a_texCoord0;
@@ -111,10 +130,22 @@ void main() {
 		#endif //boneWeight7Flag
 	#endif //skinningFlag
 
-	#ifdef skinningFlag
-		vec4 pos = u_projViewWorldTrans * skinning * vec4(a_position, 1.0);
+	#ifdef morphTargetsFlag
+		vec3 morph_pos = a_position;
+		#ifdef position0Flag
+			morph_pos += a_position0 * u_morphTargets1.x;
+		#endif
+		#ifdef position1Flag
+			morph_pos += a_position1 * u_morphTargets1.y;
+		#endif
 	#else
-		vec4 pos = u_projViewWorldTrans * vec4(a_position, 1.0);
+		vec3 morph_pos = a_position;
+	#endif
+
+	#ifdef skinningFlag
+		vec4 pos = u_projViewWorldTrans * skinning * vec4(morph_pos, 1.0);
+	#else
+		vec4 pos = u_projViewWorldTrans * vec4(morph_pos, 1.0);
 	#endif
 
 	#ifdef PackedDepthFlag

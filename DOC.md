@@ -19,6 +19,14 @@ sceneManager.renderColors();
 fbo.end();
 ```
 
+Also, sometimes you want to capture depth only. You can do it like this : 
+
+```java		
+fbo.begin();
+sceneManager.renderDepth();
+fbo.end();
+```
+
 ### Advanced Fog
 
 Fog can be enabled like with libGDX default shader:
@@ -198,3 +206,13 @@ You can the retreive this structured data structure from GLTF nodes in your game
 Only Principled BSDF shader is supported
 
 TODO : blending mode, where opacity is stored... 
+
+### Troubleshottings
+
+#### Morph targets
+
+Morph targets are not exported when modifiers have to be applied.
+
+There is no workaround since modifiers can't be applied when a mesh has shape keys defined.
+
+You should then apply modifiers (eg. subsurface) before defining your shapekeys. 

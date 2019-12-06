@@ -1,6 +1,8 @@
 package net.mgsx.gltf.scene3d.shaders;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -19,6 +21,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
@@ -203,6 +206,8 @@ public class PBRShader extends DefaultShader
 	private long textureCoordinateMapMask;
 
 	private int u_ShadowBias;
+
+	private long morphTargetsMask;
 	
 	
 	private static final Matrix3 textureTransform = new Matrix3();
@@ -211,6 +216,8 @@ public class PBRShader extends DefaultShader
 		super(renderable, config, prefix);
 		
 		textureCoordinateMapMask = getTextureCoordinateMapMask(renderable.material);
+		
+		morphTargetsMask = computeMorphTargetsMask(renderable);
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
@@ -253,7 +260,23 @@ public class PBRShader extends DefaultShader
 			return false;
 		}
 		
+		// compare morph targets
+		if(this.morphTargetsMask != computeMorphTargetsMask(renderable)) return false;
+		
 		return super.canRender(renderable);
+	}
+	
+	public static long computeMorphTargetsMask(Renderable renderable){
+		int morphTargetsFlag = 0;
+		VertexAttributes vertexAttributes = renderable.meshPart.mesh.getVertexAttributes();
+		final int n = vertexAttributes.size();
+		for (int i = 0; i < n; i++) {
+			final VertexAttribute attr = vertexAttributes.get(i);
+			if (attr.usage == PBRVertexAttributes.Usage.PositionTarget) morphTargetsFlag |= (1 << attr.unit);
+			if (attr.usage == PBRVertexAttributes.Usage.NormalTarget) morphTargetsFlag |= (1 << (attr.unit + 8));
+			if (attr.usage == PBRVertexAttributes.Usage.TangentTarget) morphTargetsFlag |= (1 << (attr.unit + 16));
+		}
+		return morphTargetsFlag;
 	}
 	
 	private static long[] allTextureTypes = {
@@ -355,12 +378,16 @@ public class PBRShader extends DefaultShader
 			if(renderable.userData instanceof WeightVector){
 				WeightVector weightVector = (WeightVector)renderable.userData;
 				program.setUniformf(u_morphTargets1, weightVector.get(0), weightVector.get(1), weightVector.get(2), weightVector.get(3));
+			}else{
+				program.setUniformf(u_morphTargets1, 0, 0, 0, 0);
 			}
 		}
 		if(u_morphTargets2 >= 0){
 			if(renderable.userData instanceof WeightVector){
 				WeightVector weightVector = (WeightVector)renderable.userData;
 				program.setUniformf(u_morphTargets2, weightVector.get(4), weightVector.get(5), weightVector.get(6), weightVector.get(7));
+			}else{
+				program.setUniformf(u_morphTargets2, 0, 0, 0, 0);
 			}
 		}
 		

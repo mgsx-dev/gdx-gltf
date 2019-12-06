@@ -13,13 +13,13 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 import net.mgsx.gltf.scene3d.utils.LightUtils;
 import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
@@ -29,8 +29,6 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	public static final String TAG = "PBRShader";
 	
 	private static final LightsInfo lightsInfo = new LightsInfo();
-	
-	private static final int MAX_MORPH_TARGETS = 8;
 	
 	public static PBRShaderConfig defaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
@@ -58,7 +56,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	}
 	
 	public static DepthShaderProvider createDepthShaderProvider(DepthShader.Config config){
-		return new DepthShaderProvider(config);
+		return new PBRDepthShaderProvider(config);
 	}
 	
 	public PBRShaderProvider(PBRShaderConfig config) {
@@ -71,13 +69,14 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	
 	public static String morphTargetsPrefix(Renderable renderable){
 		String prefix = "";
+		// TODO optimize double loop
 		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
-			for(int i=0 ; i<MAX_MORPH_TARGETS ; i++){
-				if(att.alias.equals(ShaderProgram.POSITION_ATTRIBUTE + i)){
+			for(int i=0 ; i<PBRCommon.MAX_MORPH_TARGETS ; i++){
+				if(att.usage == PBRVertexAttributes.Usage.PositionTarget && att.unit == i){
 					prefix += "#define " + "position" + i + "Flag\n";
-				}else if(att.alias.equals(ShaderProgram.NORMAL_ATTRIBUTE + i)){
+				}else if(att.usage == PBRVertexAttributes.Usage.NormalTarget && att.unit == i){
 					prefix += "#define " + "normal" + i + "Flag\n";
-				}else if(att.alias.equals(ShaderProgram.TANGENT_ATTRIBUTE + i)){
+				}else if(att.usage == PBRVertexAttributes.Usage.TangentTarget && att.unit == i){
 					prefix += "#define " + "tangent" + i + "Flag\n";
 				}
 			}
@@ -250,9 +249,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				throw new GdxRuntimeException("color packed attribute not supported");
 			}else if(attribute.usage == VertexAttributes.Usage.ColorUnpacked){
 				numColor = Math.max(numColor, attribute.unit+1);
-			}else if(attribute.usage == VertexAttributes.Usage.Position && attribute.unit>=MAX_MORPH_TARGETS ||
-					attribute.usage == VertexAttributes.Usage.Normal && attribute.unit>=MAX_MORPH_TARGETS ||
-					attribute.usage == VertexAttributes.Usage.Tangent && attribute.unit>=MAX_MORPH_TARGETS ){
+			}else if(attribute.usage == PBRVertexAttributes.Usage.PositionTarget && attribute.unit >= PBRCommon.MAX_MORPH_TARGETS ||
+					attribute.usage == PBRVertexAttributes.Usage.NormalTarget && attribute.unit >= PBRCommon.MAX_MORPH_TARGETS ||
+					attribute.usage == PBRVertexAttributes.Usage.TangentTarget && attribute.unit >= PBRCommon.MAX_MORPH_TARGETS ){
 				numMorphTarget = Math.max(numMorphTarget, attribute.unit+1);
 			}else if(attribute.usage == VertexAttributes.Usage.BoneWeight){
 				numBoneInfluence = Math.max(numBoneInfluence, attribute.unit+1);
@@ -262,7 +261,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(numBoneInfluence > 8){
 			Gdx.app.error(TAG, "more than 8 bones influence attributes not supported: " + numBoneInfluence + " found.");
 		}
-		if(numMorphTarget > MAX_MORPH_TARGETS){
+		if(numMorphTarget > PBRCommon.MAX_MORPH_TARGETS){
 			Gdx.app.error(TAG, "more than 8 morph target attributes not supported: " + numMorphTarget + " found.");
 		}
 		if(numColor > 1){

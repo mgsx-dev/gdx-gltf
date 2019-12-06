@@ -28,7 +28,7 @@ public class SceneManager implements Disposable {
 	private Array<Scene> scenes = new Array<Scene>();
 	
 	private ModelBatch batch;
-	private ModelBatch shadowBatch;
+	private ModelBatch depthBatch;
 	
 	public Environment environment;
 	
@@ -57,7 +57,7 @@ public class SceneManager implements Disposable {
 		
 		batch = new ModelBatch(shaderProvider, renderableSorter);
 		
-		shadowBatch = new ModelBatch(depthShaderProvider);
+		depthBatch = new ModelBatch(depthShaderProvider);
 		
 		environment = new Environment();
 		
@@ -75,8 +75,8 @@ public class SceneManager implements Disposable {
 	}
 	
 	public void setDepthShaderProvider(DepthShaderProvider depthShaderProvider) {
-		shadowBatch.dispose();
-		shadowBatch = new ModelBatch(depthShaderProvider);
+		depthBatch.dispose();
+		depthBatch = new ModelBatch(depthShaderProvider);
 	}
 	
 	public void addScene(Scene scene){
@@ -126,17 +126,29 @@ public class SceneManager implements Disposable {
 		if(light instanceof DirectionalShadowLight){
 			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
 			shadowLight.begin();
-			shadowBatch.begin(shadowLight.getCamera());
+			depthBatch.begin(shadowLight.getCamera());
 			for(Scene scene : scenes){
-				shadowBatch.render(scene.modelInstance);
+				depthBatch.render(scene.modelInstance);
 			}
-			shadowBatch.end();
+			depthBatch.end();
 			shadowLight.end();
 			
 			environment.shadowMap = shadowLight;
 		}else{
 			environment.shadowMap = null;
 		}
+	}
+	
+	/**
+	 * Render only depth (packed 32 bits), usefull for post processing effects.
+	 * You typically render it to a FBO with depth enabled.
+	 */
+	public void renderDepth(){
+		depthBatch.begin(camera);
+		for(Scene scene : scenes){
+			depthBatch.render(scene.modelInstance);
+		}
+		depthBatch.end();
 	}
 	
 	/**
@@ -200,6 +212,6 @@ public class SceneManager implements Disposable {
 	@Override
 	public void dispose() {
 		batch.dispose();
-		shadowBatch.dispose();
+		depthBatch.dispose();
 	}
 }
