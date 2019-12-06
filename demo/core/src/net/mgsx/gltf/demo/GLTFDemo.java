@@ -16,7 +16,9 @@ import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
@@ -27,6 +29,8 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
@@ -86,6 +90,7 @@ public class GLTFDemo extends ApplicationAdapter
 //		PHONG,   	// https://en.wikipedia.org/wiki/Phong_shading
 		PBR_MR, 
 //		PBR_MRSG
+		CeilShading
 	}
 	
 	private ShaderMode shaderMode = ShaderMode.PBR_MR;
@@ -118,6 +123,13 @@ public class GLTFDemo extends ApplicationAdapter
 	private SceneSkybox skybox;
 	private DirectionalLight defaultLight;
 	private boolean shadersValid;
+	private boolean outlineShaderValid;
+	
+	private FrameBuffer depthFbo;
+	
+	private SpriteBatch spriteBatch;
+	
+	private ShaderProgram outlineShader;
 	
 	public GLTFDemo() {
 		this("models");
@@ -137,6 +149,8 @@ public class GLTFDemo extends ApplicationAdapter
 		assetManager.setLoader(SceneAsset.class, ".glb", new GLBAssetLoader());
 		
 		shapeRenderer = new ShapeRenderer();
+		
+		spriteBatch = new SpriteBatch();
 		
 		createUI();
 		
@@ -444,6 +458,22 @@ public class GLTFDemo extends ApplicationAdapter
 			}
 		});
 		
+		ui.outlineDistFalloffOption.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateOutlineShaders();
+			}
+		});
+		
+		ui.outlinesEnabled.addListener(new ChangeListener() {
+			
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateOutlineShaders();
+			}
+		});
+		
 	}
 	
 	protected void setShadow(boolean isOn) {
@@ -487,12 +517,30 @@ public class GLTFDemo extends ApplicationAdapter
 	private void invalidateShaders() {
 		shadersValid = false;
 	}
+	private void invalidateOutlineShaders() {
+		outlineShaderValid = false;
+	}
 	
 	private void validateShaders(){
 		if(!shadersValid){
 			shadersValid = true;
 			sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
 			sceneManager.setDepthShaderProvider(PBRShaderProvider.createDepthShaderProvider(rootModel.maxBones));
+			
+		}
+		if(!outlineShaderValid){
+			outlineShaderValid = true;
+			if(outlineShader != null) outlineShader.dispose();
+			if(ui.outlinesEnabled.isOn()){
+				String prefix = "";
+				if(ui.outlineDistFalloffOption.isOn()){
+					prefix += "#define DISTANCE_FALLOFF\n";
+				}
+				outlineShader = new ShaderProgram(
+						Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.vs.glsl").readString(),
+						prefix + Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.fs.glsl").readString());
+				if(!outlineShader.isCompiled()) throw new GdxRuntimeException("Outline Shader failed: " + outlineShader.getLog());
+			}
 		}
 	}
 
@@ -558,6 +606,18 @@ public class GLTFDemo extends ApplicationAdapter
 		case PBR_MR:
 			{
 				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
+				config.manualSRGB = ui.shaderSRGB.getSelected();
+				config.numBones = maxBones;
+				config.numDirectionalLights = info.dirLights;
+				config.numPointLights = info.pointLights;
+				config.numSpotLights = info.spotLights;
+				return PBRShaderProvider.createDefault(config);
+			}
+			case CeilShading:
+			{
+				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
+				config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.vs.glsl").readString();
+				config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.fs.glsl").readString();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
@@ -825,6 +885,41 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 
 		sceneManager.render();
+
+		if(ui.outlinesEnabled.isOn()){
+			captureDepth();
+
+			outlineShader.begin();
+			float size = 1 - ui.outlinesWidth.getValue();
+			
+			// float depthMin = ui.outlineDepthMin.getValue() * .001f;
+			float depthMin = (float)Math.pow(ui.outlineDepthMin.getValue(), 10); // 0.35f
+			float depthMax = (float)Math.pow(ui.outlineDepthMax.getValue(), 10); // 0.9f
+			
+			// TODO use an integer instead and divide w and h
+			outlineShader.setUniformf("u_size", Gdx.graphics.getWidth() * size, Gdx.graphics.getHeight() * size);
+			outlineShader.setUniformf("u_depth_min", depthMin);
+			outlineShader.setUniformf("u_depth_max", depthMax);
+			outlineShader.setUniformf("u_inner_color", ui.outlineInnerColor.getValue());
+			outlineShader.setUniformf("u_outer_color", ui.outlineOuterColor.getValue());
+			
+			if(ui.outlineDistFalloffOption.isOn()){
+				
+				float distanceFalloff = ui.outlineDistFalloff.getValue();
+				if(distanceFalloff <= 0){
+					distanceFalloff = .001f;
+				}
+				outlineShader.setUniformf("u_depthRange", sceneManager.camera.far / (sceneManager.camera.near * distanceFalloff));
+			}
+			
+			spriteBatch.enableBlending();
+			spriteBatch.getProjectionMatrix().setToOrtho2D(0, 0, 1, 1);
+			spriteBatch.setShader(outlineShader);
+			spriteBatch.begin();
+			spriteBatch.draw(depthFbo.getColorBufferTexture(), 0, 0, 1, 1, 0f, 0f, 1f, 1f);
+			spriteBatch.end();
+			spriteBatch.setShader(null);
+		}
 		
 		renderOverlays();
 		
@@ -836,6 +931,25 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.shaderCount.setText(String.valueOf(shaderCount));
 		
 		stage.draw();
+	}
+	
+	protected void captureDepth() {
+		depthFbo = ensureFBO(depthFbo, true);
+		depthFbo.begin();
+		Gdx.gl.glClearColor(1f, 1f, 1f, 0.0f);
+		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_COLOR_BUFFER_BIT);
+		sceneManager.renderDepth();
+		depthFbo.end();
+	}
+
+	private FrameBuffer ensureFBO(FrameBuffer fbo, boolean hasDepth) {
+		int w = Gdx.graphics.getBackBufferWidth();
+		int h = Gdx.graphics.getBackBufferHeight();
+		if(fbo == null || fbo.getWidth() != w || fbo.getHeight() != h){
+			if(fbo != null) fbo.dispose();
+			fbo = new FrameBuffer(Format.RGBA8888, w, h, hasDepth);
+		}
+		return fbo;
 	}
 
 	private void renderOverlays() {

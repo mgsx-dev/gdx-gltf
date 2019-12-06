@@ -57,6 +57,10 @@ public class Vector4UI extends Table
 		return 0;
 	}
 	
+	public Color getValue() {
+		return value;
+	}
+	
 	public void set(Color value) {
 		this.value.set(value);
 		sliders.get(0).setValue(value.r);

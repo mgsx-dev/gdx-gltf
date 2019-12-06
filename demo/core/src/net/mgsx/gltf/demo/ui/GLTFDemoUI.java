@@ -88,6 +88,24 @@ public class GLTFDemoUI extends Table {
 	public BooleanUI IBLLookup;
 
 	public Vector4UI skyBoxColor;
+
+	public BooleanUI outlinesEnabled;
+
+	public FloatUI outlinesWidth;
+
+	public FloatUI outlineDepthMin;
+
+	public FloatUI outlineDepthMax;
+
+	public Vector4UI outlineInnerColor;
+
+	public Vector4UI outlineOuterColor;
+
+	private CollapsableUI outlineOptions;
+
+	public FloatUI outlineDistFalloff;
+
+	public BooleanUI outlineDistFalloffOption;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -170,6 +188,33 @@ public class GLTFDemoUI extends Table {
 		
 		shaderOptions.optTable.add("SkyBox Color");
 		shaderOptions.optTable.add(skyBoxColor = new Vector4UI(skin, new Color(Color.WHITE))).row();
+		
+		// Outlines
+		root.add();
+		root.add(outlineOptions = new CollapsableUI(skin, "Outline Options", false)).row();
+
+		outlineOptions.optTable.add("Outlines");
+		outlineOptions.optTable.add(outlinesEnabled = new BooleanUI(skin, false)).row();
+		
+		outlineOptions.optTable.add("Thickness");
+		outlineOptions.optTable.add(outlinesWidth = new FloatUI(skin, 0f)).row();
+		
+		outlineOptions.optTable.add("Depth min");
+		outlineOptions.optTable.add(outlineDepthMin = new FloatUI(skin, .35f)).row();
+		outlineOptions.optTable.add("Depth max");
+		outlineOptions.optTable.add(outlineDepthMax = new FloatUI(skin, .9f)).row();
+		
+		outlineOptions.optTable.add("Inner color");
+		outlineOptions.optTable.add(outlineInnerColor = new Vector4UI(skin, new Color(0,0,0,.3f))).row();
+		
+		outlineOptions.optTable.add("Outer color");
+		outlineOptions.optTable.add(outlineOuterColor = new Vector4UI(skin, new Color(0,0,0,.7f))).row();
+		
+		outlineOptions.optTable.add("Distance Falloff");
+		outlineOptions.optTable.add(outlineDistFalloffOption = new BooleanUI(skin, false)).row();
+
+		outlineOptions.optTable.add("Distance Exponent");
+		outlineOptions.optTable.add(outlineDistFalloff = new FloatUI(skin, 1f)).row();
 		
 		// Lighting options
 		

@@ -6,4 +6,9 @@
 	
 	<extend-configuration-property name="gdx.reflect.include" value="net.mgsx.gltf.demo.data" />
 	
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/gltf-ceil-shading.vs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/gltf-ceil-shading.fs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/outline.vs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/demo/shaders/outline.fs.glsl" />
+	
 </module>
