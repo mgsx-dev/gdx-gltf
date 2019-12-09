@@ -13,13 +13,11 @@ public class WeightsUI extends Table
 {
 	private Array<Slider> sliders = new Array<Slider>();
 	public WeightVector value;
-	public WeightsUI(Skin skin, final WeightVector value) {
+	public WeightsUI(Skin skin, final WeightVector value, final Array<String> names) {
 		super(skin);
 		this.value = value;
 		for(int i=0 ; i<value.count ; i++){
 			final Slider slider = new Slider(0, 1, .01f, false, skin);
-			add(slider).row();
-			slider.setValue(get(i));
 			final int index = i;
 			slider.addListener(new ChangeListener() {
 				@Override
@@ -27,6 +25,10 @@ public class WeightsUI extends Table
 					set(index, slider.getValue());
 				}
 			});
+			String name = names != null && i < names.size ? names.get(i) : "#" + (i+1);
+			add(name);
+			add(slider).row();
+			slider.setValue(get(i));
 			sliders.add(slider);
 		}
 	}

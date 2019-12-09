@@ -22,37 +22,95 @@ attribute vec3 a_position;
 uniform mat4 u_projViewTrans;
 
 #ifdef position0Flag
-#ifndef morphTargetsFlag
-#define morphTargetsFlag
-#endif
 attribute vec3 a_position0;
-#endif //position0Flag
-
-#ifdef position1Flag
-attribute vec3 a_position1;
-#endif //position0Flag
-
+#endif
 #ifdef normal0Flag
 attribute vec3 a_normal0;
 #endif
-
-#ifdef normal1Flag
-attribute vec3 a_normal1;
-#endif 
-
 #ifdef tangent0Flag
 attribute vec3 a_tangent0;
 #endif
 
+#ifdef position1Flag
+attribute vec3 a_position1;
+#endif
+#ifdef normal1Flag
+attribute vec3 a_normal1;
+#endif
 #ifdef tangent1Flag
 attribute vec3 a_tangent1;
+#endif
+
+#ifdef position2Flag
+attribute vec3 a_position2;
+#endif
+#ifdef normal2Flag
+attribute vec3 a_normal2;
+#endif
+#ifdef tangent2Flag
+attribute vec3 a_tangent2;
+#endif
+
+#ifdef position3Flag
+attribute vec3 a_position3;
+#endif
+#ifdef normal3Flag
+attribute vec3 a_normal3;
+#endif
+#ifdef tangent3Flag
+attribute vec3 a_tangent3;
+#endif
+
+#ifdef position4Flag
+attribute vec3 a_position4;
+#endif
+#ifdef normal4Flag
+attribute vec3 a_normal4;
+#endif
+#ifdef tangent4Flag
+attribute vec3 a_tangent4;
 #endif 
 
+#ifdef position5Flag
+attribute vec3 a_position5;
+#endif
+#ifdef normal5Flag
+attribute vec3 a_normal5;
+#endif
+#ifdef tangent5Flag
+attribute vec3 a_tangent5;
+#endif
 
-#ifdef morphTargetsFlag
+#ifdef position6Flag
+attribute vec3 a_position6;
+#endif
+#ifdef normal6Flag
+attribute vec3 a_normal6;
+#endif
+#ifdef tangent6Flag
+attribute vec3 a_tangent6;
+#endif 
+
+#ifdef position7Flag
+attribute vec3 a_position7;
+#endif
+#ifdef normal7Flag
+attribute vec3 a_normal7;
+#endif
+#ifdef tangent7Flag
+attribute vec3 a_tangent7;
+#endif
+
+#ifdef position0Flag
+#ifndef morphTargetsFlag
+#define morphTargetsFlag
+#endif
 uniform vec4 u_morphTargets1;
+#endif
+
+#ifdef position4Flag
 uniform vec4 u_morphTargets2;
-#endif //position0Flag
+#endif
 
 
 #if defined(colorFlag)
@@ -227,6 +285,24 @@ void main() {
 		#ifdef position1Flag
 			morph_pos += a_position1 * u_morphTargets1.y;
 		#endif
+		#ifdef position2Flag
+			morph_pos += a_position2 * u_morphTargets1.z;
+		#endif
+		#ifdef position3Flag
+			morph_pos += a_position3 * u_morphTargets1.w;
+		#endif
+		#ifdef position4Flag
+			morph_pos += a_position4 * u_morphTargets2.x;
+		#endif
+		#ifdef position5Flag
+			morph_pos += a_position5 * u_morphTargets2.y;
+		#endif
+		#ifdef position6Flag
+			morph_pos += a_position6 * u_morphTargets2.z;
+		#endif
+		#ifdef position7Flag
+			morph_pos += a_position7 * u_morphTargets2.w;
+		#endif
 	#else
 		vec3 morph_pos = a_position;
 	#endif		
@@ -256,6 +332,24 @@ void main() {
 			#ifdef normal1Flag
 				morph_nor += a_normal1 * u_morphTargets1.y;
 			#endif
+			#ifdef normal2Flag
+				morph_nor += a_normal2 * u_morphTargets1.z;
+			#endif
+			#ifdef normal3Flag
+				morph_nor += a_normal3 * u_morphTargets1.w;
+			#endif
+			#ifdef normal4Flag
+				morph_nor += a_normal4 * u_morphTargets2.x;
+			#endif
+			#ifdef normal5Flag
+				morph_nor += a_normal5 * u_morphTargets2.y;
+			#endif
+			#ifdef normal6Flag
+				morph_nor += a_normal6 * u_morphTargets2.z;
+			#endif
+			#ifdef normal7Flag
+				morph_nor += a_normal7 * u_morphTargets2.w;
+			#endif
 		#endif	
 		
 		#if defined(skinningFlag)
@@ -274,6 +368,24 @@ void main() {
 				#endif
 				#ifdef tangent1Flag
 					morph_tan += a_tangent1 * u_morphTargets1.y;
+				#endif
+				#ifdef tangent2Flag
+					morph_tan += a_tangent2 * u_morphTargets1.z;
+				#endif
+				#ifdef tangent3Flag
+					morph_tan += a_tangent3 * u_morphTargets1.w;
+				#endif
+				#ifdef tangent4Flag
+					morph_tan += a_tangent4 * u_morphTargets2.x;
+				#endif
+				#ifdef tangent5Flag
+					morph_tan += a_tangent5 * u_morphTargets2.y;
+				#endif
+				#ifdef tangent6Flag
+					morph_tan += a_tangent6 * u_morphTargets2.z;
+				#endif
+				#ifdef tangent7Flag
+					morph_tan += a_tangent7 * u_morphTargets2.w;
 				#endif
 			#endif	
 			

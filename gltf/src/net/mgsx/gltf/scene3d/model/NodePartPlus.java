@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g3d.model.NodePart;
  */
 public class NodePartPlus extends NodePart{
 	
+	/**
+	 * null if no morph targets
+	 */
 	public WeightVector morphTargets;
 
 	public Renderable setRenderable (final Renderable out) {
@@ -26,7 +29,7 @@ public class NodePartPlus extends NodePart{
 	@Override
 	protected NodePart set(NodePart other) {
 		super.set(other);
-		if(other instanceof NodePartPlus && ((NodePartPlus) other).morphTargets != null){
+		if(other instanceof NodePartPlus){
 			morphTargets = ((NodePartPlus) other).morphTargets;
 		}
 		return this;

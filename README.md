@@ -206,3 +206,21 @@ In this case you'll get the following error : `GL_OES_standard_derivatives exten
 
 It's then highly recommended to always provide tangent vertex attributes, it improve performances as well.
 
+## Max vertex attributes : too many vertex attributes
+
+You may encounter this error if you have too many vertex attributes in one of your mesh.
+
+Most GPU support up to [16 vertex attributes](https://opengl.gpuinfo.org/displaycapability.php?name=GL_MAX_VERTEX_ATTRIBS)
+
+This limit can be quickly reached depending on mesh information : 
+
+* a_position: 1
+* a_normal: 1
+* a_tangent: 1 (optional)
+* a_color: 1 (optional)
+* a_texCoordX: up to 2 UVs layers
+* a_boneWeightX: up to 8 bones influences
+* a_positionX: up to 8 positions
+* a_normalX: up to 8 normals
+* a_tangentX: up to 8 tangents
+

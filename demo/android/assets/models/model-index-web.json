@@ -11,5 +11,11 @@
     "variants": {
       "glTF": "pbrTest.gltf"
     }
+  },
+  {
+  	"name": "Morphing",
+    "variants": {
+      "glTF": "morphing.gltf"
+    }
   }
 ]

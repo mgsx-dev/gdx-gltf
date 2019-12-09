@@ -29,6 +29,10 @@ public class PBRDepthShaderProvider extends DepthShaderProvider
 
 	@Override
 	protected Shader createShader(Renderable renderable) {
+		
+		// TODO only count used attributes, depth shader only require a few of them.
+		PBRCommon.checkVertexAttributes(renderable);
+		
 		return new PBRDepthShader(renderable, config, DepthShader.createPrefix(renderable, config) + morphTargetsPrefix(renderable));
 	}
 }

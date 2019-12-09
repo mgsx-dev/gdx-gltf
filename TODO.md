@@ -37,8 +37,6 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 
 - Tangent space recalculation not really defined and morphed normals doesn't really work ...
   see: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-a-tangent-space-recalculation
-- Client may implements at least 8 channels (8 positions or 4 position/normal or 2 pos/tan/nor) ...
-- add support for 8 positions / 4 normals / 2 tangents. POC allow 2 positions / 2 normals / 2 tangents
 
 ## max vertices
 

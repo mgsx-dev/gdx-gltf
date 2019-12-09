@@ -24,6 +24,7 @@ import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.geometry.GLTFMesh;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
+import net.mgsx.gltf.loaders.blender.BlenderShapeKeys;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
@@ -43,6 +44,8 @@ public class MeshLoader {
 	
 	public void load(Node node, GLTFMesh glMesh, DataResolver dataResolver, MaterialLoader materialLoader) 
 	{
+		((NodePlus)node).morphTargetNames = BlenderShapeKeys.parse(glMesh);
+		
 		Array<NodePart> parts = meshMap.get(glMesh);
 		if(parts == null){
 			parts = new Array<NodePart>();

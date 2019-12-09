@@ -373,8 +373,8 @@ public class GLTFDemoUI extends Table {
 		if(node instanceof NodePlus){
 			final NodePlus np = (NodePlus)node;
 			if(np.weights != null){
-				WeightsUI weightEditor = new WeightsUI(getSkin(), np.weights);
-				nodeTable.add("weights");
+				WeightsUI weightEditor = new WeightsUI(getSkin(), np.weights, np.morphTargetNames);
+				nodeTable.add("Morph Targets").row();
 				nodeTable.add(weightEditor);
 				weightEditor.addListener(new ChangeListener() {
 					@Override

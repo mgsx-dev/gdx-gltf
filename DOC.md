@@ -93,6 +93,8 @@ Here is the recommended settings and some hint about some of them :
 
 * Format: glTF separate is recommended for best loading time performances and compatibility.
 
+* Custom properties: should be checked if you want to export shape keys names or any user defined properties, see [Custom Properties section](#custom-properties)
+
 <br style="clear: both;">
 
 
@@ -130,7 +132,7 @@ Here is the recommended settings and some hint about some of them :
 <br style="clear: both;">
 
 
-### Custom properties (DRAFT)
+### Custom properties
 
 glTF Extras are user defined structured data (JSON) attached to any GLTFObject, typically a key value pair.
 
@@ -206,6 +208,25 @@ You can the retreive this structured data structure from GLTF nodes in your game
 Only Principled BSDF shader is supported
 
 TODO : blending mode, where opacity is stored... 
+
+### Shape Keys
+
+Shape keys are converted to Morph targets in GLTF structure. It's limited to 8 morph targets, so up to 8 shape keys in addition to "Basis" shape keys.
+
+Note that [most GPU support up to 16 vertex attributes](https://opengl.gpuinfo.org/displaycapability.php?name=GL_MAX_VERTEX_ATTRIBS)
+so a lot of shape keys might be a problem, especially if you have both position, normals and tangents. See [Limitation section](../README.md#troubleshooting) for more information.
+
+Blender GLTF exporter export shape keys names via Custom properties. So you need to enable custom properties export in order to retrieve them.
+
+Shape keys names are stored in Node object and can be used like this : 
+
+```java
+NodePlus nodePlus = (NodePlus)node;
+int shapeKeyIndex = nodePlus.morphTargetNames.indexOf("HappyFace");
+nodePlus.weights.values[index] = 0.7f;
+```
+
+If you didn't have shape keys names, you still can set weights but you have to know shape key index.
 
 ### Troubleshottings
 

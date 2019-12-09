@@ -3,21 +3,47 @@ uniform mat4 u_projViewWorldTrans;
 
 
 #ifdef position0Flag
-#ifndef morphTargetsFlag
-#define morphTargetsFlag
-#endif
 attribute vec3 a_position0;
-#endif //position0Flag
+#endif
 
 #ifdef position1Flag
 attribute vec3 a_position1;
-#endif //position0Flag
+#endif
 
+#ifdef position2Flag
+attribute vec3 a_position2;
+#endif
 
-#ifdef morphTargetsFlag
+#ifdef position3Flag
+attribute vec3 a_position3;
+#endif
+
+#ifdef position4Flag
+attribute vec3 a_position4;
+#endif
+
+#ifdef position5Flag
+attribute vec3 a_position5;
+#endif
+
+#ifdef position6Flag
+attribute vec3 a_position6;
+#endif
+
+#ifdef position7Flag
+attribute vec3 a_position7;
+#endif
+
+#ifdef position0Flag
+#ifndef morphTargetsFlag
+#define morphTargetsFlag
+#endif
 uniform vec4 u_morphTargets1;
+#endif
+
+#ifdef position4Flag
 uniform vec4 u_morphTargets2;
-#endif //position0Flag
+#endif
 
 
 #if defined(diffuseTextureFlag) && defined(blendedFlag)
@@ -137,6 +163,24 @@ void main() {
 		#endif
 		#ifdef position1Flag
 			morph_pos += a_position1 * u_morphTargets1.y;
+		#endif
+		#ifdef position2Flag
+			morph_pos += a_position2 * u_morphTargets1.z;
+		#endif
+		#ifdef position3Flag
+			morph_pos += a_position3 * u_morphTargets1.w;
+		#endif
+		#ifdef position4Flag
+			morph_pos += a_position4 * u_morphTargets2.x;
+		#endif
+		#ifdef position5Flag
+			morph_pos += a_position5 * u_morphTargets2.y;
+		#endif
+		#ifdef position6Flag
+			morph_pos += a_position6 * u_morphTargets2.z;
+		#endif
+		#ifdef position7Flag
+			morph_pos += a_position7 * u_morphTargets2.w;
 		#endif
 	#else
 		vec3 morph_pos = a_position;

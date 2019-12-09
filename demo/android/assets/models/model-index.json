@@ -1,5 +1,11 @@
 [
   {
+  	"name": "Morphing",
+    "variants": {
+      "glTF": "morphing.gltf"
+    }
+  },
+  {
     "name": "BoomBox",
     "screenshot": "screenshot/screenshot.jpg",
     "url": "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/BoomBox/",

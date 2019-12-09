@@ -116,6 +116,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			}
 		}
 		
+		// Morph targets
+		
 		prefix += morphTargetsPrefix(renderable);
 		
 		// Lighting
@@ -257,6 +259,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				numBoneInfluence = Math.max(numBoneInfluence, attribute.unit+1);
 			}
 		}
+		
+		
+		PBRCommon.checkVertexAttributes(renderable);
 		
 		if(numBoneInfluence > 8){
 			Gdx.app.error(TAG, "more than 8 bones influence attributes not supported: " + numBoneInfluence + " found.");
