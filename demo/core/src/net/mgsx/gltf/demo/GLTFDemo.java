@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
@@ -49,6 +50,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileChangeEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
+import net.mgsx.gltf.demo.shaders.OutlineShader;
+import net.mgsx.gltf.demo.shaders.OutlineShaderProvider;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.GLTFInspector;
 import net.mgsx.gltf.demo.util.NodeUtil;
@@ -67,6 +70,7 @@ import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
+import net.mgsx.gltf.scene3d.scene.SceneRenderableSorter;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
@@ -114,6 +118,8 @@ public class GLTFDemo extends ApplicationAdapter
 	private Cubemap environmentCubemap;
 	private Cubemap specularCubemap;
 	private Texture brdfLUT;
+	
+	private ModelBatch outlineExtBatch;
 	
 	private AssetManager assetManager;
 	private String lastFileName;
@@ -527,6 +533,9 @@ public class GLTFDemo extends ApplicationAdapter
 			sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
 			sceneManager.setDepthShaderProvider(PBRShaderProvider.createDepthShaderProvider(rootModel.maxBones));
 			
+			if(outlineExtBatch != null) outlineExtBatch.dispose();
+			OutlineShaderProvider outlineShaderProvider = new OutlineShaderProvider(rootModel.maxBones);
+			outlineExtBatch = new ModelBatch(outlineShaderProvider, new SceneRenderableSorter());
 		}
 		if(!outlineShaderValid){
 			outlineShaderValid = true;
@@ -623,6 +632,7 @@ public class GLTFDemo extends ApplicationAdapter
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
 				config.numSpotLights = info.spotLights;
+				config.numVertexColors = 3;
 				return PBRShaderProvider.createDefault(config);
 			}
 		}
@@ -885,6 +895,20 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 
 		sceneManager.render();
+
+		if(ui.outlinesExtEnabled.isOn()){
+			
+			OutlineShader.extrusionRate = ui.outlinesExtWidth.getValue() * .1f;
+			
+			OutlineShader.extrusionColor.set(ui.outlinesExtColor.value);
+			
+			ModelBatch oldBatch = sceneManager.getBatch();
+			sceneManager.setBatch(outlineExtBatch);
+
+			sceneManager.renderColors();
+			
+			sceneManager.setBatch(oldBatch);
+		}
 
 		if(ui.outlinesEnabled.isOn()){
 			captureDepth();

@@ -1,5 +1,11 @@
 [
   {
+  	"name": "Monkey",
+    "variants": {
+      "glTF": "monkey.gltf"
+    }
+  },
+  {
   	"name": "Morphing",
     "variants": {
       "glTF": "morphing.gltf"

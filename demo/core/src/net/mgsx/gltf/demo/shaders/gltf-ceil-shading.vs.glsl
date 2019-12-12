@@ -118,6 +118,16 @@ varying vec4 v_color;
 attribute vec4 a_color;
 #endif // colorFlag
 
+#if defined(color1Flag)
+varying vec4 v_color1;
+attribute vec4 a_color1;
+#endif // colorFlag
+
+#if defined(color2Flag)
+varying vec4 v_color2;
+attribute vec4 a_color2;
+#endif // colorFlag
+
 #ifdef normalFlag
 attribute vec3 a_normal;
 uniform mat3 u_normalMatrix;
@@ -242,6 +252,14 @@ void main() {
 		v_color = a_color;
 	#endif // colorFlag
 		
+	#if defined(color1Flag)
+	v_color1 = a_color1;
+	#endif // colorFlag
+
+	#if defined(color2Flag)
+	v_color2 = a_color2;
+	#endif // colorFlag
+
 	#ifdef blendedFlag
 		v_opacity = u_opacity;
 		#ifdef alphaTestFlag

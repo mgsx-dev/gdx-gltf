@@ -59,6 +59,14 @@ varying vec3 v_normal;
 varying vec4 v_color;
 #endif
 
+#if defined(color1Flag)
+varying vec4 v_color1;
+#endif
+
+#if defined(color2Flag)
+varying vec4 v_color2;
+#endif
+
 #ifdef blendedFlag
 varying float v_opacity;
 #ifdef alphaTestFlag
@@ -454,8 +462,28 @@ vec3 getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l)
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
 	// return NdotL * (diffuseContrib + specContrib);
+
+
+
+	#ifdef color1Flag
+		vec3 subSurfScat = v_color1.rgb;
+	#else
+		vec3 subSurfScat = vec3(1.0, 1.0, 1.0);
+	#endif
+
+	#ifdef color2Flag
+		vec3 metalRoughSpec = v_color2.rgb;
+	#else
+		vec3 metalRoughSpec = vec3(pbrSurface.metalness, pbrSurface.perceptualRoughness, (1.0 - pbrSurface.perceptualRoughness) / 2.0);
+	#endif
+
+	float metal = metalRoughSpec.r;
+	float rough = metalRoughSpec.g;
+	float spec = metalRoughSpec.b;
+
+
 	float val = dot(n, l);
-	float specularCeil = 1.0 - pbrSurface.perceptualRoughness * pbrSurface.perceptualRoughness;
+	float specularCeil = 1.0 - rough * rough;
 	specularCeil = specularCeil * specularCeil;
 
 	#if defined(ambientLightFlag)
@@ -464,16 +492,15 @@ vec3 getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l)
 		float ambi = 0.5;
 	#endif
 
-	specularCeil = (1.0 - pbrSurface.perceptualRoughness / 2.0); // XXX
-	if(val < 0.5) return pbrSurface.diffuseColor.rgb * ambi;
-	else if(val < specularCeil) return pbrSurface.diffuseColor.rgb * 1.0;
 
-	float roughContrib = (1.0 - (pbrSurface.perceptualRoughness ));
-	roughContrib = roughContrib * roughContrib;
 
-	float specuLum = pbrSurface.metalness;
-	return pbrSurface.diffuseColor.rgb + (1.0 - pbrSurface.perceptualRoughness) *  pbrSurface.diffuseColor.rgb;
-	// return mix(pbrSurface.diffuseColor.rgb, vec3(1.0), (1.0 - pbrSurface.metalness) * roughContrib);
+	specularCeil = (1.0 - rough / 2.0); // XXX
+	if(val < 0.5) return pbrSurface.diffuseColor.rgb * subSurfScat * ambi;
+	else if(val < specularCeil) return pbrSurface.diffuseColor.rgb;
+
+	vec3 specCol = mix(vec3(0.5), pbrSurface.diffuseColor.rgb, metal);
+
+	return pbrSurface.diffuseColor.rgb + specCol * spec;
 }
 
 #if numDirectionalLights > 0
@@ -552,7 +579,7 @@ void main() {
     
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
-    diffuseColor *= 1.0 - metallic;
+    // diffuseColor *= 1.0 - metallic;
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
     // Compute reflectance.
@@ -673,6 +700,13 @@ void main() {
 	out_FragColor.a = 1.0;
 #endif
 
+	/*
+#ifdef color2Flag
+	out_FragColor.rgb = v_color2.rgb;
+#else
+	out_FragColor.rgb = vec3(0.0, 0.0, 0.0);
+#endif
+*/
 }
 
 #endif

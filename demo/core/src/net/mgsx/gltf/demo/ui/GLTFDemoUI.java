@@ -106,6 +106,14 @@ public class GLTFDemoUI extends Table {
 	public FloatUI outlineDistFalloff;
 
 	public BooleanUI outlineDistFalloffOption;
+
+	private CollapsableUI outlineExtOptions;
+
+	public BooleanUI outlinesExtEnabled;
+
+	public FloatUI outlinesExtWidth;
+
+	public Vector4UI outlinesExtColor;
 	
 	public GLTFDemoUI(Skin skin) {
 		super(skin);
@@ -216,6 +224,19 @@ public class GLTFDemoUI extends Table {
 		outlineOptions.optTable.add("Distance Exponent");
 		outlineOptions.optTable.add(outlineDistFalloff = new FloatUI(skin, 1f)).row();
 		
+		// Outlines Ext
+		root.add();
+		root.add(outlineExtOptions = new CollapsableUI(skin, "Outline Options", false)).row();
+
+		outlineExtOptions.optTable.add("Outlines");
+		outlineExtOptions.optTable.add(outlinesExtEnabled = new BooleanUI(skin, false)).row();
+		
+		outlineExtOptions.optTable.add("Thickness");
+		outlineExtOptions.optTable.add(outlinesExtWidth = new FloatUI(skin, .1f)).row();
+		
+		outlineExtOptions.optTable.add("Color");
+		outlineExtOptions.optTable.add(outlinesExtColor = new Vector4UI(skin, new Color(Color.BLACK))).row();
+
 		// Lighting options
 		
 		root.add();
