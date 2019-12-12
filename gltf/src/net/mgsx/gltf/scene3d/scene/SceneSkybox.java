@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -49,9 +50,11 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		// set hint to render last but before transparent ones
 		box.userData = SceneRenderableSorter.Hints.OPAQUE_LAST;
 		
-		// set material options
+		// set material options : preserve background depth
 		box.material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
-
+		box.material.set(new DepthTestAttribute(false));
+		
+		
 		// assign shader
 		box.shader = shaderProvider.getShader(box);
 	}
