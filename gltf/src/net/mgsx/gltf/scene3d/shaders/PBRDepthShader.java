@@ -17,7 +17,12 @@ public class PBRDepthShader extends DepthShader
 	private int u_morphTargets1;
 	private int u_morphTargets2;
 	
-	public static long computeMorphTargetsMask(Renderable renderable){
+	public PBRDepthShader(Renderable renderable, Config config, String prefix) {
+		super(renderable, config, prefix);
+		this.morphTargetsMask = computeMorphTargetsMask(renderable);
+	}
+	
+	protected long computeMorphTargetsMask(Renderable renderable){
 		int morphTargetsFlag = 0;
 		VertexAttributes vertexAttributes = renderable.meshPart.mesh.getVertexAttributes();
 		final int n = vertexAttributes.size();
@@ -28,12 +33,6 @@ public class PBRDepthShader extends DepthShader
 		return morphTargetsFlag;
 	}
 	
-	public PBRDepthShader(Renderable renderable, Config config, String prefix) {
-		super(renderable, config, prefix);
-		
-		this.morphTargetsMask = computeMorphTargetsMask(renderable);
-	}
-
 	@Override
 	public boolean canRender(Renderable renderable) {
 		

@@ -76,6 +76,26 @@ Also, Scene own a more advanced animation player providing some features like pl
 When your scene is made of several individual models with their own animation (cinematic scene), you want to play a bunch
 of animation on the same modelInstance. In this case use `scene.animationsPlayer` instead of `scene.animationController`.
 
+## Customizations
+
+### Extends PBR shader
+
+There are several way to extends PBR shaders : 
+* by providing custom vertex and fragment shader code.
+* by subclassing PBRShaderProvider
+* by subclassing both PBRShaderProvider and PBRShader
+
+Note that PBRDepthShader can be customized as well in the same way.
+
+### Vertex colors
+
+As libgdx default shader, default PBR shader use supports 1 color attribute used to multiply base color.
+
+If you want to implement a custom shader to support more vertex color layers, you have to enable by setting **PBRConfig#numVertexColors**.
+
+You can then retrieve attributes in your custom vertex shader : **a_color1** for 2nd layer, **a_color2** for 3rd layer and so on. 
+For compatibility reasons, 1st layer is **a_color**
+
 
 ## Export from Blender (2.80+)
 
@@ -227,6 +247,12 @@ nodePlus.weights.values[index] = 0.7f;
 ```
 
 If you didn't have shape keys names, you still can set weights but you have to know shape key index.
+
+### Vertex color
+
+Current Blender exporter [only export 2 vertex color layers](https://github.com/KhronosGroup/glTF-Blender-IO/blob/master/addons/io_scene_gltf2/blender/exp/gltf2_blender_extract.py#L49)
+
+if you need more, you can always modify your local file in *BlenderInstallDirectory/scripts/addons/io_scene_gltf2/blender/exp/gltf2_blender_extract.py* and restart Blender.
 
 ### Troubleshottings
 

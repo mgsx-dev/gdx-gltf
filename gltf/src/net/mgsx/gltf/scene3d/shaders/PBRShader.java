@@ -209,6 +209,7 @@ public class PBRShader extends DefaultShader
 
 	private long morphTargetsMask;
 	
+	private int vertexColorLayers;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -218,6 +219,8 @@ public class PBRShader extends DefaultShader
 		textureCoordinateMapMask = getTextureCoordinateMapMask(renderable.material);
 		
 		morphTargetsMask = computeMorphTargetsMask(renderable);
+		
+		vertexColorLayers = computeVertexColorLayers(renderable);
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
@@ -250,6 +253,17 @@ public class PBRShader extends DefaultShader
 		
 	}
 
+	private int computeVertexColorLayers(Renderable renderable) {
+		int num = 0;
+		VertexAttributes vertexAttributes = renderable.meshPart.mesh.getVertexAttributes();
+		final int n = vertexAttributes.size();
+		for (int i = 0; i < n; i++) {
+			final VertexAttribute attr = vertexAttributes.get(i);
+			if (attr.usage == VertexAttributes.Usage.ColorUnpacked) num++;
+		}
+		return num;
+	}
+
 	@Override
 	public boolean canRender(Renderable renderable) {
 		// TODO properly determine if current shader can render this renderable.
@@ -263,10 +277,13 @@ public class PBRShader extends DefaultShader
 		// compare morph targets
 		if(this.morphTargetsMask != computeMorphTargetsMask(renderable)) return false;
 		
+		// compare vertex colors count
+		if(this.vertexColorLayers != computeVertexColorLayers(renderable)) return false;
+		
 		return super.canRender(renderable);
 	}
 	
-	public static long computeMorphTargetsMask(Renderable renderable){
+	public long computeMorphTargetsMask(Renderable renderable){
 		int morphTargetsFlag = 0;
 		VertexAttributes vertexAttributes = renderable.meshPart.mesh.getVertexAttributes();
 		final int n = vertexAttributes.size();

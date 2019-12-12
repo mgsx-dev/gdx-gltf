@@ -11,7 +11,12 @@ import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 
 public class PBRDepthShaderProvider extends DepthShaderProvider
 {
-	public static String morphTargetsPrefix(Renderable renderable){
+	
+	public PBRDepthShaderProvider(Config config) {
+		super(config);
+	}
+
+	protected String morphTargetsPrefix(Renderable renderable){
 		String prefix = "";
 		for(VertexAttribute att : renderable.meshPart.mesh.getVertexAttributes()){
 			for(int i=0 ; i<PBRCommon.MAX_MORPH_TARGETS ; i++){
@@ -23,10 +28,6 @@ public class PBRDepthShaderProvider extends DepthShaderProvider
 		return prefix;
 	}
 	
-	public PBRDepthShaderProvider(Config config) {
-		super(config);
-	}
-
 	@Override
 	protected Shader createShader(Renderable renderable) {
 		

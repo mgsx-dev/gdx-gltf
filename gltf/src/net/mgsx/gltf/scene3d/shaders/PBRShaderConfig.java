@@ -9,4 +9,9 @@ public class PBRShaderConfig extends DefaultShader.Config
 	
 	/** string to prepend to shaders (version), automatic if null */
 	public String glslVersion = null;
+
+	/** Max vertex color layers. Default {@link PBRShader} only use 1 layer, 
+	 * custom shaders can implements more.
+	 */
+	public int numVertexColors = 1;
 }

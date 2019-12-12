@@ -240,6 +240,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		
+		// colors
+		for(VertexAttribute attribute : renderable.meshPart.mesh.getVertexAttributes()){
+			if(attribute.usage == VertexAttributes.Usage.ColorUnpacked){
+				prefix += "#define color" + attribute.unit + "Flag\n";
+			}
+		}
+		
 		// 
 		
 		int numBoneInfluence = 0;
@@ -269,8 +276,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(numMorphTarget > PBRCommon.MAX_MORPH_TARGETS){
 			Gdx.app.error(TAG, "more than 8 morph target attributes not supported: " + numMorphTarget + " found.");
 		}
-		if(numColor > 1){
-			Gdx.app.error(TAG, "more than 1 color attributes not supported: " + numColor + " found.");
+		if(numColor > config.numVertexColors){
+			Gdx.app.error(TAG, "more than " + config.numVertexColors + " color attributes not supported: " + numColor + " found.");
 		}
 		
 		LightUtils.getLightsInfo(lightsInfo, renderable.environment);
