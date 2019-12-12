@@ -69,6 +69,10 @@ public class SceneManager implements Disposable {
 		return batch;
 	}
 	
+	public void setBatch(ModelBatch batch) {
+		this.batch = batch;
+	}
+	
 	public void setShaderProvider(ShaderProvider shaderProvider) {
 		batch.dispose();
 		batch = new ModelBatch(shaderProvider, renderableSorter);
