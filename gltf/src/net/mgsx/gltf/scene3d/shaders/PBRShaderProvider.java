@@ -106,7 +106,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		if(Gdx.app.getType() == ApplicationType.WebGL || !openGL3){
 			// extension required to auto compute tangents
-			if(renderable.meshPart.mesh.getVertexAttribute(VertexAttributes.Usage.Tangent) == null){
+			if(renderable.meshPart.mesh.getVertexAttribute(VertexAttributes.Usage.Tangent) == null && config.useTangentSpace){
 				// not that WebGL need that call to allow extension to be enabled in shaders.
 				if(Gdx.graphics.supportsExtension("GL_OES_standard_derivatives")){
 					prefix += "#define USE_DERIVATIVES_EXT\n";
