@@ -15,6 +15,7 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 * Out of the box shaders for normal maps, metallic/roughness, Image based lighting (IBL) and more.
 * Texture coordinates transform.
 * 64k vertices supported (instead of 32k)
+* Faster loading time, see [benchmark](BENCHMARK.md)
 
 **What's more than a 3D format parser in gdx-gltf library?**
 
