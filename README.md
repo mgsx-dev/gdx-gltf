@@ -80,7 +80,7 @@ Add dependency in your core project (replace master-SNAPSHOT by latest release t
 project(":core") {
     dependencies {
     	...
-        compile "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
+        api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
     }
 }
 ```
@@ -91,7 +91,7 @@ For GWT (html) projects you need to add source dependency and inherit GWT module
 project(":html") {
     dependencies {
     	...
-        compile "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion:sources"
+        api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion:sources"
     }
 }
 ```
