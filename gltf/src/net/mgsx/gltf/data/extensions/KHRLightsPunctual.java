@@ -2,8 +2,6 @@ package net.mgsx.gltf.data.extensions;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
-import com.badlogic.gdx.graphics.g3d.environment.PointLight;
-import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -11,6 +9,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 
 /**
  * {@link net.mgsx.gltf.data.scene.GLTFNode} and {@link net.mgsx.gltf.data.GLTF} (root) extension
@@ -40,7 +40,13 @@ abstract public class KHRLightsPunctual {
 		 */
 		public float intensity = 1f;
 		public String type;
-		public float range;
+		
+		/** 
+		 * Hint defining a distance cutoff at which the light's intensity may be considered to have reached zero. 
+		 * When null, range is assumed to be infinite.
+		 */
+		public Float range;
+		
 		public GLTFSpotLight spot;
 	}
 	public static class GLTFLights {
@@ -58,21 +64,23 @@ abstract public class KHRLightsPunctual {
 			dl.intensity = light.intensity;
 			return dl;
 		}else if(GLTFLight.TYPE_POINT.equals(light.type)){
-			PointLight pl = new PointLight();
+			PointLightEx pl = new PointLightEx();
 			pl.color.set(GLTFTypes.mapColor(light.color, Color.WHITE));
 			// Blender exported intensity is the raw value in Watts
 			// GLTF spec. states it's in Candela which is lumens per square radian (lm/sr).
 			// adjustement is made empirically here (comparing with Blender rendering)
 			// TODO find if it's a GLTF Blender exporter issue and find the right conversion.
 			pl.intensity = light.intensity / 10f;
+			pl.range = light.range;
 			return pl;
 		}else if(GLTFLight.TYPE_SPOT.equals(light.type)){
-			SpotLight sl = new SpotLight();
+			SpotLightEx sl = new SpotLightEx();
 			if(light.spot == null) throw new GLTFIllegalException("spot property required for spot light type");
 			sl.color.set(GLTFTypes.mapColor(light.color, Color.WHITE));
 			
 			// same hack as point lights (see point light above)
 			sl.intensity = light.intensity / 10f;
+			sl.range = light.range;
 			
 			// from https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
 			float cosOuterAngle = (float)Math.cos(light.spot.outerConeAngle);

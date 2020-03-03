@@ -20,6 +20,8 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
 import net.mgsx.gltf.scene3d.animation.AnimationsPlayer;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
 public class Scene {
@@ -73,10 +75,10 @@ public class Scene {
 			return new DirectionalLightEx().set((DirectionalLight)from);
 		}
 		if(from instanceof PointLight){
-			return new PointLight().set((PointLight)from);
+			return new PointLightEx().set((PointLight)from);
 		}
 		if(from instanceof SpotLight){
-			return new SpotLight().set((SpotLight)from);
+			return new SpotLightEx().set((SpotLight)from);
 		}
 		throw new GdxRuntimeException("unknown light type " + from.getClass().getName());
 	}

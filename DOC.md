@@ -64,6 +64,17 @@ TODO explain provided shadow light, only dirs, how to enable, etc...
 
 TODO explain DiLightEx with intensity parameter...
 
+### Lights range
+
+Point lights and Spot lights range can be exported from blender (using custom distance option).
+This range can be used for light frustum culling
+Default libgdx lights doesn't have this information, you can cast loaded lights from your GLTF files
+by casting them to PointLightEx or SpotLightEx to retrieve the range field.
+
+### Displacement maps
+
+TODO implements Displacement map with/without tesslation shader..
+
 ## Animations
 
 Scene own a AnimationController to play animation on its modelInstance (regular libgdx animation player).
