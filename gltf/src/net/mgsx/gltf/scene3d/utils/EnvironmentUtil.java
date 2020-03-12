@@ -4,6 +4,10 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 
 public class EnvironmentUtil 
 {
@@ -36,4 +40,14 @@ public class EnvironmentUtil
 		return cubemap;
 	}
 	
+	public static int getLightCount(Environment environment){
+		int count = 0;
+		DirectionalLightsAttribute dla = environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+		if(dla != null) count += dla.lights.size;
+		PointLightsAttribute pla = environment.get(PointLightsAttribute.class, PointLightsAttribute.Type);
+		if(pla != null) count += pla.lights.size;
+		SpotLightsAttribute sla = environment.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
+		if(sla != null) count += sla.lights.size;
+		return count;
+	}
 }

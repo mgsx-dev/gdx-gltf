@@ -6,7 +6,8 @@ import com.badlogic.gdx.math.Vector3;
 
 public class SpotLightEx extends SpotLight {
 
-	/** see {@link net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight#range} */
+	/** Optional range in meters.
+	 * see {@link net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight#range} */
 	public Float range;
 
 	@Override

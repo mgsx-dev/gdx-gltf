@@ -152,9 +152,9 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		spriteBatch = new SpriteBatch();
 		
-		createUI();
-		
 		createSceneManager();
+		
+		createUI();
 		
 		loadModelIndex();
 	}
@@ -212,7 +212,7 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.environment.add(defaultLight);
 		
 		sceneManager.setAmbientLight(1f);
-		ui.ambiantSlider.setValue(1f);
+		if(ui != null) ui.ambiantSlider.setValue(1f);
 	}
 	
 	protected void loadIBL(FileHandle file) 
@@ -316,7 +316,7 @@ public class GLTFDemo extends ApplicationAdapter
 		Gdx.input.setInputProcessor(stage);
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 		
-		ui = new GLTFDemoUI(skin);
+		ui = new GLTFDemoUI(sceneManager, skin);
 		ui.setFillParent(true);
 		
 		stage.addActor(ui);
@@ -794,7 +794,7 @@ public class GLTFDemo extends ApplicationAdapter
 			light.intensity = 1f;
 			light.updateColor();
 		}
-		ui.lightDirectionControl.set(defaultLight.direction);
+		if(ui != null) ui.lightDirectionControl.set(defaultLight.direction);
 	}
 
 	protected void setCamera(String name) 

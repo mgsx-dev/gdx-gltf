@@ -35,12 +35,15 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
+import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class GLTFDemoUI extends Table {
 	public static FileSelector fileSelector = null;
 	
+	public static boolean LIVE_STATS = true;
+
 	public SelectBox<ModelEntry> entrySelector;
 	public SelectBox<String> variantSelector;
 	public SelectBox<String> animationSelector;
@@ -106,9 +109,14 @@ public class GLTFDemoUI extends Table {
 	public FloatUI outlineDistFalloff;
 
 	public BooleanUI outlineDistFalloffOption;
-	
-	public GLTFDemoUI(Skin skin) {
+
+	private Label lightLabel;
+
+	private SceneManager sceneManager;
+
+	public GLTFDemoUI(SceneManager sceneManager, Skin skin) {
 		super(skin);
+		this.sceneManager = sceneManager;
 		
 		Table root = new Table(skin);
 		root.defaults().pad(5);
@@ -281,7 +289,7 @@ public class GLTFDemoUI extends Table {
 		root.add(cameraSelector).row();
 		
 		lightSelector = new SelectBox<String>(skin);
-		root.add("Lights");
+		root.add(lightLabel = new Label("Lights", skin));
 		root.add(lightSelector).row();
 		
 		
@@ -552,6 +560,14 @@ public class GLTFDemoUI extends Table {
 			names.add(entry.key.id);
 		}
 		lightSelector.setItems(names);
+	}
+	
+	@Override
+	public void act(float delta) {
+		if(LIVE_STATS ){
+			lightLabel.setText("Lights (" + sceneManager.getActiveLightsCount() + "/" + sceneManager.getTotalLightsCount() + ")");
+		}
+		super.act(delta);
 	}
 
 }

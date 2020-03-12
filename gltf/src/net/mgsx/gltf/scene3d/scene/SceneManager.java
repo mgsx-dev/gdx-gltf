@@ -1,12 +1,17 @@
 package net.mgsx.gltf.scene3d.scene;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.RenderableSorter;
@@ -16,7 +21,11 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
+import net.mgsx.gltf.scene3d.utils.EnvironmentCache;
+import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 
 /**
  * Convient manager class for: model instances, animators, camera, environment, lights, batch/shaderProvider
@@ -30,7 +39,12 @@ public class SceneManager implements Disposable {
 	private ModelBatch batch;
 	private ModelBatch depthBatch;
 	
-	public Environment environment;
+	/** Shouldn't be null. Lights from added scene are managed by default, use {@link #addLight(BaseLight)} and {@link #removeLight(BaseLight)} 
+	 * if you want your own lights to be managed instead of adding them directly to environment.  */
+	// TODO env can be changed at any time !! and old lights will be added...
+	// how to change env without changing lights?
+	public Environment environment = new Environment();
+	protected final EnvironmentCache computedEnvironement = new EnvironmentCache();
 	
 	public Camera camera;
 
@@ -38,6 +52,10 @@ public class SceneManager implements Disposable {
 	
 	private RenderableSorter renderableSorter;
 	
+	private PointLightsAttribute pointLights = new PointLightsAttribute();
+	private SpotLightsAttribute spotLights = new SpotLightsAttribute();
+			
+
 	public SceneManager() {
 		this(24);
 	}
@@ -58,8 +76,6 @@ public class SceneManager implements Disposable {
 		batch = new ModelBatch(shaderProvider, renderableSorter);
 		
 		depthBatch = new ModelBatch(depthShaderProvider);
-		
-		environment = new Environment();
 		
 		float lum = 1f;
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
@@ -96,14 +112,63 @@ public class SceneManager implements Disposable {
 		}
 	}
 	
+	/**
+	 * should be called in order to perform light culling, skybox update and animations.
+	 * @param delta
+	 */
 	public void update(float delta){
 		if(camera != null){
+			updateEnvironment();
 			if(skyBox != null){
 				skyBox.update(camera);
 			}
 		}
 		for(Scene scene : scenes){
 			scene.update(delta);
+		}
+	}
+	
+	protected void updateEnvironment(){
+		computedEnvironement.setCache(environment);
+		pointLights.lights.clear();
+		spotLights.lights.clear();
+		if(environment != null) {
+			for(Attribute a : environment){
+				if(a instanceof PointLightsAttribute){
+					pointLights.lights.addAll(((PointLightsAttribute) a).lights);
+					computedEnvironement.replaceCache(pointLights);
+				}else if(a instanceof SpotLightsAttribute){
+					spotLights.lights.addAll(((SpotLightsAttribute) a).lights);
+					computedEnvironement.replaceCache(spotLights);
+				}else{
+					computedEnvironement.set(a);
+				}
+			}
+		}
+		cullLights();
+	}
+	protected void cullLights(){
+		PointLightsAttribute pla = environment.get(PointLightsAttribute.class, PointLightsAttribute.Type);
+		if(pla != null){
+			for(PointLight light : pla.lights){
+				if(light instanceof PointLightEx){
+					PointLightEx l = (PointLightEx) light;
+					if(l.range != null && !camera.frustum.sphereInFrustum(l.position, l.range)){
+						pointLights.lights.removeValue(l, true);
+					}
+				}
+			}
+		}
+		SpotLightsAttribute sla = environment.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
+		if(sla != null){
+			for(SpotLight light : sla.lights){
+				if(light instanceof SpotLightEx){
+					SpotLightEx l = (SpotLightEx) light;
+					if(l.range != null && !camera.frustum.sphereInFrustum(l.position, l.range)){
+						spotLights.lights.removeValue(l, true);
+					}
+				}
+			}
 		}
 	}
 	
@@ -160,6 +225,7 @@ public class SceneManager implements Disposable {
 	 * (useful when you're using your own frame buffer to render scenes)
 	 */
 	public void renderColors(){
+		computedEnvironement.shadowMap = environment.shadowMap;
 		batch.begin(camera);
 		for(Scene scene : scenes){
 			batch.render(scene.modelInstance, environment);
@@ -212,6 +278,14 @@ public class SceneManager implements Disposable {
 			camera.update(true);
 		}
 	}
+	
+	public int getActiveLightsCount(){
+		return EnvironmentUtil.getLightCount(computedEnvironement);
+	}
+	public int getTotalLightsCount(){
+		return EnvironmentUtil.getLightCount(environment);
+	}
+	
 
 	@Override
 	public void dispose() {
