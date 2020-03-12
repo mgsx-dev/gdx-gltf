@@ -39,10 +39,7 @@ public class SceneManager implements Disposable {
 	private ModelBatch batch;
 	private ModelBatch depthBatch;
 	
-	/** Shouldn't be null. Lights from added scene are managed by default, use {@link #addLight(BaseLight)} and {@link #removeLight(BaseLight)} 
-	 * if you want your own lights to be managed instead of adding them directly to environment.  */
-	// TODO env can be changed at any time !! and old lights will be added...
-	// how to change env without changing lights?
+	/** Shouldn't be null. */
 	public Environment environment = new Environment();
 	protected final EnvironmentCache computedEnvironement = new EnvironmentCache();
 	
