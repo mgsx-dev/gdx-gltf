@@ -50,8 +50,11 @@ In this guide we will use the CLI version.
 
 You can run `cmft --help` in order to have common cases examples.
 
-Alternatively, you can use a provided ruby script from this repository (**tools/cubemap.rb**).
+Alternatively, you can use one of provided scripts from this repository, either :
+* a full featured one using Ruby: **tools/cubemap.rb**
+* a simpler one using Windows Batch: **tools/cubemap.bat**
 It demonstrate automation process and can be easily adapted to any other script languages depending on your needs.
+
 
 Alternative map sets in this repository has been generated with this script from HRDi Haven images : 
 
