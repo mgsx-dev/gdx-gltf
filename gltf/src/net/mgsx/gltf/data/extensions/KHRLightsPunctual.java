@@ -53,7 +53,7 @@ abstract public class KHRLightsPunctual {
 		public Array<GLTFLight> lights;
 	}
 	public static class GLTFLightNode {
-		public int light;
+		public Integer light;
 	}
 	
 	
