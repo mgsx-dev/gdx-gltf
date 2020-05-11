@@ -34,4 +34,8 @@ public class GLTFExtensions implements Serializable{
 		}
 		return result;
 	}
+	
+	public void set(String ext, Object object){
+		extentions.put(ext, object);
+	}
 }
