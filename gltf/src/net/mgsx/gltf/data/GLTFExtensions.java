@@ -15,8 +15,8 @@ public class GLTFExtensions implements Serializable{
 
 	@Override
 	public void write(Json json) {
-		for(Entry<String, Object> extension : extentions){
-			json.writeField(extension.value, extension.key, extension.getClass());
+		for (Entry<String, Object> extension : extentions) {
+			json.writeValue(extension.key, extension.value);
 		}
 	}
 
