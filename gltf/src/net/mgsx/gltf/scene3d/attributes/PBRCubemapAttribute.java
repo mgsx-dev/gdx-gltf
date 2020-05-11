@@ -29,5 +29,8 @@ public class PBRCubemapAttribute extends CubemapAttribute
 	public static Attribute createSpecularEnv(Cubemap specularCubemap) {
 		return new PBRCubemapAttribute(SpecularEnv, specularCubemap);
 	}
-
+	@Override
+	public Attribute copy() {
+		return new PBRCubemapAttribute(type, textureDescription);
+	}
 }
