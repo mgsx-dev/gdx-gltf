@@ -28,7 +28,7 @@ public class GLTFExtensions implements Serializable{
 	public <T> T get(Class<T> type, String ext) 
 	{
 		T result = (T)extentions.get(ext);
-		if(result == null){
+		if(result == null && value != null){
 			result = json.readValue(type, value.get(ext));
 			extentions.put(ext, result);
 		}
