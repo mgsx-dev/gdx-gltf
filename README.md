@@ -181,8 +181,8 @@ This repository is made of a library and a demo :
 
 ### Mesh limitations
 
-LibGDX only support signed short indices, a mesh is limited to 32767 vertices.
-However, gdx-gltf supports unsigned short indices : a mesh is then limited to 65535 vertices.
+Both LibGDX and gdx-gltf supports unsigned short indices : a mesh is then limited to 65535 vertices.
+Both signed int and unsigned int indices are not supported (and not supported by all GPUs anyway).
 
 ### WebGL limitations
 
@@ -210,14 +210,14 @@ You may encounter `high index detected` warnings or errors.
 
 It means you may have too many vertices in a mesh. Try to reduce or split them before exporting to GLTF :
 
-* 32k vertices are fully supported.
-* 64k vertices are supported but still experimental.
+* 64k vertices are fully supported.
 * more vertices are not supported at all.
 
 Note that this limitation is per mesh, not for a whole scene.
 
 Note that Blender vertex count can be misleading because exported geometry may contains more vertices because of
 normal split, texture coordinates split or vertex color split.
+Note that Blender glTF exporter split meshes for you to keep your vertices count below 64k.
 
 ## Tangent vertex attributes
 
