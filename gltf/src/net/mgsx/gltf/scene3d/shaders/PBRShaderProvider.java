@@ -143,42 +143,43 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
-			if(renderable.environment.has(PBRCubemapAttribute.SpecularEnv)){
-				prefix += "#define diffuseSpecularEnvSeparateFlag\n";
-				specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.SpecularEnv);
-			}else if(renderable.environment.has(PBRCubemapAttribute.DiffuseEnv)){
-				specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.DiffuseEnv);
-			}else if(renderable.environment.has(PBRCubemapAttribute.EnvironmentMap)){
-				specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.EnvironmentMap);
-			}
-			if(specualarCubemapAttribute != null){
-				prefix += "#define USE_IBL\n";
-				
-				boolean textureLodSupported;
-				if(openGL3){
-					textureLodSupported = true;
-				}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
-					prefix += "#define USE_TEXTURE_LOD_EXT\n";
-					textureLodSupported = true;
-				}else{
-					textureLodSupported = false;
+			if(renderable.environment != null){
+				if(renderable.environment.has(PBRCubemapAttribute.SpecularEnv)){
+					prefix += "#define diffuseSpecularEnvSeparateFlag\n";
+					specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.SpecularEnv);
+				}else if(renderable.environment.has(PBRCubemapAttribute.DiffuseEnv)){
+					specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.DiffuseEnv);
+				}else if(renderable.environment.has(PBRCubemapAttribute.EnvironmentMap)){
+					specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.EnvironmentMap);
 				}
-				
-				TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();
-				if(textureLodSupported && textureFilter.equals(TextureFilter.MipMap)){
-					prefix += "#define USE_TEX_LOD\n";
+				if(specualarCubemapAttribute != null){
+					prefix += "#define USE_IBL\n";
+					
+					boolean textureLodSupported;
+					if(openGL3){
+						textureLodSupported = true;
+					}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
+						prefix += "#define USE_TEXTURE_LOD_EXT\n";
+						textureLodSupported = true;
+					}else{
+						textureLodSupported = false;
+					}
+					
+					TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();
+					if(textureLodSupported && textureFilter.equals(TextureFilter.MipMap)){
+						prefix += "#define USE_TEX_LOD\n";
+					}
+					
+					if(renderable.environment.has(PBRTextureAttribute.BRDFLUTTexture)){
+						prefix += "#define brdfLUTTexture\n";
+					}
 				}
+				// TODO check GLSL extension 'OES_standard_derivatives' for WebGL
+				// TODO check GLSL extension 'EXT_SRGB' for WebGL
 				
-				if(renderable.environment.has(PBRTextureAttribute.BRDFLUTTexture)){
-					prefix += "#define brdfLUTTexture\n";
+				if(renderable.environment.has(ColorAttribute.AmbientLight)){
+					prefix += "#define ambientLightFlag\n";
 				}
-			}
-			
-			// TODO check GLSL extension 'OES_standard_derivatives' for WebGL
-			// TODO check GLSL extension 'EXT_SRGB' for WebGL
-			
-			if(renderable.environment.has(ColorAttribute.AmbientLight)){
-				prefix += "#define ambientLightFlag\n";
 			}
 			
 			// SRGB
