@@ -6,17 +6,20 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Method;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 import net.mgsx.gltf.data.data.GLTFBuffer;
 import net.mgsx.gltf.data.data.GLTFBufferView;
@@ -133,8 +136,24 @@ class GLTFBinaryExporter {
 		fbo.end();
 		batch.dispose();
 		fbo.dispose();
-		PixmapIO.writePNG(file, pixmap);
+		savePNG(file, pixmap);
 		pixmap.dispose();
+	}
+	
+	public static void savePNG(FileHandle file, Pixmap pixmap){
+		if(Gdx.app.getType() == ApplicationType.WebGL){
+			throw new GdxRuntimeException("saving pixmap not supported for WebGL");
+		}else{
+			// call PixmapIO.writePNG(file, pixmap); via reflection to
+			// avoid compilation error with GWT.
+			try {
+				Class pixmapIO = ClassReflection.forName("com.badlogic.gdx.graphics.PixmapIO");
+				Method pixmapIO_writePNG = ClassReflection.getMethod(pixmapIO, "writePNG", FileHandle.class, Pixmap.class);
+				pixmapIO_writePNG.invoke(null, file, pixmap);
+			} catch (ReflectionException e) {
+				throw new GdxRuntimeException(e);
+			} 
+		}
 	}
 	
 }
