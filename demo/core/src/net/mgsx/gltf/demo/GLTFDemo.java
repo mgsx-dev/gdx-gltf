@@ -67,6 +67,7 @@ import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
+import net.mgsx.gltf.scene3d.scene.SceneModel;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
@@ -746,12 +747,11 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 	}
 	
-	protected void load(String name) {
-		int index = ui.sceneSelector.getItems().indexOf(name, false) - 1;
-		if(index < 0){
+	protected void load(SceneModel sceneModel) {
+		if(sceneModel == null){
 			return;
 		}
-		load(new Scene(rootModel.scenes.get(index)));
+		load(new Scene(sceneModel));
 	}
 	
 	private void load(Scene scene)

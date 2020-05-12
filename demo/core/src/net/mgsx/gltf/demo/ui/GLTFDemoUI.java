@@ -68,7 +68,7 @@ public class GLTFDemoUI extends Table {
 	protected CollapsableUI shaderOptions;
 	public SelectBox<SRGB> shaderSRGB;
 	private CollapsableUI lightOptions;
-	public SelectBox<String> sceneSelector;
+	public SelectBox<SceneModel> sceneSelector;
 	public SelectBox<String> lightSelector;
 	public Label shaderCount;
 	public TextButton skeletonButton;
@@ -157,7 +157,12 @@ public class GLTFDemoUI extends Table {
 		root.add(variantSelector).row();
 		
 		// scene
-		sceneSelector = new SelectBox<String>(skin);
+		sceneSelector = new SelectBox<SceneModel>(skin){
+			@Override
+			protected String toString(SceneModel item) {
+				return item.name == null ? "<null>" : item.name;
+			}
+		};
 		root.add("Scene");
 		root.add(sceneSelector).row();
 		
@@ -540,16 +545,14 @@ public class GLTFDemoUI extends Table {
 	public void setScenes(Array<SceneModel> scenes) {
 		if(scenes == null){
 			sceneSelector.setDisabled(true);
-			sceneSelector.setItems(new Array<String>());
+			sceneSelector.setItems(new Array<SceneModel>());
 		}else{
 			sceneSelector.setDisabled(false);
-			Array<String> names = new Array<String>();
-			names.add("");
+			Array<SceneModel> items = new Array<SceneModel>();
 			for(int i=0 ; i<scenes.size ; i++){
-				names.add(scenes.get(i).name);
+				items.add(scenes.get(i));
 			}
-			sceneSelector.setItems(names);
-			
+			sceneSelector.setItems(items);
 		}
 	}
 
