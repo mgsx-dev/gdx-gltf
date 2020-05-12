@@ -250,6 +250,7 @@ public class GLTFDemoUI extends Table {
 		lightOptions.optTable.add(shadowBias = new FloatUI(skin, 0)).row();
 		
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
+		ambiantSlider.setValue(1f);
 		lightOptions.optTable.add("Ambient Light");
 		lightOptions.optTable.add(ambiantSlider).row();
 

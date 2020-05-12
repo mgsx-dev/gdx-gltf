@@ -122,6 +122,7 @@ public class SceneManager implements Disposable {
 					((Updatable) r).update(camera, delta);
 				}
 			}
+			if(skyBox != null) skyBox.update(camera, delta);
 		}
 	}
 	
