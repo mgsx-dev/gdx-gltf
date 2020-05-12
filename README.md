@@ -16,6 +16,7 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 * Texture coordinates transform.
 * 64k vertices supported (instead of 32k)
 * Faster loading time, see [benchmark](BENCHMARK.md)
+* Export various objects to glTF file (whole scene, model, mesh, etc).
 
 **What's more than a 3D format parser in gdx-gltf library?**
 
@@ -132,6 +133,18 @@ see [Example code](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/sr
 for more information.
 
 For advanced usage, please read [full documentation](DOC.md)
+
+## Export objects from libgdx
+
+This library provides convenient methods to export various object type to glTF file.
+For instance, You can create some mesh programmatically in libgdx and export them to glTF files and optionally import them in Blender:
+
+```java
+new GLTFExporter().export(model, Gdx.files.local("myModel.gltf")
+```
+
+You can also export a scene with its lights and camera. All gltf features are supported for export: animations, bones, etc.
+Note that only "gltf separate files" mode is currently supported for export.
 
 ## Export models from Blender
 
