@@ -90,4 +90,9 @@ public class AWTFileSelector extends FileSelector
 		applet.destroy();
 		
 	}
+
+	@Override
+	public void save(Runnable runnable) {
+		openDialog(runnable, true);
+	}
 }

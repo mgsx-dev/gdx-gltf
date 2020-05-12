@@ -47,12 +47,14 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import net.mgsx.gltf.demo.data.ModelEntry;
-import net.mgsx.gltf.demo.events.FileChangeEvent;
+import net.mgsx.gltf.demo.events.FileOpenEvent;
+import net.mgsx.gltf.demo.events.FileSaveEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.GLTFInspector;
 import net.mgsx.gltf.demo.util.NodeUtil;
 import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
+import net.mgsx.gltf.exporters.GLTFExporter;
 import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
@@ -328,12 +330,14 @@ public class GLTFDemo extends ApplicationAdapter
 			
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				if(event instanceof FileChangeEvent){
+				if(event instanceof FileOpenEvent){
 					ui.entrySelector.setSelectedIndex(0);
 					ui.variantSelector.setSelectedIndex(0);
-					load(((FileChangeEvent) event).file);
+					load(((FileOpenEvent) event).file);
 				}else if(event instanceof IBLFolderChangeEvent){
 					loadIBL(((IBLFolderChangeEvent) event).file);
+				}else if(event instanceof FileSaveEvent){
+					save(((FileSaveEvent) event).file);
 				}
 			}
 		});
@@ -477,6 +481,12 @@ public class GLTFDemo extends ApplicationAdapter
 		
 	}
 	
+	private void save(FileHandle file) {
+		if(scene != null){
+			new GLTFExporter().export(scene, file);
+		}
+	}
+
 	protected void setShadow(boolean isOn) {
 		
 		if(isOn){

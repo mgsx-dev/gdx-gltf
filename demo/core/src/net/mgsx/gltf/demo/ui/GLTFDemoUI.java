@@ -28,7 +28,8 @@ import com.badlogic.gdx.utils.Scaling;
 
 import net.mgsx.gltf.demo.GLTFDemo.ShaderMode;
 import net.mgsx.gltf.demo.data.ModelEntry;
-import net.mgsx.gltf.demo.events.FileChangeEvent;
+import net.mgsx.gltf.demo.events.FileOpenEvent;
+import net.mgsx.gltf.demo.events.FileSaveEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
@@ -129,8 +130,12 @@ public class GLTFDemoUI extends Table {
 		
 		if(fileSelector != null){
 			TextButton btOpenFile = new TextButton("Open file", skin);
+			TextButton btExportFile = new TextButton("Save to file", skin);
 			root.add("File");
-			root.add(btOpenFile).row();
+			Table btTable = new Table();
+			btTable.add(btOpenFile);
+			btTable.add(btExportFile);
+			root.add(btTable).row();
 			
 			btOpenFile.addListener(new ChangeListener() {
 				@Override
@@ -138,7 +143,19 @@ public class GLTFDemoUI extends Table {
 					fileSelector.open(new Runnable() {
 						@Override
 						public void run() {
-							GLTFDemoUI.this.fire(new FileChangeEvent(fileSelector.lastFile));
+							GLTFDemoUI.this.fire(new FileOpenEvent(fileSelector.lastFile));
+						}
+					});
+				}
+			});
+			
+			btExportFile.addListener(new ChangeListener() {
+				@Override
+				public void changed(ChangeEvent event, Actor actor) {
+					fileSelector.open(new Runnable() {
+						@Override
+						public void run() {
+							GLTFDemoUI.this.fire(new FileSaveEvent(fileSelector.lastFile));
 						}
 					});
 				}

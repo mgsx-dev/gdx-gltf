@@ -9,6 +9,9 @@ abstract public class FileSelector {
 	/** open a file */
 	abstract public void open(Runnable runnable);
 	
+	/** open a file */
+	abstract public void save(Runnable runnable);
+	
 	/** select a folder */
 	abstract public void selectFolder(Runnable runnable);
 
