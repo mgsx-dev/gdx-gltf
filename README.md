@@ -30,11 +30,18 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 * Note that libgdx default shader doesn't implements spot lights.
 * If you don't want/need high quality rendering (PBR), you still can configure loaders to use libgdx materials (and libgdx DefaultShader).
 
-## Demo
+## Demo and gallery
+
+Library demo (aka model viewer) is available for several platforms:
 
 * HTML : [Online demo](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
 * Desktop : [Desktop demo](https://github.com/mgsx-dev/gdx-gltf/releases) remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
 * Android : [Android demo](https://play.google.com/store/apps/details?id=net.mgsx.gltf.demo) only contains few examples (same as HTML version).
+
+Few games (gamejams) made with this library:
+
+* [Lendigastel](https://mgsx.itch.io/lendigastel)
+* [Santa and the giant cake](https://mgsx.itch.io/santa-and-the-giant-cake)
 
 # GL Transmission Format (glTF) 2.0 Support
 
