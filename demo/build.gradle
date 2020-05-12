@@ -22,7 +22,7 @@ allprojects {
     version = '0.0.1-SNAPSHOT'
     ext {
         appName = "gdx-gltf-demo"
-        gdxVersion = '1.9.10'
+        gdxVersion = '1.9.11-SNAPSHOT'
         roboVMVersion = '2.3.1'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'

@@ -6,7 +6,6 @@ import java.nio.IntBuffer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.MeshPlus;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -284,7 +283,7 @@ public class MeshLoader {
 					}
 				}
 				
-				Mesh mesh = new MeshPlus(true, maxVertices, maxIndices, attributesGroup);
+				Mesh mesh = new Mesh(true, maxVertices, maxIndices, attributesGroup);
 				meshes.add(mesh);
 				mesh.setVertices(vertices);
 				
