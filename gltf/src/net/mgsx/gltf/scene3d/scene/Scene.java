@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Renderable;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
@@ -13,9 +15,11 @@ import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.Pool;
 
 import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
 import net.mgsx.gltf.scene3d.animation.AnimationsPlayer;
@@ -24,7 +28,7 @@ import net.mgsx.gltf.scene3d.lights.PointLightEx;
 import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 
-public class Scene {
+public class Scene implements RenderableProvider, Updatable {
 	public ModelInstance modelInstance;
 	public AnimationController animationController;
 	
@@ -118,7 +122,8 @@ public class Scene {
 		this(new ModelInstanceHack(model), animated);
 	}
 
-	public void update(float delta){
+	@Override
+	public void update(Camera camera, float delta){
 		animations.update(delta);
 		syncCameras();
 		syncLights();
@@ -178,5 +183,10 @@ public class Scene {
 			}
 		}
 		return count;
+	}
+
+	@Override
+	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
+		modelInstance.getRenderables(renderables, pool);
 	}
 }

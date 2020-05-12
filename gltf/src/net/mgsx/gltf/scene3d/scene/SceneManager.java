@@ -1,9 +1,12 @@
 package net.mgsx.gltf.scene3d.scene;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
@@ -34,7 +37,8 @@ import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
  *
  */
 public class SceneManager implements Disposable {
-	private Array<Scene> scenes = new Array<Scene>();
+	
+	private final Array<RenderableProvider> renderableProviders = new Array<RenderableProvider>();
 	
 	private ModelBatch batch;
 	private ModelBatch depthBatch;
@@ -45,8 +49,6 @@ public class SceneManager implements Disposable {
 	
 	public Camera camera;
 
-	private SceneSkybox skyBox;
-	
 	private RenderableSorter renderableSorter;
 	
 	private PointLightsAttribute pointLights = new PointLightsAttribute();
@@ -101,7 +103,7 @@ public class SceneManager implements Disposable {
 	}
 	
 	public void addScene(Scene scene, boolean appendLights){
-		scenes.add(scene);
+		renderableProviders.add(scene);
 		if(appendLights){
 			for(Entry<Node, BaseLight> e : scene.lights){
 				environment.add(e.value);
@@ -116,12 +118,11 @@ public class SceneManager implements Disposable {
 	public void update(float delta){
 		if(camera != null){
 			updateEnvironment();
-			if(skyBox != null){
-				skyBox.update(camera);
+			for(RenderableProvider r : renderableProviders){
+				if(r instanceof Updatable){
+					((Updatable) r).update(camera, delta);
+				}
 			}
-		}
-		for(Scene scene : scenes){
-			scene.update(delta);
 		}
 	}
 	
@@ -192,11 +193,7 @@ public class SceneManager implements Disposable {
 		if(light instanceof DirectionalShadowLight){
 			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
 			shadowLight.begin();
-			depthBatch.begin(shadowLight.getCamera());
-			for(Scene scene : scenes){
-				depthBatch.render(scene.modelInstance);
-			}
-			depthBatch.end();
+			renderDepth(shadowLight.getCamera());
 			shadowLight.end();
 			
 			environment.shadowMap = shadowLight;
@@ -210,9 +207,15 @@ public class SceneManager implements Disposable {
 	 * You typically render it to a FBO with depth enabled.
 	 */
 	public void renderDepth(){
+		renderDepth(camera);
+	}
+	
+	private void renderDepth(Camera camera){
 		depthBatch.begin(camera);
-		for(Scene scene : scenes){
-			depthBatch.render(scene.modelInstance);
+		for(RenderableProvider renderableProvider : renderableProviders){
+			if(!(renderableProvider instanceof SceneSkybox)){
+				depthBatch.render(renderableProvider);
+			}
 		}
 		depthBatch.end();
 	}
@@ -224,12 +227,7 @@ public class SceneManager implements Disposable {
 	public void renderColors(){
 		computedEnvironement.shadowMap = environment.shadowMap;
 		batch.begin(camera);
-		for(Scene scene : scenes){
-			batch.render(scene.modelInstance, environment);
-		}
-		if(skyBox != null){
-			batch.render(skyBox);
-		}
+		batch.render(renderableProviders, computedEnvironement);
 		batch.end();
 	}
 	
@@ -246,7 +244,14 @@ public class SceneManager implements Disposable {
 	}
 
 	public void setSkyBox(SceneSkybox skyBox) {
-		this.skyBox = skyBox;
+		for(Iterator<RenderableProvider> i = renderableProviders.iterator() ; i.hasNext() ; ){
+			if(i.next() instanceof SceneSkybox){
+				i.remove();
+			}
+		}
+		if(skyBox != null){
+			renderableProviders.add(skyBox);
+		}
 	}
 	
 	public void setAmbientLight(float lum) {
@@ -258,14 +263,14 @@ public class SceneManager implements Disposable {
 	}
 
 	public void removeScene(Scene scene) {
-		scenes.removeValue(scene, true);
+		renderableProviders.removeValue(scene, true);
 		for(Entry<Node, BaseLight> e : scene.lights){
 			environment.remove(e.value);
 		}
 	}
 	
-	public Array<Scene> getScenes() {
-		return scenes;
+	public Array<RenderableProvider> getRenderableProviders() {
+		return renderableProviders;
 	}
 
 	public void updateViewport(int width, int height) {

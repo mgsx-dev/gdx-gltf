@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 
-public class SceneSkybox implements RenderableProvider, Disposable {
+public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 
 	private DefaultShaderProvider shaderProvider;
 	private Model boxModel;
@@ -71,7 +71,8 @@ public class SceneSkybox implements RenderableProvider, Disposable {
 		return box.material.get(ColorAttribute.class, ColorAttribute.Diffuse).color;
 	}
 	
-	public void update(Camera camera){
+	@Override
+	public void update(Camera camera, float delta){
 		// scale skybox to camera range.
 		float s = camera.far * (float)Math.sqrt(2.0);
 		box.worldTransform.setToScaling(s, s, s);
