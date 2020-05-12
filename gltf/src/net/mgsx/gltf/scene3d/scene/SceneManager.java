@@ -1,7 +1,5 @@
 package net.mgsx.gltf.scene3d.scene;
 
-import java.util.Iterator;
-
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -42,6 +40,7 @@ public class SceneManager implements Disposable {
 	
 	private ModelBatch batch;
 	private ModelBatch depthBatch;
+	private SceneSkybox skyBox;
 	
 	/** Shouldn't be null. */
 	public Environment environment = new Environment();
@@ -212,11 +211,7 @@ public class SceneManager implements Disposable {
 	
 	private void renderDepth(Camera camera){
 		depthBatch.begin(camera);
-		for(RenderableProvider renderableProvider : renderableProviders){
-			if(!(renderableProvider instanceof SceneSkybox)){
-				depthBatch.render(renderableProvider);
-			}
-		}
+		depthBatch.render(renderableProviders);
 		depthBatch.end();
 	}
 	
@@ -228,6 +223,7 @@ public class SceneManager implements Disposable {
 		computedEnvironement.shadowMap = environment.shadowMap;
 		batch.begin(camera);
 		batch.render(renderableProviders, computedEnvironement);
+		if(skyBox != null) batch.render(skyBox);
 		batch.end();
 	}
 	
@@ -244,14 +240,7 @@ public class SceneManager implements Disposable {
 	}
 
 	public void setSkyBox(SceneSkybox skyBox) {
-		for(Iterator<RenderableProvider> i = renderableProviders.iterator() ; i.hasNext() ; ){
-			if(i.next() instanceof SceneSkybox){
-				i.remove();
-			}
-		}
-		if(skyBox != null){
-			renderableProviders.add(skyBox);
-		}
+		this.skyBox = skyBox;
 	}
 	
 	public void setAmbientLight(float lum) {
