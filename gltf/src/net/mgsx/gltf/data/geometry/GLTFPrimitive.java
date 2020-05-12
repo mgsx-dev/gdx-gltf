@@ -10,6 +10,6 @@ public class GLTFPrimitive extends GLTFObject {
 	public Integer indices;
 	public Integer mode;
 	public Integer material;
-	public Array<ObjectMap<String, Integer>> targets; // TODO mapping error : integer to floats ....
+	public Array<GLTFMorphTarget> targets;
 	
 }

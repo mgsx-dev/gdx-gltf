@@ -153,9 +153,9 @@ public class MeshLoader {
 					
 					for(int t=0 ; t<primitive.targets.size ; t++){
 						int unit = t;
-						for(Entry<String, ?> attribute : primitive.targets.get(t)){
+						for(Entry<String, Integer> attribute : primitive.targets.get(t)){
 							String attributeName = attribute.key;
-							int accessorId = ((Float)attribute.value).intValue(); // XXX Json issue !?
+							int accessorId = attribute.value.intValue();
 							GLTFAccessor accessor = dataResolver.getAccessor(accessorId);
 							glAccessors.add(accessor);
 							
