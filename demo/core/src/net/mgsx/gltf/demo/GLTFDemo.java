@@ -526,7 +526,7 @@ public class GLTFDemo extends ApplicationAdapter
 		if(!shadersValid){
 			shadersValid = true;
 			sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
-			sceneManager.setDepthShaderProvider(PBRShaderProvider.createDepthShaderProvider(rootModel.maxBones));
+			sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
 			
 		}
 		if(!outlineShaderValid){
@@ -606,7 +606,7 @@ public class GLTFDemo extends ApplicationAdapter
 //			// TODO SG shader variant
 		case PBR_MR:
 			{
-				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
+				PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
@@ -616,7 +616,7 @@ public class GLTFDemo extends ApplicationAdapter
 			}
 			case CeilShading:
 			{
-				PBRShaderConfig config = PBRShaderProvider.defaultConfig();
+				PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 				config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.vs.glsl").readString();
 				config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.fs.glsl").readString();
 				config.manualSRGB = ui.shaderSRGB.getSelected();

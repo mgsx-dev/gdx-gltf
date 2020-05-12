@@ -60,7 +60,7 @@ public class SceneManager implements Disposable {
 	}
 	
 	public SceneManager(int maxBones) {
-		this(PBRShaderProvider.createDefault(maxBones), PBRShaderProvider.createDepthShaderProvider(maxBones));
+		this(PBRShaderProvider.createDefault(maxBones), PBRShaderProvider.createDefaultDepth(maxBones));
 	}
 	
 	public SceneManager(ShaderProvider shaderProvider, DepthShaderProvider depthShaderProvider)

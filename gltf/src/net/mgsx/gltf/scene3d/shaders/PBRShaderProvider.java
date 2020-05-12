@@ -30,15 +30,23 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	
 	private static final LightsInfo lightsInfo = new LightsInfo();
 	
-	public static PBRShaderConfig defaultConfig() {
+	
+	public static PBRShaderConfig createDefaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
 		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
 		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.fs.glsl").readString();
 		return config;
 	};
 	
+	public static DepthShader.Config createDefaultDepthConfig() {
+		DepthShader.Config config = new DepthShader.Config();
+		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.vs.glsl").readString();
+		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.fs.glsl").readString();
+		return config;
+	};
+	
 	public static PBRShaderProvider createDefault(int maxBones){
-		PBRShaderConfig config = defaultConfig();
+		PBRShaderConfig config = createDefaultConfig();
 		config.numBones = maxBones;
 		return createDefault(config);
 	}
@@ -47,15 +55,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		return new PBRShaderProvider(config);
 	}
 	
-	public static DepthShaderProvider createDepthShaderProvider(int maxBones){
-		DepthShader.Config config = new DepthShader.Config();
-		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.vs.glsl").readString();
-		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.fs.glsl").readString();
+	public static DepthShaderProvider createDefaultDepth(int maxBones){
+		DepthShader.Config config = createDefaultDepthConfig();
 		config.numBones = maxBones;
-		return createDepthShaderProvider(config);
+		return createDefaultDepth(config);
 	}
 	
-	public static DepthShaderProvider createDepthShaderProvider(DepthShader.Config config){
+	public static DepthShaderProvider createDefaultDepth(DepthShader.Config config){
 		return new PBRDepthShaderProvider(config);
 	}
 	

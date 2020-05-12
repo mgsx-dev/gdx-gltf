@@ -78,7 +78,7 @@ public class GLTFPostProcessingExample extends ApplicationAdapter {
 	}
 	
 	private SceneManager createSceneManager(){
-		PBRShaderConfig config = PBRShaderProvider.defaultConfig();
+		PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 		config.numBones = 32;
 		config.numDirectionalLights = 1;
 		config.numPointLights = 0;
@@ -99,7 +99,7 @@ public class GLTFPostProcessingExample extends ApplicationAdapter {
 			depthConfig.fragmentShader = Gdx.files.classpath("shaders/custom-depth.vs.glsl").readString();
 		}
 		
-		return new SceneManager(PBRShaderProvider.createDefault(config), PBRShaderProvider.createDepthShaderProvider(depthConfig));
+		return new SceneManager(PBRShaderProvider.createDefault(config), PBRShaderProvider.createDefaultDepth(depthConfig));
 	}
 	
 	@Override
