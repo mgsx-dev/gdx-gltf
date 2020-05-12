@@ -1,0 +1,21 @@
+[
+  {
+    "name": "BoomBox",
+    "screenshot": "screenshot/screenshot.jpg",
+    "variants": {
+      "glTF": "BoomBox.gltf"
+    }
+  },
+  {
+    "name": "PBRTest",
+    "variants": {
+      "glTF": "pbrTest.gltf"
+    }
+  },
+  {
+  	"name": "Morphing",
+    "variants": {
+      "glTF": "morphing.gltf"
+    }
+  }
+]

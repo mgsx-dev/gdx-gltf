@@ -1,1 +1,0 @@
-#Gdx GLTF Demo
