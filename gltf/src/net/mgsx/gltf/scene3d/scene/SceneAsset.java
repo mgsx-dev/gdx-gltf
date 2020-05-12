@@ -21,6 +21,7 @@ public class SceneAsset implements Disposable
 	public Array<Animation> animations;
 	public int maxBones;
 	
+	/** keep track of loaded texture in order to dispose them */
 	public Array<Texture> textures;
 	
 	@Override
