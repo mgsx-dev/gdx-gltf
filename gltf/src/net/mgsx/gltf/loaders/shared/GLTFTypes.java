@@ -172,10 +172,22 @@ public class GLTFTypes {
 
 	public static Camera map(GLTFCamera glCamera) {
 		if("perspective".equals(glCamera.type)){
+			// see https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#perspectivezfar
+			// emulate an infinite matrix (based on 16 bits depth buffer)
+			// TODO is it the proper ay to do it?
+			float znear = glCamera.perspective.znear;
+			float zfar = glCamera.perspective.zfar != null ? glCamera.perspective.zfar : znear * 16384f; 
+			
+			// convert scale ratio to canvas size
+			float canvasRatio =  (float)Gdx.graphics.getWidth() / (float)Gdx.graphics.getHeight();
+			float aspectRatio = glCamera.perspective.aspectRatio != null ? glCamera.perspective.aspectRatio : canvasRatio;
+			float yfov = (float)Math.atan(Math.tan(glCamera.perspective.yfov * 0.5) * aspectRatio / canvasRatio) * 2.0f;
+			
 			PerspectiveCamera camera = new PerspectiveCamera();
-			camera.fieldOfView = glCamera.perspective.yfov * MathUtils.radiansToDegrees;
-			camera.near = glCamera.perspective.znear;
-			camera.far = glCamera.perspective.zfar;
+			
+		    camera.fieldOfView = yfov * MathUtils.radiansToDegrees;
+			camera.near = znear;
+			camera.far = zfar;
 			camera.viewportWidth = Gdx.graphics.getWidth();
 			camera.viewportHeight = Gdx.graphics.getHeight();
 			return camera;
@@ -184,7 +196,9 @@ public class GLTFTypes {
 			OrthographicCamera camera = new OrthographicCamera();
 			camera.near = glCamera.orthographic.znear;
 			camera.far = glCamera.orthographic.zfar;
-			// TODO map xMag yMag to something ?!
+			float canvasRatio =  (float)Gdx.graphics.getWidth() / (float)Gdx.graphics.getHeight();
+			camera.viewportWidth = glCamera.orthographic.xmag;
+			camera.viewportHeight = glCamera.orthographic.ymag / canvasRatio;
 			return camera;
 		}else{
 			throw new GdxRuntimeException("unknow camera type " + glCamera.type);
