@@ -426,11 +426,6 @@ public class PBRShader extends DefaultShader
 		
 		super.bindLights(renderable, attributes);
 			
-		PBRFloatAttribute shadowBias = attributes.get(PBRFloatAttribute.class, PBRFloatAttribute.ShadowBias);
-		if(shadowBias != null){
-			program.setUniformf(u_ShadowBias, shadowBias.value);
-		}
-		
 		// XXX
 		ColorAttribute ambiantLight = attributes.get(ColorAttribute.class, ColorAttribute.AmbientLight);
 		if(ambiantLight != null){
