@@ -55,7 +55,7 @@ public class GLTFExample extends ApplicationAdapter
 				"textures/diffuse/diffuse_", "_0.jpg", EnvironmentUtil.FACE_NAMES_FULL);
 		specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
 				"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_FULL);
-		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
+		brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 		
 		sceneManager.setAmbientLight(1f);
 		sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));

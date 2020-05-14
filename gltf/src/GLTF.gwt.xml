@@ -17,4 +17,6 @@
 	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/default.vs.glsl" />
 	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/default.fs.glsl" />
 	
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/brdfLUT.png" />
+	
 </module>

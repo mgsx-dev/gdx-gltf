@@ -187,7 +187,7 @@ public class GLTFDemo extends ApplicationAdapter
 		}
 		
 		
-		brdfLUT = new Texture(Gdx.files.internal("textures/brdfLUT.png"));
+		brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 		
 		sceneManager = new SceneManager();
 		
