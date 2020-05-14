@@ -191,6 +191,7 @@ public class PBRShader extends DefaultShader
 	public final int u_EmissiveTexture;
 	public final int u_BaseColorFactor;
 	public final int u_FogEquation;
+	public final int u_ShadowBias;
 
 	// morph targets
 	private int u_morphTargets1;
@@ -204,8 +205,6 @@ public class PBRShader extends DefaultShader
 	private int u_ambientLight;
 	
 	private long textureCoordinateMapMask;
-
-	private int u_ShadowBias;
 
 	private long morphTargetsMask;
 	
