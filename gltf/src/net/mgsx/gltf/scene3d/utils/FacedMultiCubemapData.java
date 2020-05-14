@@ -36,6 +36,18 @@ public class FacedMultiCubemapData implements CubemapData
 			}
 		}
 	}
+	public FacedMultiCubemapData(Pixmap[] pixmaps, int levels)
+	{
+		this.levels = levels;
+		data = new TextureData[6 * levels];
+		for(int level = 0 ; level<levels ; level++){
+			for(int face = 0 ; face < 6 ; face++){
+				int index = level*6+face;
+				Pixmap pixmap = pixmaps[index];
+				data[index] = new PixmapTextureData(pixmap, null, false, true);
+			}
+		}
+	}
 
 	@Override
 	public boolean isManaged () {

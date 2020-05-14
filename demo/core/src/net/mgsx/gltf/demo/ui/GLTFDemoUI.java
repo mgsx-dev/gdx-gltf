@@ -31,6 +31,8 @@ import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileOpenEvent;
 import net.mgsx.gltf.demo.events.FileSaveEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
+import net.mgsx.gltf.demo.model.IBLStudio;
+import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -114,6 +116,8 @@ public class GLTFDemoUI extends Table {
 	private Label lightLabel;
 
 	private SceneManager sceneManager;
+
+	public final SelectBox<IBLPreset> IBLSelector;
 
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin) {
 		super(skin);
@@ -285,11 +289,12 @@ public class GLTFDemoUI extends Table {
 		IBLOptions.optTable.add("BSDF");
 		IBLOptions.optTable.add(IBLLookup = new BooleanUI(skin, true)).row();
 
-		IBLOptions.optTable.add("Files");
+		IBLOptions.optTable.add("Presets");
 		IBLOptions.optTable.add(IBLChooser = new Table(skin)).row();
 		
+		IBLChooser.add(IBLSelector = new SelectBox<IBLStudio.IBLPreset>(getSkin()));
 		if(fileSelector != null){
-			TextButton btOpenFile = new TextButton("Change", skin);
+			TextButton btOpenFile = new TextButton("Load", skin);
 			IBLChooser.add(btOpenFile);
 			
 			btOpenFile.addListener(new ChangeListener() {

@@ -136,8 +136,11 @@ SceneAsset sceneAsset = assetManager.get("myModel.gltf", SceneAsset.class);
 
 This library provides a convenient scene manager to handle glTF models and PBR shader.
 
-see [Example code](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFExample.java)
-for more information.
+see few provided examples for more information:
+
+* [QuickStart](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFQuickStartExample.java) to quickly setup a scene.
+* [Classic example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFExample.java) to setup an advanced lighting environment (using HDRIs based IBL).
+* [Post processing example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFPostProcessingExample) to see how to deal with post processing effects (render to texture)
 
 For advanced usage, please read [full documentation](DOC.md)
 
@@ -164,6 +167,7 @@ As Blender 2.80, glTF exporter addon is included and enabled by default.
 
 Demo is shipped with a pre-generated lighting environment.
 If you want to use others or generate them yourself, please [read IBL guide](IBL.md)
+Alternatively this library provide some quick IBL generators, it's not as accurate as HDRI based IBL but can be useful to quickly setup a lighting environement. see **IBLBuilder** class.
 
 # More about the library
 

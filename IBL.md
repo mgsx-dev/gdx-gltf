@@ -5,13 +5,15 @@ PBR shader is using 3 textures :
 
 * a diffuse cubemap (irrandiance) used as global lighting.
 * a specualar cubemap with mipmaps (radiance) used for roughness/metallic simulation.
-* a shading lookup texture (LUT) used to shade efficently.
+* a shading lookup texture (LUT) used to shade efficently (it's included in the library).
 
 additionally, you may want a consistent skybox via an environment texture.
 
 you then end up with 4 textures.
 
 Typically you can generate them from a HDRi.
+
+This library provides a quick way to generate them at runtime, see IBLBuilder class and quick start example.
 
 # About HDRi
 

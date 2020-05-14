@@ -58,7 +58,7 @@ You can use default shader provider to be used with scene manager.
 
 ### Shadows
 
-TODO explain provided shadow light, only dirs, how to enable, etc...
+TODO explain provided shadow light, only one dir light, how to enable, etc...
 
 ### directional lights intensity
 
@@ -274,3 +274,10 @@ Morph targets are not exported when modifiers have to be applied.
 There is no workaround since modifiers can't be applied when a mesh has shape keys defined.
 
 You should then apply modifiers (eg. subsurface) before defining your shapekeys. 
+
+## Other topics to explain (TODO)
+
+* how to customize PBR shader
+* how advanced fog works
+* programatically create models (with all GLTF features... shape keys and such)
+* all PBR shader options and static options

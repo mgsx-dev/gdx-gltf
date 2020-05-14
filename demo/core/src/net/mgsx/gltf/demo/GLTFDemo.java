@@ -33,6 +33,8 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.graphics.profiling.GLErrorListener;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -50,6 +52,8 @@ import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileOpenEvent;
 import net.mgsx.gltf.demo.events.FileSaveEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
+import net.mgsx.gltf.demo.model.IBLStudio;
+import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.GLTFInspector;
 import net.mgsx.gltf.demo.util.NodeUtil;
@@ -74,6 +78,7 @@ import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
+import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 import net.mgsx.gltf.scene3d.utils.LightUtils;
 import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
 
@@ -145,6 +150,15 @@ public class GLTFDemo extends ApplicationAdapter
 	@Override
 	public void create() {
 		
+		GLProfiler profiler = new GLProfiler(Gdx.graphics);
+		profiler.setListener(new GLErrorListener() {
+			@Override
+			public void onError(int error) {
+				Gdx.app.error("OpenGL", String.valueOf(error));
+			}
+		});
+		profiler.enable();
+		
 		assetManager = new AssetManager();
 		Texture.setAssetManager(assetManager);
 		
@@ -162,10 +176,7 @@ public class GLTFDemo extends ApplicationAdapter
 		loadModelIndex();
 	}
 	
-	private void createSceneManager()
-	{
-		// set environment maps
-		
+	private void createDefaultMaps(){
 		if(alternateMaps != null){
 			diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
 					"textures/" + alternateMaps + "/diffuse/diffuse_", ".jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
@@ -185,11 +196,22 @@ public class GLTFDemo extends ApplicationAdapter
 			specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
 					"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_FULL);
 		}
+	}
+	
+	private void createSceneManager()
+	{
+		defaultLight = new DirectionalLightEx();
+		resetDefaultLight();
 		
+		// set environment maps
+		
+		createDefaultMaps();
 		
 		brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 		
 		sceneManager = new SceneManager();
+		
+		sceneManager.environment.add(defaultLight);
 		
 		sceneManager.setSkyBox(skybox = new SceneSkybox(environmentCubemap));
 		
@@ -210,12 +232,39 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0f));
 		
-		defaultLight = new DirectionalLightEx();
-		resetDefaultLight();
-		sceneManager.environment.add(defaultLight);
-		
 		sceneManager.setAmbientLight(1f);
 		if(ui != null) ui.ambiantSlider.setValue(1f);
+	}
+	
+	protected void loadIBL(IBLPreset preset) {
+		if(diffuseCubemap != null){
+			diffuseCubemap.dispose();
+			diffuseCubemap = null;
+		}
+		if(specularCubemap != null){
+			specularCubemap.dispose();
+			specularCubemap = null;
+		}
+		if(environmentCubemap != null){
+			environmentCubemap.dispose();
+			environmentCubemap = null;
+		}
+		
+		IBLBuilder iblBuilder = preset.createBuilder(defaultLight);
+		
+		if(iblBuilder != null){
+			environmentCubemap = iblBuilder.buildEnvMap(1024);
+			diffuseCubemap = iblBuilder.buildIrradianceMap(256);
+			specularCubemap = iblBuilder.buildRadianceMap(10);
+			iblBuilder.dispose();
+		}
+		else {
+			createDefaultMaps();
+		}
+		
+		skybox.set(environmentCubemap);
+		
+		changeIBLOptions();
 	}
 	
 	protected void loadIBL(FileHandle file) 
@@ -325,6 +374,8 @@ public class GLTFDemo extends ApplicationAdapter
 		stage.addActor(ui);
 		
 		ui.shaderSelector.setSelected(shaderMode);
+		
+		ui.IBLSelector.setItems(IBLStudio.presets);
 		
 		ui.addListener(new ChangeListener() {
 			
@@ -460,6 +511,13 @@ public class GLTFDemo extends ApplicationAdapter
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				changeIBLOptions();
+			}
+		});
+		
+		ui.IBLSelector.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				loadIBL(ui.IBLSelector.getSelected());
 			}
 		});
 		
