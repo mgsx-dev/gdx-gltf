@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.lights.PointLightEx;
 import net.mgsx.gltf.scene3d.lights.SpotLightEx;
+import net.mgsx.gltf.scene3d.shaders.PBRCommon;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentCache;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
@@ -221,6 +222,7 @@ public class SceneManager implements Disposable {
 	 * (useful when you're using your own frame buffer to render scenes)
 	 */
 	public void renderColors(){
+		PBRCommon.enableSeamlessCubemaps();
 		computedEnvironement.shadowMap = environment.shadowMap;
 		batch.begin(camera);
 		batch.render(renderableProviders, computedEnvironement);

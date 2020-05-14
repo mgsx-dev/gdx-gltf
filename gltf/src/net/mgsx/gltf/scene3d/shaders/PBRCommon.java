@@ -26,4 +26,20 @@ public class PBRCommon {
 			throw new GdxRuntimeException("too many vertex attributes : " + numVertexAttributes + " > " + maxVertexAttribs);
 		}
 	}
+	
+	private static Boolean seamlessCubemapsAvailable = null;
+	
+	public static void enableSeamlessCubemaps(){
+		if(seamlessCubemapsAvailable == null){
+			seamlessCubemapsAvailable = Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 2) || 
+					Gdx.graphics.supportsExtension("GL_ARB_seamless_cube_map");
+			if(!seamlessCubemapsAvailable){
+				Gdx.app.error("PBR", "Warning GL_TEXTURE_CUBE_MAP_SEAMLESS require GLES 3.2+ or GL_ARB_seamless_cube_map to prevent cubemap filtering artifacts");
+			}
+		}
+		if(seamlessCubemapsAvailable){
+			final int GL_TEXTURE_CUBE_MAP_SEAMLESS = 0x884F; // from GL32
+			Gdx.gl.glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		}
+	}
 }
