@@ -140,7 +140,7 @@ see few provided examples for more information:
 
 * [QuickStart](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFQuickStartExample.java) to quickly setup a scene.
 * [Classic example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFExample.java) to setup an advanced lighting environment (using HDRIs based IBL).
-* [Post processing example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFPostProcessingExample) to see how to deal with post processing effects (render to texture)
+* [Post processing example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFPostProcessingExample.java) to see how to deal with post processing effects (render to texture)
 
 For advanced usage, please read [full documentation](docs/DOC.md)
 

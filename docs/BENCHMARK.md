@@ -10,8 +10,8 @@ All exported from Blender, FBX converted to G3D like this:
 `$ fbx-conv -o G3DJ four-spheres.fbx four-spheres.g3dj`
 `$ fbx-conv -o G3DB four-spheres.fbx four-spheres.g3db`
 
-resources can be found in [../gltf/testRes/benchmark](gltf/testRes/benchmark)
-benchmark code can be found in [../gltf/test/net/mgsx/gltf/Benchmark.java](gltf/test/net/mgsx/gltf/Benchmark.java)
+resources can be found in [gltf/testRes/benchmark](../gltf/testRes/benchmark)
+benchmark code can be found in [gltf/test/net/mgsx/gltf/Benchmark.java](../gltf/test/net/mgsx/gltf/Benchmark.java)
 
 Results:
 

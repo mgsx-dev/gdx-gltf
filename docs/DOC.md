@@ -118,7 +118,7 @@ Based on glTF Exporter 0.9.36 addon.
 
 Here is the recommended settings and some hint about some of them :
 
-<img src="img/blender-gltf-export-general.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-export-general.png" style="float: left; margin: 5px 30px;">
 
 **General settings:**
 
@@ -129,7 +129,7 @@ Here is the recommended settings and some hint about some of them :
 <br style="clear: both;">
 
 
-<img src="img/blender-gltf-export-meshes.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-export-meshes.png" style="float: left; margin: 5px 30px;">
 
 **Mesh settings:**
 
@@ -141,7 +141,7 @@ Here is the recommended settings and some hint about some of them :
 <br style="clear: both;">
 
 
-<img src="img/blender-gltf-export-objects.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-export-objects.png" style="float: left; margin: 5px 30px;">
 
 **Object settings:**
 
@@ -152,7 +152,7 @@ Here is the recommended settings and some hint about some of them :
 <br style="clear: both;">
 
 
-<img src="img/blender-gltf-export-animations.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-export-animations.png" style="float: left; margin: 5px 30px;">
 
 **Animation settings:**
 
@@ -245,7 +245,7 @@ TODO : blending mode, where opacity is stored...
 Shape keys are converted to Morph targets in GLTF structure. It's limited to 8 morph targets, so up to 8 shape keys in addition to "Basis" shape keys.
 
 Note that [most GPU support up to 16 vertex attributes](https://opengl.gpuinfo.org/displaycapability.php?name=GL_MAX_VERTEX_ATTRIBS)
-so a lot of shape keys might be a problem, especially if you have both position, normals and tangents. See [Limitation section](../../README.md#troubleshooting) for more information.
+so a lot of shape keys might be a problem, especially if you have both position, normals and tangents. See [Limitation section](../README.md#troubleshooting) for more information.
 
 Blender GLTF exporter export shape keys names via Custom properties. So you need to enable custom properties export in order to retrieve them.
 
