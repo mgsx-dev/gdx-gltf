@@ -205,7 +205,7 @@ and mapping from Blender entities to GLTF entities and LibGDX entities:
 
 Another example of custom properties on a Blender Object:
 
-![](img/blender-custom-properties.png)
+![](../img/blender-custom-properties.png)
 
 Because GLTF data structure differs from libGDX structure, you have to browse loaded GLTF data structure yourself, e.g.:
 
@@ -245,7 +245,7 @@ TODO : blending mode, where opacity is stored...
 Shape keys are converted to Morph targets in GLTF structure. It's limited to 8 morph targets, so up to 8 shape keys in addition to "Basis" shape keys.
 
 Note that [most GPU support up to 16 vertex attributes](https://opengl.gpuinfo.org/displaycapability.php?name=GL_MAX_VERTEX_ATTRIBS)
-so a lot of shape keys might be a problem, especially if you have both position, normals and tangents. See [Limitation section](../README.md#troubleshooting) for more information.
+so a lot of shape keys might be a problem, especially if you have both position, normals and tangents. See [Limitation section](../../README.md#troubleshooting) for more information.
 
 Blender GLTF exporter export shape keys names via Custom properties. So you need to enable custom properties export in order to retrieve them.
 

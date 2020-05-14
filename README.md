@@ -15,7 +15,7 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 * Out of the box shaders for normal maps, metallic/roughness, Image based lighting (IBL) and more.
 * Texture coordinates transform.
 * 64k vertices supported (instead of 32k)
-* Faster loading time, see [benchmark](BENCHMARK.md)
+* Faster loading time, see [benchmark](docs/BENCHMARK.md)
 * Export various objects to glTF file (whole scene, model, mesh, etc).
 
 **What's more than a 3D format parser in gdx-gltf library?**
@@ -142,7 +142,7 @@ see few provided examples for more information:
 * [Classic example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFExample.java) to setup an advanced lighting environment (using HDRIs based IBL).
 * [Post processing example](https://github.com/mgsx-dev/gdx-gltf/blob/master/demo/core/src/net/mgsx/gltf/examples/GLTFPostProcessingExample) to see how to deal with post processing effects (render to texture)
 
-For advanced usage, please read [full documentation](DOC.md)
+For advanced usage, please read [full documentation](docs/DOC.md)
 
 ## Export objects from libgdx
 
@@ -166,7 +166,7 @@ As Blender 2.80, glTF exporter addon is included and enabled by default.
 ## Image Based Lighting (IBL)
 
 Demo is shipped with a pre-generated lighting environment.
-If you want to use others or generate them yourself, please [read IBL guide](IBL.md)
+If you want to use others or generate them yourself, please [read IBL guide](docs/IBL.md)
 Alternatively this library provide some quick IBL generators, it's not as accurate as HDRI based IBL but can be useful to quickly setup a lighting environement. see **IBLBuilder** class.
 
 # More about the library
