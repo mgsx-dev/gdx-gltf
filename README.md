@@ -16,13 +16,13 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 * Texture coordinates transform.
 * 64k vertices supported (instead of 32k)
 * Faster loading time, see [benchmark](docs/BENCHMARK.md)
-* Export various objects to glTF file (whole scene, model, mesh, etc).
 
 **What's more than a 3D format parser in gdx-gltf library?**
 
 * Scene management facility : Sky box, shadows, and more.
 * Physic Based Rendering (PBR) shaders : for realistic (or not) high quality rendering.
 * Spot light support.
+* Export various objects to glTF file (whole scene, model, mesh, etc).
 
 **Can i only load glTF files and use them with regular libgdx 3D API?**
 
