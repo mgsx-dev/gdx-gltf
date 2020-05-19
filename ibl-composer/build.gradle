@@ -1,0 +1,101 @@
+buildscript {
+    
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+    }
+    dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
+        classpath 'com.android.tools.build:gradle:2.2.0'
+        
+
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+}
+
+
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "java"
+
+version = '0.1.0'
+ext {
+    appName = "gdx-gltf-ibl-composer"
+    gdxVersion = '1.9.10'
+    roboVMVersion = '2.3.1'
+    box2DLightsVersion = '1.4'
+    ashleyVersion = '1.7.0'
+    aiVersion = '1.8.0'
+    junitVersion = '4.12'
+}
+
+eclipse {
+    project {
+        name = appName
+    }
+}
+
+dependencies {
+    compile project(":gltf")
+
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    
+}
+
+sourceCompatibility = 1.6
+sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.test.java.srcDirs = [ "test/" ]
+
+project.ext.mainClassName = "net.mgsx.gltf.ibl.DesktopLauncher"
+project.ext.assetsDir = new File("assets");
+
+task run(dependsOn: classes, type: JavaExec) {
+    main = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
+}
+
+task debug(dependsOn: classes, type: JavaExec) {
+    main = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
+    debug = true
+}
+
+task dist(type: Jar) {
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.compile.collect {zipTree(it)}}
+    from files(project.assetsDir)
+    
+    // additional files could be added like this :
+    // from file("$projectDir/LICENSE");
+    
+    // final JAR basename could be modified like this (default is project name) :
+    baseName = "IBL-Composer"
+
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+    doLast { 
+        file(archivePath).setExecutable(true, false) 
+    } 
+}
+
+dist.dependsOn classes
