@@ -16,7 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import net.mgsx.gltf.ibl.events.ExportBRDFMapEvent;
 import net.mgsx.gltf.ibl.events.ExportEnvMapEvent;
+import net.mgsx.gltf.ibl.events.ExportIrradianceMapEvent;
+import net.mgsx.gltf.ibl.events.ExportRadianceMapEvent;
 import net.mgsx.gltf.ibl.model.IBLComposer;
 import net.mgsx.gltf.ibl.model.IBLSettings;
 import net.mgsx.gltf.ibl.ui.IBLComposerUI;
@@ -24,6 +27,7 @@ import net.mgsx.gltf.ibl.ui.IBLPreviewScene;
 import net.mgsx.gltf.ibl.ui.UI;
 import net.mgsx.gltf.ibl.util.GLCapabilities;
 import net.mgsx.gltf.ibl.util.GLUtils;
+import net.mgsx.gltf.ibl.util.PerfUtil;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 
 public class IBLComposerApp extends ApplicationAdapter
@@ -59,9 +63,61 @@ public class IBLComposerApp extends ApplicationAdapter
 			if(event instanceof ExportEnvMapEvent){
 				exportEnvMap(((ExportEnvMapEvent) event).path);
 			}
+			if(event instanceof ExportIrradianceMapEvent){
+				exportIrrMap(((ExportIrradianceMapEvent) event).path);
+			}
+			if(event instanceof ExportRadianceMapEvent){
+				exportRadMap(((ExportRadianceMapEvent) event).path);
+			}
+			if(event instanceof ExportBRDFMapEvent){
+				exportBRDFMap(((ExportBRDFMapEvent) event).path);
+			}
 		});
 	}
 	
+	private void exportBRDFMap(String path) {
+		Pixmap pixmap = composer.getBRDFPixmap(settings.brdfMapSize, settings.brdf16);
+		FileHandle fileBase = Gdx.files.absolute(path);
+		FileHandle folder = fileBase.parent();
+		String baseName = fileBase.nameWithoutExtension();
+		FileHandle file = folder.child(baseName + ".png");
+		PixmapIO.writePNG(file, pixmap);
+	}
+
+	private void exportRadMap(String path) {
+		FileHandle fileBase = Gdx.files.absolute(path);
+		FileHandle folder = fileBase.parent();
+		String baseName = fileBase.nameWithoutExtension();
+		// save 6 files per level
+		Array<Pixmap> pixmaps = composer.getRadianceMapPixmaps(settings.radMapSize);
+		int level = 0;
+		for(int i=0 ; i<pixmaps.size ; ){
+			for(int j=0 ; j<6 ; j++, i++){
+				Pixmap pixmap = pixmaps.get(i);
+				FileHandle file = folder.child(baseName + "_" + EnvironmentUtil.FACE_NAMES_NEG_POS[j] + "_" + level + ".png");
+				PixmapIO.writePNG(file, pixmap);
+				pixmap.dispose();
+			}
+			level++;
+		}
+		UI.dialog(stage, skin, "Export", "done");
+	}
+
+	private void exportIrrMap(String path) {
+		FileHandle fileBase = Gdx.files.absolute(path);
+		FileHandle folder = fileBase.parent();
+		String baseName = fileBase.nameWithoutExtension();
+		// save 6 files
+		Array<Pixmap> pixmaps = composer.getIrradianceMapPixmaps(settings.irrMapSize);
+		for(int i=0 ; i<pixmaps.size ; i++){
+			Pixmap pixmap = pixmaps.get(i);
+			FileHandle file = folder.child(baseName + "_" + EnvironmentUtil.FACE_NAMES_NEG_POS[i] + ".png");
+			PixmapIO.writePNG(file, pixmap);
+			pixmap.dispose();
+		}
+		UI.dialog(stage, skin, "Export", "done");
+	}
+
 	private void exportEnvMap(String path) {
 		FileHandle fileBase = Gdx.files.absolute(path);
 		FileHandle folder = fileBase.parent();
@@ -117,24 +173,34 @@ public class IBLComposerApp extends ApplicationAdapter
 	{
 		if(!settings.hdrValid){
 			if(settings.hdrPath != null){
-				openHDR(Gdx.files.absolute(settings.hdrPath));
+				ui.hdrStats.setText(PerfUtil.millisecondsHuman(()->
+					openHDR(Gdx.files.absolute(settings.hdrPath))
+				));
 			}
 		}
 		if(composer != null){
 			if(!settings.envMapValid){
-				preview.setEnvMap(composer.getEnvMap(settings.envMapSize, settings.exposure));
+				ui.envStats.setText(PerfUtil.millisecondsHuman(()->
+					preview.setEnvMap(composer.getEnvMap(settings.envMapSize, settings.exposure))
+				));
 			}
 			if(!settings.irradianceValid){
-				preview.setDiffuse(composer.getIrradianceMap(settings.irrMapSize));
+				ui.irradianceStats.setText(PerfUtil.millisecondsHuman(()->
+					preview.setDiffuse(composer.getIrradianceMap(settings.irrMapSize))
+				));
 			}
 			if(!settings.radianceValid){
-				preview.setSpecular(composer.getRadianceMap(settings.radMapSize));
+				ui.radianceStats.setText(PerfUtil.millisecondsHuman(()->
+					preview.setSpecular(composer.getRadianceMap(settings.radMapSize))
+				));
 			}
 			if(!settings.brdfMapValid){
 				if(settings.useDefaultBRDF){
 					preview.setBRDF(composer.getDefaultBRDFMap());
 				}else{
-					preview.setBRDF(composer.getBRDFMap(settings.brdfMapSize, settings.brdf16));
+					ui.brdfStats.setText(PerfUtil.millisecondsHuman(()->
+						preview.setBRDF(composer.getBRDFMap(settings.brdfMapSize, settings.brdf16))
+					));
 				}
 			}
 		}

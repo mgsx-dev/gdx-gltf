@@ -21,6 +21,7 @@ public class BRDFBaker implements Disposable {
 
 	private ShaderProgram brdfShader;
 	private ShapeRenderer shapes;
+	private SpriteBatch batch;
 
 	public BRDFBaker() {
 		brdfShader = new ShaderProgram(
@@ -30,23 +31,25 @@ public class BRDFBaker implements Disposable {
 		
 		shapes = new ShapeRenderer(20, brdfShader);
 		shapes.getProjectionMatrix().setToOrtho2D(0, 1, 1, -1);
+		
+		batch = new SpriteBatch();
 	}
 	
 	@Override
 	public void dispose() {
 		brdfShader.dispose();
 		shapes.dispose();
+		batch.dispose();
 	}
 	
 	public Texture createBRDF(int size, boolean RG16){
-		// TODO RG16... or packed in a RGBA8888 ?
 		FrameBuffer fbo;
 		if(RG16){
 			FrameBufferBuilder fbb = new FrameBufferBuilder(size, size);
 			fbb.addColorTextureAttachment(GL30.GL_RG16F, GL30.GL_RG, GL20.GL_FLOAT);
 			fbo = fbb.build();
 		}else{
-			fbo = new FrameBuffer(Format.RGBA8888, size, size, false){
+			fbo = new FrameBuffer(Format.RGB888, size, size, false){
 				@Override
 				protected void disposeColorTexture(Texture colorTexture) {
 				}
@@ -74,6 +77,31 @@ public class BRDFBaker implements Disposable {
 		return map;
 	}
 	
+	public Pixmap createBRDFPixmap(int size, boolean RG16) {
+		Texture brdf = createBRDF(size, RG16);
+		Pixmap pixmap = RG16 ? createBRDFPacked(brdf) : createBRDF(brdf);
+		brdf.dispose();
+		return pixmap;
+	}
+	
+	private Pixmap createBRDF(Texture brdf) {
+		int size = brdf.getWidth();
+		FrameBuffer fbo = new FrameBuffer(Format.RGB888, size, size, false);
+		fbo.begin();
+		Gdx.gl.glClearColor(0, 0, 0, 0);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		brdf.bind();
+		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1, 1);
+		batch.begin();
+		batch.draw(brdf, 0f, 0f, 1f, 1f, 0f, 0f, 1f, 1f);
+		batch.end();
+		Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, size, size);
+		fbo.end();
+		fbo.dispose();
+		
+		return pixmap;
+	}
+
 	private Pixmap createBRDFPacked(Texture brdf){
 		ShaderProgram shader = new ShaderProgram(
 				Gdx.files.classpath("net/mgsx/gltf/shaders/brdf-pack.vs.glsl"), 
@@ -95,7 +123,7 @@ public class BRDFBaker implements Disposable {
 		return pixmap;
 	}
 	
-	private Texture createBRDFUnacked(Pixmap pixmap){
+	public Texture createBRDFUnacked(Pixmap pixmap){
 		ShaderProgram shader = new ShaderProgram(
 				Gdx.files.classpath("net/mgsx/gltf/shaders/brdf-pack.vs.glsl"), 
 				Gdx.files.classpath("net/mgsx/gltf/shaders/brdf-unpack.fs.glsl"));
@@ -120,4 +148,6 @@ public class BRDFBaker implements Disposable {
 		fbo.dispose();
 		return texture;
 	}
+
+	
 }

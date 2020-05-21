@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -75,6 +76,31 @@ public class RadianceBaker implements Disposable {
 		Cubemap map = new Cubemap(data);
 		map.setFilter(TextureFilter.MipMap, TextureFilter.Linear);
 		return map;
+	}
+	
+	public Array<Pixmap> createPixmaps(Cubemap cubemap, int baseSize){
+		int mipMapLevels = GLUtils.sizeToPOT(baseSize);
+		Pixmap[] maps = new Pixmap[mipMapLevels * 6];
+		int index = 0;
+		cubemap.bind();
+		for(int level=0 ; level<mipMapLevels ; level++){
+			int size = 1 << (mipMapLevels - level - 1);
+			FrameBuffer fbo = new FrameBuffer(Format.RGB888, size, size, false);
+			fbo.begin();
+			for(int s=0 ; s<6 ; s++){
+				Gdx.gl.glClearColor(0, 0, 0, 0);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+				
+				CubemapSide side = CubemapSide.values()[s];
+				renderSideRadiance(side, level, mipMapLevels+1);
+				
+				maps[index] = ScreenUtils.getFrameBufferPixmap(0, 0, size, size);
+				index++;
+			}
+			fbo.end();
+			fbo.dispose();
+		}
+		return new Array<Pixmap>(maps);
 	}
 	
 	private void renderSideRadiance(CubemapSide side, int mip, int maxMipLevels) {

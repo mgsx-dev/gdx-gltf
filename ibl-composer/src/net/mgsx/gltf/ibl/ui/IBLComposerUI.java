@@ -15,7 +15,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 
+import net.mgsx.gltf.ibl.events.ExportBRDFMapEvent;
 import net.mgsx.gltf.ibl.events.ExportEnvMapEvent;
+import net.mgsx.gltf.ibl.events.ExportIrradianceMapEvent;
+import net.mgsx.gltf.ibl.events.ExportRadianceMapEvent;
 import net.mgsx.gltf.ibl.io.FileSelector;
 import net.mgsx.gltf.ibl.io.RGBE.Header;
 import net.mgsx.gltf.ibl.model.IBLSettings;
@@ -43,6 +46,11 @@ public class IBLComposerUI extends Table
 	private Slider LightElevation;
 	private Slider LightHue;
 	private Slider LightSat;
+	public final Label envStats;
+	public final Label hdrStats;
+	public final Label irradianceStats;
+	public final Label radianceStats;
+	public final Label brdfStats;
 
 	public IBLComposerUI(Skin skin, IBLSettings settings) {
 		super(skin);
@@ -81,22 +89,22 @@ public class IBLComposerUI extends Table
 		menu.add(UI.change(new TextButton("Export", getSkin()), event->exportEnvMap())).colspan(2).row();
 		
 		menu.add(title("Irradiance Map")).colspan(2).row();
-		// TODO params
+		// TODO params : sampling
 		menu.add("Size");
 		menu.add(irrSize = createSizeSelector()).row();
 
 		menu.add(UI.change(new TextButton("Generate", getSkin()), event->settings.invalidateIrradiance()));
-		menu.add(UI.change(new TextButton("Export", getSkin()), event->{})).row(); // TODO
+		menu.add(UI.change(new TextButton("Export", getSkin()), event->exportIrradiance())).row();
 		
 		menu.add(title("Radiance Map")).colspan(2).row();
-		// TODO params
+		// TODO params : sampling ?
 		menu.add("Size");
 		menu.add(radSize = createSizeSelector()).row();
 		menu.add(UI.change(new TextButton("Generate", getSkin()), event->settings.invalidateRadiance()));
-		menu.add(UI.change(new TextButton("Export", getSkin()), event->{})).row(); // TODO
+		menu.add(UI.change(new TextButton("Export", getSkin()), event->exportRadiance())).row();
 		
 		menu.add(title("BRDF Lookup")).colspan(2).row();
-		// TODO params
+		// TODO params : ?
 		menu.add(brdfBuiltin = UI.toggle(getSkin(), "Builtin", settings.useDefaultBRDF, value->{settings.useDefaultBRDF = value; settings.invalidateBRDF();}));
 		menu.add(brdf16 = UI.toggle(getSkin(), "16bits", settings.brdf16, value->{settings.brdf16 = value; settings.invalidateBRDF();}));
 		menu.row();
@@ -104,7 +112,7 @@ public class IBLComposerUI extends Table
 		menu.add("Size");
 		menu.add(brdfSize = createSizeSelector()).row();
 		menu.add(UI.change(new TextButton("Generate", getSkin()), event->settings.invalidateBRDF()));
-		menu.add(UI.change(new TextButton("Export", getSkin()), event->{})).row(); // TODO
+		menu.add(UI.change(new TextButton("Export", getSkin()), event->exportBRDF())).row();
 		
 		menu = menuLeft;
 		
@@ -141,6 +149,18 @@ public class IBLComposerUI extends Table
 		menu.add(metallicSlider = UI.change(new Slider(0, 1, .01f, false, getSkin()), event->settings.previewMetallic = metallicSlider.getValue())).row();
 		menu.add("Roughness");
 		menu.add(roughnessSlider = UI.change(new Slider(0, 1, .01f, false, getSkin()), event->settings.previewRoughness = roughnessSlider.getValue())).row();
+
+		menu.add(title("Statistics")).colspan(2).row();
+		menu.add("Hdr Map");
+		menu.add(hdrStats = statsLabel()).expandX().right().row();
+		menu.add("Env Map");
+		menu.add(envStats = statsLabel()).expandX().right().row();
+		menu.add("Irradiance Map");
+		menu.add(irradianceStats = statsLabel()).expandX().right().row();
+		menu.add("Radiance Map");
+		menu.add(radianceStats = statsLabel()).expandX().right().row();
+		menu.add("BRDF Map");
+		menu.add(brdfStats = statsLabel()).expandX().right().row();
 		
 		menu.add().colspan(2).expandY();
 		
@@ -167,6 +187,12 @@ public class IBLComposerUI extends Table
 		UI.changeCompleted(exposureSlider, event->settings.invalidateMaps());
 	}
 	
+	private Label statsLabel() {
+		Label label = new Label("", getSkin());
+		label.setColor(Color.GRAY);
+		return label;
+	}
+
 	private void copyLightCode() {
 		Color color = settings.getLightColor(new Color());
 		Vector3 direction = settings.getLightDirection(new Vector3());
@@ -199,6 +225,17 @@ public class IBLComposerUI extends Table
 	private void exportEnvMap() {
 		FileSelector.instance.save(file->fire(new ExportEnvMapEvent(file.path())));
 	}
+	private void exportBRDF() {
+		FileSelector.instance.save(file->fire(new ExportBRDFMapEvent(file.path())));
+	}
+
+	private void exportRadiance() {
+		FileSelector.instance.save(file->fire(new ExportRadianceMapEvent(file.path())));
+	}
+
+	private void exportIrradiance() {
+		FileSelector.instance.save(file->fire(new ExportIrradianceMapEvent(file.path())));
+	}
 
 	private SelectBox<MapSize> createSizeSelector(){
 		SelectBox<MapSize> selector = new SelectBox<>(getSkin());
@@ -217,7 +254,7 @@ public class IBLComposerUI extends Table
 		irrSize.setItems(MapSize.createPOT(min, max));
 		irrSize.setSelectedIndex(base - min - 2); // TODO ?
 		
-		radSize.setItems(MapSize.createPOT(min, max));
+		radSize.setItems(MapSize.createPOT(Math.max(1, min), max)); // 2x2 minimum
 		radSize.setSelectedIndex(base - min - 1); // TODO ?
 		
 		brdfSize.setItems(MapSize.createPOT(min, max));

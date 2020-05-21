@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Cubemap.CubemapSide;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
@@ -12,8 +13,10 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 public class IrradianceBaker implements Disposable {
 
@@ -47,7 +50,25 @@ public class IrradianceBaker implements Disposable {
 			}
 		};
 
-		// Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
+		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
+		fbo.begin();
+		cubemap.bind();
+		while(fbo.nextSide()){
+			Gdx.gl.glClearColor(0, 0, 0, 0);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			CubemapSide side = fbo.getSide();
+			renderSideIrradiance(side);
+		}
+		fbo.end();
+		Cubemap map = fbo.getColorBufferTexture();
+		fbo.dispose();
+		return map;
+	}
+	
+	public Array<Pixmap> createPixmaps(Cubemap cubemap, int size){
+		Array<Pixmap> pixmaps = new Array<Pixmap>();
+		FrameBufferCubemap fbo = new FrameBufferCubemap(Format.RGB888, size, size, false);
+
 		Gdx.gl.glEnable(GL20.GL_CULL_FACE);
 		fbo.begin();
 		cubemap.bind();
@@ -57,13 +78,11 @@ public class IrradianceBaker implements Disposable {
 			CubemapSide side = fbo.getSide();
 			renderSideIrradiance(side);
 			
-			// ici on peut capture les pixmaps
+			pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, size, size));
 		}
 		fbo.end();
-		// Gdx.gl.glEnable(GL20.GL_CULL_FACE);
-		Cubemap map = fbo.getColorBufferTexture();
 		fbo.dispose();
-		return map;
+		return pixmaps;
 	}
 	
 	private void renderSideIrradiance(CubemapSide side) {

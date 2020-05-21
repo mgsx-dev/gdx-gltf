@@ -131,6 +131,16 @@ public class IBLComposer implements Disposable {
 		return irradianceMap;
 	}
 	
+	public Array<Pixmap> getIrradianceMapPixmaps(int size) {
+		Cubemap cubemap = environmentBaker.getLastMap();
+		return irradianceBaker.createPixmaps(cubemap, size);
+	}
+	
+	public Array<Pixmap> getRadianceMapPixmaps(int size) {
+		Cubemap cubemap = environmentBaker.getLastMap();
+		return radianceBaker.createPixmaps(cubemap, size);
+	}
+	
 	public Cubemap getRadianceMap(int size){
 		Cubemap cubemap = environmentBaker.getLastMap(); // getEnvMap(size, exposure);
 		if(radianceMap != null) radianceMap.dispose();
@@ -146,6 +156,10 @@ public class IBLComposer implements Disposable {
 
 	public Texture getDefaultBRDFMap() {
 		return builtinBRDF;
+	}
+
+	public Pixmap getBRDFPixmap(int size, boolean brdf16) {
+		return brdfBaker.createBRDFPixmap(size, brdf16);
 	}
 
 }
