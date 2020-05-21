@@ -1,5 +1,5 @@
 // from https://github.com/Ivelate/JavaHDR/blob/9a4d3604c665b96275ed8a0cebf7c60dc650f2f3/src/com/github/ivelate/JavaHDR/RGBE.java
-package net.mgsx.gltf.ibl;
+package net.mgsx.gltf.ibl.io;
 
 import java.io.BufferedInputStream;
 import java.io.DataInput;

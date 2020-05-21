@@ -1,4 +1,4 @@
-package net.mgsx.gltf.ibl;
+package net.mgsx.gltf.ibl.ui;
 
 import com.badlogic.gdx.graphics.Cubemap.CubemapSide;
 import com.badlogic.gdx.graphics.Texture;
