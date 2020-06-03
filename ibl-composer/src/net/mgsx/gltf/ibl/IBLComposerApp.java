@@ -46,6 +46,7 @@ public class IBLComposerApp extends ApplicationAdapter
 	
 	@Override
 	public void create() {
+		PerfUtil.enableGPUStats();
 		GLCapabilities.i = new GLCapabilities();
 		GLUtils.onGlError(code->Gdx.app.error("GL Error", "code " + code));
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
@@ -203,6 +204,10 @@ public class IBLComposerApp extends ApplicationAdapter
 					));
 				}
 			}
+			float t = composer.update();
+			String ts = String.format("%.2f", t);
+			ui.irradianceStats.setText(ts);
+			if(t<1)	System.out.println(t);
 		}
 		settings.validate();
 	}

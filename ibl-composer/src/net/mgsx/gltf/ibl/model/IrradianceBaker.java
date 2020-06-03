@@ -18,12 +18,17 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import net.mgsx.gltf.ibl.util.ChunkedRender;
+import net.mgsx.gltf.ibl.util.ChunkedRender.ChunkRenderer;
+
 public class IrradianceBaker implements Disposable {
 
 	private static final Matrix4 matrix = new Matrix4();
 	
 	private final ShaderProgram irrandianceShader;
 	private final Mesh boxMesh;
+
+	private ChunkedRender<Cubemap> cr;
 	
 	public IrradianceBaker() {
 		irrandianceShader = new ShaderProgram(
@@ -44,6 +49,55 @@ public class IrradianceBaker implements Disposable {
 	}
 	
 	public Cubemap createIrradiance(Cubemap cubemap, int size){
+		cr = new ChunkedRender<Cubemap>(size, size, 4096, 4096);
+		return cr.begin(new ChunkRenderer<Cubemap>() {
+			FrameBufferCubemap fbo;
+			@Override
+			public void render(int x, int y, int width, int height) {
+				fbo.begin();
+				cubemap.bind();
+				while(fbo.nextSide()){
+					CubemapSide side = fbo.getSide();
+					renderSideIrradiance(side);
+				}
+				fbo.end();
+			}
+			
+			@Override
+			public Cubemap end() {
+				Cubemap r = fbo.getColorBufferTexture();
+				fbo.dispose();
+				return r;
+			}
+			
+			@Override
+			public Cubemap cancel() {
+				Cubemap r = fbo.getColorBufferTexture();
+				fbo.dispose();
+				return r;
+			}
+			
+			@Override
+			public Cubemap begin() {
+				fbo = new FrameBufferCubemap(Format.RGB888, size, size, false){
+					@Override
+					protected void disposeColorTexture(Cubemap colorTexture) {
+					}
+				};
+				return fbo.getColorBufferTexture();
+			}
+		});
+	}
+	
+	public float update(){
+		if(cr != null){
+			cr.update();
+			return cr.getProgress();
+		}
+		return 1f;
+	}
+	
+	public Cubemap createIrradianceDirect(Cubemap cubemap, int size){
 		FrameBufferCubemap fbo = new FrameBufferCubemap(Format.RGB888, size, size, false){
 			@Override
 			protected void disposeColorTexture(Cubemap colorTexture) {

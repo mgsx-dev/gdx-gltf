@@ -162,4 +162,8 @@ public class IBLComposer implements Disposable {
 		return brdfBaker.createBRDFPixmap(size, brdf16);
 	}
 
+	public float update() {
+		return irradianceBaker.update();
+	}
+
 }
