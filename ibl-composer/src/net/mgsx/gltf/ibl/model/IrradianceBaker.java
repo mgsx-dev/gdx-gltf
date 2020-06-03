@@ -96,6 +96,8 @@ public class IrradianceBaker implements Disposable {
 		matrix.setToLookAt(side.direction, side.up);
 		shader.setUniformMatrix("view", matrix);
 		
+		shader.setUniformf("sampleDelta", 0.025f); // TODO config
+		
 		boxMesh.render(shader, GL20.GL_TRIANGLES);
 	}
 }
