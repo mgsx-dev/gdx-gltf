@@ -22,6 +22,8 @@ class GLTFMeshExporter {
 	
 	private final GLTFExporter base;
 	
+	private ObjectMap<Mesh, GLTFPrimitive> layouts = new ObjectMap<Mesh, GLTFPrimitive>();
+	
 	public GLTFMeshExporter(GLTFExporter base) {
 		super();
 		this.base = base;
@@ -31,6 +33,52 @@ class GLTFMeshExporter {
 		Mesh mesh = meshPart.mesh;
 		GLTFPrimitive primitive = new GLTFPrimitive();
 		primitive.attributes = new ObjectMap<String, Integer>();
+		primitive.mode = mapPrimitiveMode(meshPart.primitiveType);
+		
+		GLTFPrimitive layout = layouts.get(mesh);
+		if(layout != null){
+			copyLayout(primitive, layout);
+		}else{
+			layouts.put(mesh, primitive);
+			exportMesh(primitive, mesh);
+		}
+		
+		// mesh may not have indices
+		if(mesh.getNumIndices() > 0)
+		{
+			ShortBuffer outBuffer = base.binManager.beginShorts(meshPart.size);
+			ShortBuffer inBuffer = mesh.getIndicesBuffer();
+			if(meshPart.offset == 0 && meshPart.size == mesh.getNumIndices()){
+				outBuffer.put(mesh.getIndicesBuffer());
+			}else{
+				short[] localIndices = new short[meshPart.size];
+				inBuffer.position(meshPart.offset);
+				inBuffer.get(localIndices);
+				outBuffer.put(localIndices);
+			}
+			inBuffer.rewind();
+			
+			GLTFAccessor accessor = base.obtainAccessor();
+			accessor.type = GLTFTypes.TYPE_SCALAR;
+			accessor.componentType = GLTFTypes.C_SHORT;
+			accessor.count = meshPart.size;
+			accessor.bufferView = base.binManager.end();
+			
+			primitive.indices = base.root.accessors.size-1;
+		}
+		
+		return primitive;
+	}
+	
+	private void copyLayout(GLTFPrimitive primitive, GLTFPrimitive layout) {
+		primitive.attributes.putAll(layout.attributes);
+		if(layout.targets != null){
+			primitive.targets = new Array<GLTFMorphTarget>();
+			primitive.targets.addAll(layout.targets);
+		}
+	}
+
+	private void exportMesh(GLTFPrimitive primitive, Mesh mesh) {
 		FloatBuffer vertices = mesh.getVerticesBuffer();
 		
 		Array<FloatBuffer> boneWeightsBuffers = new Array<FloatBuffer>();
@@ -175,25 +223,6 @@ class GLTFMeshExporter {
 				primitive.attributes.put("JOINTS_" + g, base.root.accessors.size-1);
 			}
 		}
-		
-		primitive.mode = mapPrimitiveMode(meshPart.primitiveType);
-		
-		// mesh may not have indices
-		if(mesh.getNumIndices() > 0)
-		{
-			ShortBuffer outBuffer = base.binManager.beginShorts(mesh.getNumIndices());
-			outBuffer.put(mesh.getIndicesBuffer());
-			
-			GLTFAccessor accessor = base.obtainAccessor();
-			accessor.type = GLTFTypes.TYPE_SCALAR;
-			accessor.componentType = GLTFTypes.C_SHORT;
-			accessor.count = mesh.getNumIndices();
-			accessor.bufferView = base.binManager.end();
-			
-			primitive.indices = base.root.accessors.size-1;
-		}
-		
-		return primitive;
 	}
 	
 	public static Integer mapPrimitiveMode(int type){
