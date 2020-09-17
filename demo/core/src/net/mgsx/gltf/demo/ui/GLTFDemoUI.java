@@ -1,5 +1,6 @@
 package net.mgsx.gltf.demo.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -31,6 +32,7 @@ import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileOpenEvent;
 import net.mgsx.gltf.demo.events.FileSaveEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
+import net.mgsx.gltf.demo.events.ModelSelectedEvent;
 import net.mgsx.gltf.demo.model.IBLStudio;
 import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
@@ -47,8 +49,8 @@ public class GLTFDemoUI extends Table {
 	
 	public static boolean LIVE_STATS = true;
 
-	public SelectBox<ModelEntry> entrySelector;
-	public SelectBox<String> variantSelector;
+	private SelectBox<ModelEntry> entrySelector;
+	private SelectBox<String> variantSelector;
 	public SelectBox<String> animationSelector;
 	public Table screenshotsTable;
 	public Slider debugAmbiantSlider;
@@ -119,9 +121,12 @@ public class GLTFDemoUI extends Table {
 
 	public final SelectBox<IBLPreset> IBLSelector;
 
-	public GLTFDemoUI(SceneManager sceneManager, Skin skin) {
+	private FileHandle rootFolder;
+
+	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
 		this.sceneManager = sceneManager;
+		this.rootFolder = rootFolder;
 		
 		Table root = new Table(skin);
 		root.defaults().pad(5);
@@ -166,16 +171,35 @@ public class GLTFDemoUI extends Table {
 			});
 		}
 		
-		entrySelector = new SelectBox<ModelEntry>(skin);
-		root.add("Model");
-		root.add(entrySelector).row();
+		if(rootFolder != null)
+		{
+			entrySelector = new SelectBox<ModelEntry>(skin);
+			root.add("Model");
+			root.add(entrySelector).row();
+			
+			root.add("Screenshot");
+			root.add(screenshotsTable = new Table(skin)).row();
+			
+			variantSelector = new SelectBox<String>(skin);
+			root.add("File");
+			root.add(variantSelector).row();
+			
+			entrySelector.addListener(new ChangeListener() {
+				@Override
+				public void changed(ChangeEvent event, Actor actor) {
+					setEntry(entrySelector.getSelected(), rootFolder);
+					setImage(entrySelector.getSelected());
+				}
+			});
+			
+			variantSelector.addListener(new ChangeListener() {
+				@Override
+				public void changed(ChangeEvent event, Actor actor) {
+					load(entrySelector.getSelected(), variantSelector.getSelected());
+				}
+			});
+		}
 		
-		root.add("Screenshot");
-		root.add(screenshotsTable = new Table(skin)).row();
-		
-		variantSelector = new SelectBox<String>(skin);
-		root.add("File");
-		root.add(variantSelector).row();
 		
 		// scene
 		sceneSelector = new SelectBox<SceneModel>(skin){
@@ -376,6 +400,30 @@ public class GLTFDemoUI extends Table {
 				
 			}
 		});
+	}
+	
+	private void load(ModelEntry entry, String variant) {
+		
+		if(variant.isEmpty()) return;
+		
+		final String fileName = entry.variants.get(variant);
+		if(fileName == null) return;
+		
+		FileHandle baseFolder = rootFolder.child(entry.name).child(variant);
+		FileHandle glFile = baseFolder.child(fileName);
+		
+		fire(new ModelSelectedEvent(glFile));
+	}
+	
+	protected void setImage(ModelEntry entry) {
+		if(entry.screenshot != null){
+			FileHandle file = rootFolder.child(entry.name).child(entry.screenshot);
+			if(file.exists()){
+				setImage(new Texture(file));
+			}else{
+				Gdx.app.error("DEMO UI", "file not found " + file.path());
+			}
+		}
 	}
 
 	protected TextButton toggle(String name, boolean checked) {
@@ -594,6 +642,28 @@ public class GLTFDemoUI extends Table {
 			lightLabel.setText("Lights (" + sceneManager.getActiveLightsCount() + "/" + sceneManager.getTotalLightsCount() + ")");
 		}
 		super.act(delta);
+	}
+
+	public void toggleModelSelector(boolean state) {
+		
+	}
+
+	public void setEntries(Array<ModelEntry> entries, String defaultEntry, String defaultVariant) {
+		entrySelector.setItems(entries);
+		
+		if(defaultEntry != null && defaultVariant != null){
+			for(int i=0 ; i<entries.size ; i++){
+				ModelEntry entry = entries.get(i);
+				if(entry.name.equals(defaultEntry)){
+					entrySelector.setSelected(entry);
+					// will be auto select if there is only one variant.
+					if(entry.variants.size != 1){
+						variantSelector.setSelected(defaultVariant);
+					}
+					break;
+				}
+			}
+		}
 	}
 
 }

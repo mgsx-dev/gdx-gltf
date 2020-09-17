@@ -1,17 +1,18 @@
+# Build Desktop demo
+
+From root folder run distDesktop gradle task : `./gradlew distDesktop`.
+It will produce a runnable jar file in **demo/desktop/build/libs** folder.
 
 # Run Desktop Examples
 
-Default is to run a subset of [Khronos models examples](https://github.com/KhronosGroup/glTF-Sample-Models) remotly.
+Default is to boot in an empty scene, you can then open and inspect your own glTF files.
 
-It's possible to run examples locally by providing absolute path to examples folder as desktop launcher first argument.
-
-Example with Khronos models : 
+Alternatively, you can run Khronos example as follow :
 
 	$ git clone https://github.com/KhronosGroup/glTF-Sample-Models.git
-	$ ./gdx-gltf-demo.jar glTF-Sample-Models/2.0
+	$ gdx-gltf-demo-desktop.jar glTF-Sample-Models/2.0
 
-
-BatchTest can be configured the same way to process a different model set.
+Jar filename should be adapted depending on the version you built or downloaded.
 
 # Examples
 

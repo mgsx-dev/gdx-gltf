@@ -4,8 +4,6 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.Net.HttpMethods;
-import com.badlogic.gdx.Net.HttpRequest;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
@@ -15,7 +13,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -41,7 +38,6 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -52,18 +48,17 @@ import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileOpenEvent;
 import net.mgsx.gltf.demo.events.FileSaveEvent;
 import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
+import net.mgsx.gltf.demo.events.ModelSelectedEvent;
 import net.mgsx.gltf.demo.model.IBLStudio;
 import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.demo.ui.GLTFDemoUI;
 import net.mgsx.gltf.demo.util.GLTFInspector;
 import net.mgsx.gltf.demo.util.NodeUtil;
-import net.mgsx.gltf.demo.util.SafeHttpResponseListener;
 import net.mgsx.gltf.exporters.GLTFExporter;
 import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
-import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
@@ -140,7 +135,7 @@ public class GLTFDemo extends ApplicationAdapter
 	private ShaderProgram outlineShader;
 	
 	public GLTFDemo() {
-		this("models");
+		this(null);
 	}
 	
 	public GLTFDemo(String samplesPath) {
@@ -171,9 +166,15 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		createSceneManager();
 		
-		createUI();
-		
-		loadModelIndex();
+		// boot from a model index file or an empty scene.
+		if(samplesPath != null){
+			rootFolder = Gdx.files.internal(samplesPath);	
+			createUI();
+			loadModelIndex();
+		}else{
+			createUI();
+			loadEmptyScene();
+		}
 	}
 	
 	private void createDefaultMaps(){
@@ -337,29 +338,18 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private void loadModelIndex() 
 	{
-		rootFolder = Gdx.files.internal(samplesPath);	
-		
 		String indexFilename = Gdx.app.getType() == ApplicationType.WebGL || Gdx.app.getType() == ApplicationType.Android ? "model-index-web.json" : "model-index.json";
 		
 		FileHandle file = rootFolder.child(indexFilename);
 		
 		entries = new Json().fromJson(Array.class, ModelEntry.class, file);
 		
-		ui.entrySelector.setItems(entries);
-		
-		if(AUTOLOAD_ENTRY != null && AUTOLOAD_VARIANT != null){
-			for(int i=0 ; i<entries.size ; i++){
-				ModelEntry entry = entries.get(i);
-				if(entry.name.equals(AUTOLOAD_ENTRY)){
-					ui.entrySelector.setSelected(entry);
-					// will be auto select if there is only one variant.
-					if(entry.variants.size != 1){
-						ui.variantSelector.setSelected(AUTOLOAD_VARIANT);
-					}
-					break;
-				}
-			}
-		}
+		ui.setEntries(entries, AUTOLOAD_ENTRY, AUTOLOAD_VARIANT);
+	}
+	
+	private void loadEmptyScene(){
+		this.sceneBox.set(new Vector3(-1,-1,-1), new Vector3(1, 1, 1));
+		setCamera("");
 	}
 
 	private void createUI()
@@ -368,7 +358,7 @@ public class GLTFDemo extends ApplicationAdapter
 		Gdx.input.setInputProcessor(stage);
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 		
-		ui = new GLTFDemoUI(sceneManager, skin);
+		ui = new GLTFDemoUI(sceneManager, skin, rootFolder);
 		ui.setFillParent(true);
 		
 		stage.addActor(ui);
@@ -382,29 +372,14 @@ public class GLTFDemo extends ApplicationAdapter
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				if(event instanceof FileOpenEvent){
-					ui.entrySelector.setSelectedIndex(0);
-					ui.variantSelector.setSelectedIndex(0);
 					load(((FileOpenEvent) event).file);
 				}else if(event instanceof IBLFolderChangeEvent){
 					loadIBL(((IBLFolderChangeEvent) event).file);
 				}else if(event instanceof FileSaveEvent){
 					save(((FileSaveEvent) event).file);
+				}else if(event instanceof ModelSelectedEvent){
+					load(((ModelSelectedEvent) event).glFile);
 				}
-			}
-		});
-		
-		ui.entrySelector.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				ui.setEntry(ui.entrySelector.getSelected(), rootFolder);
-				setImage(ui.entrySelector.getSelected());
-			}
-		});
-		
-		ui.variantSelector.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				load(ui.entrySelector.getSelected(), ui.variantSelector.getSelected());
 			}
 		});
 		
@@ -591,55 +566,25 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 	
 	private void validateShaders(){
-		if(!shadersValid){
-			shadersValid = true;
-			sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
-			sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
-			
-		}
-		if(!outlineShaderValid){
-			outlineShaderValid = true;
-			if(outlineShader != null) outlineShader.dispose();
-			if(ui.outlinesEnabled.isOn()){
-				String prefix = "";
-				if(ui.outlineDistFalloffOption.isOn()){
-					prefix += "#define DISTANCE_FALLOFF\n";
-				}
-				outlineShader = new ShaderProgram(
-						Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.vs.glsl").readString(),
-						prefix + Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.fs.glsl").readString());
-				if(!outlineShader.isCompiled()) throw new GdxRuntimeException("Outline Shader failed: " + outlineShader.getLog());
+		if(rootModel != null){
+			if(!shadersValid){
+				shadersValid = true;
+				sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
+				sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
+				
 			}
-		}
-	}
-
-	protected void setImage(ModelEntry entry) {
-		if(entry.screenshot != null){
-			if(entry.url != null){
-				HttpRequest httpRequest = new HttpRequest(HttpMethods.GET);
-				httpRequest.setUrl(entry.url + entry.screenshot);
-
-				Gdx.net.sendHttpRequest(httpRequest, new SafeHttpResponseListener(){
-					@Override
-					protected void handleData(byte[] bytes) {
-						Pixmap pixmap = PixmapBinaryLoaderHack.load(bytes, 0, bytes.length);
-						ui.setImage(new Texture(pixmap));
-						pixmap.dispose();
+			if(!outlineShaderValid){
+				outlineShaderValid = true;
+				if(outlineShader != null) outlineShader.dispose();
+				if(ui.outlinesEnabled.isOn()){
+					String prefix = "";
+					if(ui.outlineDistFalloffOption.isOn()){
+						prefix += "#define DISTANCE_FALLOFF\n";
 					}
-					@Override
-					protected void handleError(Throwable t) {
-						Gdx.app.error(TAG, "request error", t);
-					}
-					@Override
-					protected void handleEnd() {
-					}
-				});
-			}else{
-				FileHandle file = rootFolder.child(entry.name).child(entry.screenshot);
-				if(file.exists()){
-					ui.setImage(new Texture(file));
-				}else{
-					Gdx.app.error("DEMO UI", "file not found " + file.path());
+					outlineShader = new ShaderProgram(
+							Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.vs.glsl").readString(),
+							prefix + Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.fs.glsl").readString());
+					if(!outlineShader.isCompiled()) throw new GdxRuntimeException("Outline Shader failed: " + outlineShader.getLog());
 				}
 			}
 		}
@@ -715,10 +660,9 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.environment.remove(defaultLight);
 	}
 	
-	private void load(ModelEntry entry, String variant) {
+	private void load(FileHandle glFile){
 		
-		clearScene();
-		
+		clearScene();		
 		if(rootModel != null){
 			rootModel.dispose();
 			rootModel = null;
@@ -730,57 +674,6 @@ public class GLTFDemo extends ApplicationAdapter
 			}
 		}
 		
-		
-		if(variant.isEmpty()) return;
-		
-		final String fileName = entry.variants.get(variant);
-		if(fileName == null) return;
-		
-		if(entry.url != null){
-			
-			final Table waitUI = new Table(skin);
-			waitUI.add("LOADING...").expand().center();
-			waitUI.setFillParent(true);
-			stage.addActor(waitUI);
-			
-			HttpRequest httpRequest = new HttpRequest(HttpMethods.GET);
-			httpRequest.setUrl(entry.url + variant + "/" + fileName);
-
-			Gdx.net.sendHttpRequest(httpRequest, new SafeHttpResponseListener(){
-				@Override
-				protected void handleData(byte[] bytes) {
-					Gdx.app.log(TAG, "loading " + fileName);
-					
-					if(fileName.endsWith(".gltf")){
-						throw new GdxRuntimeException("remote gltf format not supported.");
-					}else if(fileName.endsWith(".glb")){
-						rootModel = new GLBLoader().load(bytes);
-					}else{
-						throw new GdxRuntimeException("unknown file extension for " + fileName);
-					}
-					
-					load();
-					
-					Gdx.app.log(TAG, "loaded " + fileName);
-				}
-				@Override
-				protected void handleError(Throwable t) {
-					Gdx.app.error(TAG, "request error", t);
-				}
-				@Override
-				protected void handleEnd() {
-					waitUI.remove();
-				}
-			});
-		}else{
-			FileHandle baseFolder = rootFolder.child(entry.name).child(variant);
-			FileHandle glFile = baseFolder.child(fileName);
-			
-			load(glFile);
-		}
-	}
-	
-	private void load(FileHandle glFile){
 		Gdx.app.log(TAG, "loading " + glFile.name());
 		
 		lastFileName = glFile.path();
