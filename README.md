@@ -61,6 +61,13 @@ GLTF extensions implemented:
 
 # Getting started
 
+## Compatibility
+
+* gdx-gltf 1.x requires libGDX 1.9.10+
+* gdx-gltf 2.x requires libGDX 1.9.11+
+
+Before upgrading your gdx-gltf version, please read [changes history](CHANGES.md).
+
 ## Install
 
 gdx-gltf is available via Jitpack.
