@@ -43,11 +43,23 @@ public class PBRTextureAttribute extends TextureAttribute
 		super(attribute);
 		this.rotationUV = attribute.rotationUV;
 	}
+	public static PBRTextureAttribute createBaseColorTexture(Texture texture) {
+		return new PBRTextureAttribute(BaseColorTexture, texture);
+	}
+	public static PBRTextureAttribute createEmissiveTexture(Texture texture) {
+		return new PBRTextureAttribute(EmissiveTexture, texture);
+	}
+	public static PBRTextureAttribute createNormalTexture(Texture texture) {
+		return new PBRTextureAttribute(NormalTexture, texture);
+	}
 	public static PBRTextureAttribute createMetallicRoughnessTexture(Texture texture) {
 		return new PBRTextureAttribute(MetallicRoughnessTexture, texture);
 	}
 	public static PBRTextureAttribute createOcclusionTexture(Texture texture) {
 		return new PBRTextureAttribute(OcclusionTexture, texture);
+	}
+	public static PBRTextureAttribute createBRDFLookupTexture(Texture texture) {
+		return new PBRTextureAttribute(BRDFLUTTexture, texture);
 	}
 
 	@Override
