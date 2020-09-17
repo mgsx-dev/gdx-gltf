@@ -1,5 +1,16 @@
 apply plugin: "java"
 
+dependencies {
+
+    compile project(":gltf")
+
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    
+    testCompile "junit:junit:$junitVersion"
+    testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
 sourceCompatibility = 1.6
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -7,6 +18,4 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.test.java.srcDirs = [ "test/" ]
 
 
-eclipse.project {
-    name = appName + "-core"
-}
+eclipse.project.name = appName + "-core"

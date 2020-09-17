@@ -1,25 +1,33 @@
-buildscript {
-    
+allprojects {
 
-    repositories {
+    group = 'net.mgsx.gltf'
+    version = '1.0.0'
+    
+    ext {
+    	gdxVersion = '1.9.10'
+    	junitVersion = '4.12'
+    }
+    
+	buildscript {
+	    repositories {
+	        mavenLocal()
+	        mavenCentral()
+	        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+	        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+	        jcenter()
+	    }
+	}
+	
+	repositories {
         mavenLocal()
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         jcenter()
     }
-    dependencies {
-        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
-        classpath 'com.android.tools.build:gradle:2.2.0'
-        
-
-    }
+	
+	apply plugin: "eclipse"
+	apply plugin: "idea"
 }
 
-apply plugin: "eclipse"
-
-eclipse {
-    project {
-        name = "gltf-root"
-    }
-}
-
+eclipse.project.name = "gltf-root"

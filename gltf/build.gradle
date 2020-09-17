@@ -1,37 +1,5 @@
-buildscript {
-    
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        jcenter()
-    }
+eclipse.project.name = "gdx-gltf"
 
-}
-
-version = '0.1.0-SNAPSHOT'
-ext {
-    appName = "gdx-gltf"
-    gdxVersion = '1.9.10'
-    junitVersion = '4.12'
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-}
-
-apply plugin: "eclipse"
-
-eclipse {
-    project {
-        name = appName
-    }
-}
-
-apply plugin: "idea"
 apply plugin: "java"
 
 
