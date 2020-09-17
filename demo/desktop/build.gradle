@@ -44,7 +44,7 @@ task dist(type: Jar) {
  	// from file("$projectDir/LICENSE");
     
     // final JAR basename could be modified like this (default is project name) :
- 	// baseName = "my-custom-game-name"
+ 	baseName = "$appName-desktop"
 
     manifest {
         attributes 'Main-Class': project.mainClassName
