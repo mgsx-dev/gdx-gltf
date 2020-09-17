@@ -54,7 +54,7 @@ However, for performance reasons you may want a simpler shader. Obviously you ca
 
 You can use default shader provider to be used with scene manager.
 
-`new SceneManager(new DefaultShaderProvider());`
+`new SceneManager(new DefaultShaderProvider(), new DepthShaderProvider());`
 
 ### Shadows
 
