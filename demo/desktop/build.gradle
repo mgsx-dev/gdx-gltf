@@ -30,15 +30,13 @@ task debug(dependsOn: classes, type: JavaExec) {
     debug = true
 }
 
-task dist(type: Jar) {
+task distDesktop(type: Jar, dependsOn: [classes]) {
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir) // TODO exclude models
+    from files(project.assetsDir)
  	
- 	exclude("models/BoomBox")
- 	exclude("models/PBRTest")
- 	exclude("models/model-index-web.json")
+ 	exclude("models")
  	
  	// additional files could be added like this :
  	// from file("$projectDir/LICENSE");
@@ -53,8 +51,6 @@ task dist(type: Jar) {
     	file(archivePath).setExecutable(true, false) 
     } 
 }
-
-dist.dependsOn classes
 
 eclipse {
     project {

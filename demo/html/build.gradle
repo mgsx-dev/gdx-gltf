@@ -46,7 +46,7 @@ task superDev(type: de.richsource.gradle.plugins.gwt.GwtSuperDev) {
     }
 }
 
-task dist(dependsOn: [clean, compileGwt]) {
+task distWeb(dependsOn: [clean, compileGwt]) {
     doLast {
         file("build/dist").mkdirs()
         copy {
@@ -67,11 +67,11 @@ task dist(dependsOn: [clean, compileGwt]) {
     }
 }
 
-task validateDist(type: Exec /*, dependsOn: dist*/) {
+task validateDistWeb(type: Exec /*, dependsOn: distWeb*/) {
 	commandLine 'ruby', '-e', "require 'sinatra' ; set public_folder: '$buildDir/dist' ; set bind: '0.0.0.0'"
 }
 
-task distZip(type: Zip, /*, dependsOn: dist*/){
+task distWebZip(type: Zip, /*, dependsOn: distWeb*/){
 	from 'build/dist/'
    	archiveName "dist-${version}.zip"
    	destinationDir(file("build"))
