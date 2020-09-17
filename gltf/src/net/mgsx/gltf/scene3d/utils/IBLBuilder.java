@@ -257,7 +257,7 @@ public class IBLBuilder implements Disposable
 			render(side, shapes, shader, strength, exponent);
 		}
 		private void render(CubemapSide side, ShapeRenderer shapes, ShaderProgram shader, float strength, float exponent){
-			shader.begin();
+			shader.bind();
 			shader.setUniformf("u_exponent", exponent);
 			shader.setUniformf("u_ambient", color.r, color.g, color.b, 0f);
 			shader.setUniformf("u_diffuse", color.r, color.g, color.b, strength);

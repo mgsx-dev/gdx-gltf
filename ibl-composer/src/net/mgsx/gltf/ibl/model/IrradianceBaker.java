@@ -89,7 +89,7 @@ public class IrradianceBaker implements Disposable {
 		
 		ShaderProgram shader = irrandianceShader;
 		
-		shader.begin();
+		shader.bind();
 		shader.setUniformi("environmentMap", 0);
 		matrix.setToProjection(.1f, 10f, 90, 1);
 		shader.setUniformMatrix("projection", matrix);

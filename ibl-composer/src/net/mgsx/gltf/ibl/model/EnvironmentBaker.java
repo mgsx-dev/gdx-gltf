@@ -56,7 +56,7 @@ public class EnvironmentBaker implements Disposable {
 		fboEnv.begin();
 		while(fboEnv.nextSide()){
 			hdrTexture.bind();
-			rectToCubeShader.begin();
+			rectToCubeShader.bind();
 			rectToCubeShader.setUniformi("u_hdr", 0);
 			rectToCubeShader.setUniformf("u_exposure", exposure);
 			
@@ -75,7 +75,7 @@ public class EnvironmentBaker implements Disposable {
 		
 		ShaderProgram shader = rectToCubeShader;
 		
-		shader.begin();
+		shader.bind();
 		shader.setUniformMatrix("u_mat", matrix);
 
 		ShapeRenderer shapes = rectToCubeRenderer;
@@ -91,7 +91,7 @@ public class EnvironmentBaker implements Disposable {
 		fbo.begin();
 		for(CubemapSide side : CubemapSide.values()){
 			hdrTexture.bind();
-			rectToCubeShader.begin();
+			rectToCubeShader.bind();
 			rectToCubeShader.setUniformi("u_hdr", 0);
 			rectToCubeShader.setUniformf("u_exposure", exposure);
 			

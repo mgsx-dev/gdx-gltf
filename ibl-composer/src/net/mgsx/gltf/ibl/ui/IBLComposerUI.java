@@ -40,8 +40,6 @@ public class IBLComposerUI extends Table
 	private SelectBox<MapSize> radSize;
 	private SelectBox<MapSize> irrSize;
 	private SelectBox<MapSize> brdfSize;
-	private TextButton brdfBuiltin;
-	private TextButton brdf16;
 	private Slider LightAzimuth;
 	private Slider LightElevation;
 	private Slider LightHue;
@@ -105,8 +103,8 @@ public class IBLComposerUI extends Table
 		
 		menu.add(title("BRDF Lookup")).colspan(2).row();
 		// TODO params : ?
-		menu.add(brdfBuiltin = UI.toggle(getSkin(), "Builtin", settings.useDefaultBRDF, value->{settings.useDefaultBRDF = value; settings.invalidateBRDF();}));
-		menu.add(brdf16 = UI.toggle(getSkin(), "16bits", settings.brdf16, value->{settings.brdf16 = value; settings.invalidateBRDF();}));
+		menu.add(UI.toggle(getSkin(), "Builtin", settings.useDefaultBRDF, value->{settings.useDefaultBRDF = value; settings.invalidateBRDF();}));
+		menu.add(UI.toggle(getSkin(), "16bits", settings.brdf16, value->{settings.brdf16 = value; settings.invalidateBRDF();}));
 		menu.row();
 		
 		menu.add("Size");

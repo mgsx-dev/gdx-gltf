@@ -137,9 +137,8 @@ public class GLTFPostProcessingExample extends ApplicationAdapter {
 		sceneManager.renderColors();
 		fbo.end();
 		
-		effectShader.begin();
+		effectShader.bind();
 		setEffectUniforms();
-		effectShader.end();
 		
 		viewport.apply();
 		batch.setShader(effectShader);

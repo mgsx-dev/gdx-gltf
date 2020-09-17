@@ -850,7 +850,7 @@ public class GLTFDemo extends ApplicationAdapter
 		if(ui.outlinesEnabled.isOn()){
 			captureDepth();
 
-			outlineShader.begin();
+			outlineShader.bind();
 			float size = 1 - ui.outlinesWidth.getValue();
 			
 			// float depthMin = ui.outlineDepthMin.getValue() * .001f;

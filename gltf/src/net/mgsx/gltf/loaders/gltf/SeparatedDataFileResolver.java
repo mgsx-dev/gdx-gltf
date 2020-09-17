@@ -44,8 +44,6 @@ public class SeparatedDataFileResolver implements DataFileResolver
 				if(glBuffer.uri.startsWith("data:")){
 					// data:application/octet-stream;base64,
 					String [] headerBody = glBuffer.uri.split(",", 2);
-					String header = headerBody[0];
-					// System.out.println(header);
 					String body = headerBody[1];
 					byte [] data = Base64Coder.decode(body);
 					buffer.put(data);
