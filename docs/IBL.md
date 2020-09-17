@@ -30,15 +30,33 @@ Note that this tutorial ommited to say your render resolution should be 2:1 (eg.
 
 # How to generate them
 
-There are several tools to do generate these textures from an HDR image : 
+This repository provides a tool called "IBL Composer" to do generate these textures from an HDR image. Since it's libGDX based, it's supported for Windows, Mac, and Linux.
+IBL generation algorithms are directly based on Learn OpenGL articles : [Diffuse irradiance](https://learnopengl.com/PBR/IBL/Diffuse-irradiance) and [Specular IBL](https://learnopengl.com/PBR/IBL/Specular-IBL)
+
+Alternatively, there are several existing tools to accomplish the same things : 
 
 * IBL baker (windows only)
 * CubeMapGen from AMD (windows only)
 * Cubemap Filter Tool (windows/mac/linux)
 
-we will use the later in this guide.
+## generate using IBL Composer
 
-## CMFT
+You can build IBL composer locally from source or download latest version from [releases section](https://github.com/mgsx-dev/gdx-gltf/releases)
+
+This tools provides export features and preview. Typical process is the following : Once a HDRI file loaded you can :
+
+* load a HDRI file
+* tweak exposure
+* export environement maps, irradiance maps, and radiance maps at various resolutions
+
+Notes: 
+
+* BRDF lookup texture is not related to loaded HDRI and gdx-gltf already provides one out of the box, but you can also export and use a new one for your needs.
+* This tools can be used to generate environement maps only when not used for PBR shading.
+
+![IBL-composer](IBL-composer.png)
+
+## generate using Cubemap Filter Tool (CMFT)
 
 Cubemap Filter Tool provide both a CLI version and a GUI version : 
 
