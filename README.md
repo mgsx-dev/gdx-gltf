@@ -192,6 +192,15 @@ However, gdx-gltf supports unsigned short indices : a mesh is then limited to 65
 
 LibGDX Pixmap loading from binary data is not supported by its GWT emulation. So, GLTF embeded and binary formats are not supported for html/WebGL target.
 
+### CubeMap seamless limitations
+
+CubeMap seamless is a feature that perform correct cubeMap filtering. Without this feature, you may notice some artifacts for materials with high roughness since these artifacts are more visible at low resolution.
+The library automatically enable this feature when possible, based on these conditions :
+
+* For GLES 2 and WebGL 1, this feature is not supported at all.
+* For GLES 3 and WebGL 2, this feature is always supported and always activated.
+* For Desktop, it can be enabled if platform supports OpenGL 3.2+ or GL_ARB_seamless_cube_map
+
 # Troubleshooting
 
 ## Max uniforms: Constant register limit exceeded, do not fit in N vectors
