@@ -35,13 +35,14 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 Library demo (aka model viewer) is available for several platforms:
 
 * HTML : [Online demo](http://www.mgsx.net/gdx-gltf/) and only contains few examples.
-* Desktop : [Desktop demo](https://github.com/mgsx-dev/gdx-gltf/releases) remotly loads a lot of example. see [gdx-gltf-demo readme](demo/README.md) for futher information.
+* Desktop : [Desktop demo](https://github.com/mgsx-dev/gdx-gltf/releases) allow you to open and inspect any GLTF file. See [gdx-gltf-demo readme](demo/README.md) for futher information.
 * Android : [Android demo](https://play.google.com/store/apps/details?id=net.mgsx.gltf.demo) only contains few examples (same as HTML version).
 
-Few games (gamejams) made with this library:
+Games made with this library:
 
-* [Lendigastel](https://mgsx.itch.io/lendigastel)
-* [Santa and the giant cake](https://mgsx.itch.io/santa-and-the-giant-cake)
+* [Forsaken Portals](https://store.steampowered.com/app/1338220/Forsaken_Portals/)
+* [Lendigastel](https://mgsx.itch.io/lendigastel) (gamejam)
+* [Santa and the giant cake](https://mgsx.itch.io/santa-and-the-giant-cake) (gamejam)
 
 # GL Transmission Format (glTF) 2.0 Support
 
