@@ -42,7 +42,7 @@ task debug(dependsOn: classes, type: JavaExec) {
     debug = true
 }
 
-task dist(type: Jar) {
+task distIBL(type: Jar, dependsOn: [classes]) {
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
@@ -61,5 +61,3 @@ task dist(type: Jar) {
         file(archivePath).setExecutable(true, false) 
     } 
 }
-
-dist.dependsOn classes

@@ -4,7 +4,7 @@ allprojects {
     version = '1.0.0'
     
     ext {
-    	gdxVersion = '1.9.10'
+    	gdxVersion = '1.9.11'
     	junitVersion = '4.12'
     }
     

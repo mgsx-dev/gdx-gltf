@@ -6,7 +6,6 @@ import java.nio.IntBuffer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.MeshPlus;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -27,7 +26,6 @@ import net.mgsx.gltf.data.geometry.GLTFPrimitive;
 import net.mgsx.gltf.loaders.blender.BlenderShapeKeys;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
-import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
@@ -284,7 +282,7 @@ public class MeshLoader {
 					}
 				}
 				
-				Mesh mesh = new MeshPlus(true, maxVertices, maxIndices, attributesGroup);
+				Mesh mesh = new Mesh(true, maxVertices, maxIndices, attributesGroup);
 				meshes.add(mesh);
 				mesh.setVertices(vertices);
 				
@@ -391,8 +389,6 @@ public class MeshLoader {
 	private void checkMaxIndex(long maxIndex){
 		if(maxIndex >= 1<<16){
 			throw new GLTFUnsupportedException("high index detected: " + maxIndex + ". Not supported");
-		}else if(maxIndex >= 1<<15){
-			Gdx.app.error(GLTFLoaderBase.TAG, "high index detected: " + maxIndex + ". Unsigned short indices are supported but still experimental");
 		}
 	}
 	
