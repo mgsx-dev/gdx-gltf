@@ -12,6 +12,7 @@ public class IBLComposerLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1024;
 		config.height = 768;
+		config.useHDPI = true;
 		new LwjglApplication(new IBLComposerApp(args.length > 0 ? args[0] : null), config);
 		
 	}
