@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.Disposable;
 
+import net.mgsx.gltf.ibl.exceptions.FrameBufferError;
 import net.mgsx.gltf.ibl.io.RGBE;
 import net.mgsx.gltf.ibl.io.RGBE.Header;
 
@@ -127,7 +128,12 @@ public class IBLComposer implements Disposable {
 	public Cubemap getIrradianceMap(int size){
 		Cubemap cubemap = environmentBaker.getLastMap(); // getEnvMap(size, exposure);
 		if(irradianceMap != null) irradianceMap.dispose();
-		irradianceMap = irradianceBaker.createIrradiance(cubemap, size);
+		try{
+			irradianceMap = irradianceBaker.createIrradiance(cubemap, size);
+		}catch(IllegalStateException e){
+			irradianceMap = new Cubemap(1, 1, 1, Format.RGB888);
+			throw new FrameBufferError(e);
+		}
 		return irradianceMap;
 	}
 	
@@ -144,13 +150,23 @@ public class IBLComposer implements Disposable {
 	public Cubemap getRadianceMap(int size){
 		Cubemap cubemap = environmentBaker.getLastMap(); // getEnvMap(size, exposure);
 		if(radianceMap != null) radianceMap.dispose();
-		radianceMap = radianceBaker.createRadiance(cubemap, size);
+		try{
+			radianceMap = radianceBaker.createRadiance(cubemap, size);
+		}catch(IllegalStateException e){
+			radianceMap = new Cubemap(1, 1, 1, Format.RGB888);
+			throw new FrameBufferError(e);
+		}
 		return radianceMap;
 	}
 
 	public Texture getBRDFMap(int size, boolean rg16) {
 		if(brdfMap != null && brdfMap != builtinBRDF) brdfMap.dispose();
-		brdfMap = brdfBaker.createBRDF(size, rg16);
+		try{
+			brdfMap = brdfBaker.createBRDF(size, rg16);
+		}catch(IllegalStateException e){
+			brdfMap = new Texture(1, 1, Format.RGB888);
+			throw new FrameBufferError(e);
+		}
 		return brdfMap;
 	}
 

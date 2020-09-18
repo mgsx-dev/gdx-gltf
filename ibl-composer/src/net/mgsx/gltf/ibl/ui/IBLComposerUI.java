@@ -272,7 +272,7 @@ public class IBLComposerUI extends Table
 		hdrInfo.setText(header.getProgramType() + " " + header.getWidth() + "x" + header.getHeight() + "\nexp=" + header.getExposure() + " gamma=" + header.getGamma());
 	
 		int base = GLUtils.sizeToPOT(header.getWidth()/4); 
-		int max = GLUtils.sizeToPOT(GLUtils.getMaxCubemapSize());
+		int max = GLUtils.sizeToPOT(GLCapabilities.i.maxSizeFrameBufferCubeMap);
 		int min = 0;
 		envSize.setItems(MapSize.createPOT(min, max));
 		envSize.setSelectedIndex(base - min);

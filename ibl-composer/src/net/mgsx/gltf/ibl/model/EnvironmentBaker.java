@@ -18,6 +18,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import net.mgsx.gltf.ibl.exceptions.FrameBufferError;
+
 public class EnvironmentBaker implements Disposable {
 
 	private FrameBufferCubemap fboEnv;
@@ -51,7 +53,12 @@ public class EnvironmentBaker implements Disposable {
 			fboEnv = null;
 		}
 		if(fboEnv == null){
-			fboEnv = new FrameBufferCubemap(Format.RGB888, size, size, false);
+			try{
+				fboEnv = new FrameBufferCubemap(Format.RGB888, size, size, false);
+			}catch(IllegalStateException e){
+				fboEnv = new FrameBufferCubemap(Format.RGB888, 1, 1, false);
+				throw new FrameBufferError(e);
+			}
 		}
 		fboEnv.begin();
 		while(fboEnv.nextSide()){

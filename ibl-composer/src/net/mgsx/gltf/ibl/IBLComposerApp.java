@@ -21,6 +21,7 @@ import net.mgsx.gltf.ibl.events.ExportEnvMapEvent;
 import net.mgsx.gltf.ibl.events.ExportIrradianceMapEvent;
 import net.mgsx.gltf.ibl.events.ExportRadianceMapEvent;
 import net.mgsx.gltf.ibl.events.UIScaleEvent;
+import net.mgsx.gltf.ibl.exceptions.FrameBufferError;
 import net.mgsx.gltf.ibl.model.IBLComposer;
 import net.mgsx.gltf.ibl.model.IBLSettings;
 import net.mgsx.gltf.ibl.ui.IBLComposerUI;
@@ -81,11 +82,6 @@ public class IBLComposerApp extends ApplicationAdapter
 				viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 			}
 		});
-		
-		if(!GLCapabilities.i.hasMemoryInfo){
-			UI.dialog(stage, skin, "GPU Info", "Your driver doesn't support " + GLUtils.GL_NVX_gpu_memory_info_ext + " extension.\n" +
-					"High resolution generation may crash your graphic card and freeze your OS.");
-		}
 	}
 	
 	private void exportBRDFMap(String path) {
@@ -192,29 +188,36 @@ public class IBLComposerApp extends ApplicationAdapter
 			}
 		}
 		if(composer != null){
-			if(!settings.envMapValid){
-				ui.envStats.setText(PerfUtil.millisecondsHuman(()->
+			try{
+				if(!settings.envMapValid){
+					ui.envStats.setText(PerfUtil.millisecondsHuman(()->
 					preview.setEnvMap(composer.getEnvMap(settings.envMapSize, settings.exposure))
-				));
-			}
-			if(!settings.irradianceValid){
-				ui.irradianceStats.setText(PerfUtil.millisecondsHuman(()->
-					preview.setDiffuse(composer.getIrradianceMap(settings.irrMapSize))
-				));
-			}
-			if(!settings.radianceValid){
-				ui.radianceStats.setText(PerfUtil.millisecondsHuman(()->
-					preview.setSpecular(composer.getRadianceMap(settings.radMapSize))
-				));
-			}
-			if(!settings.brdfMapValid){
-				if(settings.useDefaultBRDF){
-					preview.setBRDF(composer.getDefaultBRDFMap());
-				}else{
-					ui.brdfStats.setText(PerfUtil.millisecondsHuman(()->
-						preview.setBRDF(composer.getBRDFMap(settings.brdfMapSize, settings.brdf16))
-					));
+							));
 				}
+				if(!settings.irradianceValid){
+					ui.irradianceStats.setText(PerfUtil.millisecondsHuman(()->
+					preview.setDiffuse(composer.getIrradianceMap(settings.irrMapSize))
+							));
+				}
+				if(!settings.radianceValid){
+					ui.radianceStats.setText(PerfUtil.millisecondsHuman(()->
+					preview.setSpecular(composer.getRadianceMap(settings.radMapSize))
+							));
+				}
+				if(!settings.brdfMapValid){
+					if(settings.useDefaultBRDF){
+						preview.setBRDF(composer.getDefaultBRDFMap());
+					}else{
+						ui.brdfStats.setText(PerfUtil.millisecondsHuman(()->
+						preview.setBRDF(composer.getBRDFMap(settings.brdfMapSize, settings.brdf16))
+								));
+					}
+				}
+			}catch(FrameBufferError e){
+				e.printStackTrace();
+				UI.dialog(stage, skin, "Error", "Cannot generate maps with requested resolutions.\n" + 
+						"You may not have enough GPU memory available.\n" +
+						"Please try with lower resolutions.");
 			}
 		}
 		settings.validate();

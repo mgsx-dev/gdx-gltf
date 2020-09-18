@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL43;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.glutils.FrameBufferCubemap;
 import com.badlogic.gdx.graphics.profiling.GLErrorListener;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.MathUtils;
@@ -73,6 +75,19 @@ public class GLUtils {
 		return Math.min(maxWidth, maxHeight);
 	}
 	
+	public static int getMaxFrameBufferCubeMapSizeRGB888() {
+		for(int size=getMaxCubemapSize() ; size>0 ; size=size>>1){
+			try{
+				FrameBufferCubemap fbo = new FrameBufferCubemap(Format.RGB888, size, size, false);
+				fbo.dispose();
+			}catch(IllegalStateException e){
+				continue;
+			}
+			return size;
+		}
+		return 0;
+	}
+	
 	public static int getMaxCubemapSizeRGB888(){
 		return getMaxCubemapSize(GL30.GL_RGB8, GL20.GL_RGB, GL30.GL_UNSIGNED_BYTE);
 	}
@@ -101,5 +116,4 @@ public class GLUtils {
 	public static int sizeToPOT(int size) {
 		return MathUtils.round((float)(Math.log(size) / Math.log(2.0)));
 	}
-
 }
