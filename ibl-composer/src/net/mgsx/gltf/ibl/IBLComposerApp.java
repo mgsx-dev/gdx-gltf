@@ -33,6 +33,8 @@ import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 
 public class IBLComposerApp extends ApplicationAdapter
 {
+	public static int defaultUIScale = 1;
+	
 	private Stage stage;
 	private Skin skin;
 	private IBLComposerUI ui;

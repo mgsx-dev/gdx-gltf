@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 
+import net.mgsx.gltf.ibl.IBLComposerApp;
 import net.mgsx.gltf.ibl.events.ExportBRDFMapEvent;
 import net.mgsx.gltf.ibl.events.ExportEnvMapEvent;
 import net.mgsx.gltf.ibl.events.ExportIrradianceMapEvent;
@@ -122,8 +123,8 @@ public class IBLComposerUI extends Table
 		menu.add(title("UI")).colspan(2).row();
 		
 		menu.add("Scale");
-		scaleSlider = new Slider(0.5f, 5, .5f, false, getSkin());
-		scaleSlider.setValue(1);
+		scaleSlider = new Slider(1, 3, .5f, false, getSkin());
+		scaleSlider.setValue(IBLComposerApp.defaultUIScale);
 		menu.add(UI.change(scaleSlider, event->{
 			if(!scaleSlider.isDragging()) fire(new UIScaleEvent(scaleSlider.getValue()));
 			})).row();
