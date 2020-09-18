@@ -20,6 +20,7 @@ import net.mgsx.gltf.ibl.events.ExportBRDFMapEvent;
 import net.mgsx.gltf.ibl.events.ExportEnvMapEvent;
 import net.mgsx.gltf.ibl.events.ExportIrradianceMapEvent;
 import net.mgsx.gltf.ibl.events.ExportRadianceMapEvent;
+import net.mgsx.gltf.ibl.events.UIScaleEvent;
 import net.mgsx.gltf.ibl.io.FileSelector;
 import net.mgsx.gltf.ibl.io.RGBE.Header;
 import net.mgsx.gltf.ibl.model.IBLSettings;
@@ -52,6 +53,7 @@ public class IBLComposerUI extends Table
 	public final Label radianceStats;
 	public final Label brdfStats;
 	private final Label memStats;
+	private final Slider scaleSlider;
 
 	public IBLComposerUI(Skin skin, IBLSettings settings) {
 		super(skin);
@@ -116,6 +118,15 @@ public class IBLComposerUI extends Table
 		menu.add(UI.change(new TextButton("Export", getSkin()), event->exportBRDF())).row();
 		
 		menu = menuLeft;
+		
+		menu.add(title("UI")).colspan(2).row();
+		
+		menu.add("Scale");
+		scaleSlider = new Slider(0.5f, 5, .5f, false, getSkin());
+		scaleSlider.setValue(1);
+		menu.add(UI.change(scaleSlider, event->{
+			if(!scaleSlider.isDragging()) fire(new UIScaleEvent(scaleSlider.getValue()));
+			})).row();
 		
 		menu.add(title("Camera Preview")).colspan(2).row();
 		

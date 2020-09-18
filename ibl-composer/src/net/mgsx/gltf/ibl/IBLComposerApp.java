@@ -20,6 +20,7 @@ import net.mgsx.gltf.ibl.events.ExportBRDFMapEvent;
 import net.mgsx.gltf.ibl.events.ExportEnvMapEvent;
 import net.mgsx.gltf.ibl.events.ExportIrradianceMapEvent;
 import net.mgsx.gltf.ibl.events.ExportRadianceMapEvent;
+import net.mgsx.gltf.ibl.events.UIScaleEvent;
 import net.mgsx.gltf.ibl.model.IBLComposer;
 import net.mgsx.gltf.ibl.model.IBLSettings;
 import net.mgsx.gltf.ibl.ui.IBLComposerUI;
@@ -38,6 +39,7 @@ public class IBLComposerApp extends ApplicationAdapter
 	private IBLPreviewScene preview;
 	private IBLComposer composer;
 	private IBLSettings settings;
+	private ScreenViewport viewport;
 	
 	public IBLComposerApp(String defaultHdr) {
 		this.settings = new IBLSettings();
@@ -50,7 +52,7 @@ public class IBLComposerApp extends ApplicationAdapter
 		GLUtils.onGlError(code->Gdx.app.error("GL Error", "code " + code));
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 		skin.getAtlas().getRegions().first().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-		stage = new Stage(new ScreenViewport());
+		stage = new Stage(viewport = new ScreenViewport());
 		stage.addActor(ui = new IBLComposerUI(skin, settings));
 		ui.setFillParent(true);
 		preview = new IBLPreviewScene(settings);
@@ -71,6 +73,10 @@ public class IBLComposerApp extends ApplicationAdapter
 			}
 			if(event instanceof ExportBRDFMapEvent){
 				exportBRDFMap(((ExportBRDFMapEvent) event).path);
+			}
+			if(event instanceof UIScaleEvent){
+				viewport.setUnitsPerPixel(1f / ((UIScaleEvent) event).newScale);
+				viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 			}
 		});
 		
@@ -170,7 +176,7 @@ public class IBLComposerApp extends ApplicationAdapter
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		preview.render();
 		
-		stage.getViewport().apply(true);
+		viewport.apply(true);
 		stage.draw();
 	}
 
