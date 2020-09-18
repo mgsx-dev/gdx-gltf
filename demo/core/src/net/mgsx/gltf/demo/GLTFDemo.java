@@ -573,19 +573,19 @@ public class GLTFDemo extends ApplicationAdapter
 				sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
 				
 			}
-			if(!outlineShaderValid){
-				outlineShaderValid = true;
-				if(outlineShader != null) outlineShader.dispose();
-				if(ui.outlinesEnabled.isOn()){
-					String prefix = "";
-					if(ui.outlineDistFalloffOption.isOn()){
-						prefix += "#define DISTANCE_FALLOFF\n";
-					}
-					outlineShader = new ShaderProgram(
-							Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.vs.glsl").readString(),
-							prefix + Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.fs.glsl").readString());
-					if(!outlineShader.isCompiled()) throw new GdxRuntimeException("Outline Shader failed: " + outlineShader.getLog());
+		}
+		if(!outlineShaderValid){
+			outlineShaderValid = true;
+			if(outlineShader != null) outlineShader.dispose();
+			if(ui.outlinesEnabled.isOn()){
+				String prefix = "";
+				if(ui.outlineDistFalloffOption.isOn()){
+					prefix += "#define DISTANCE_FALLOFF\n";
 				}
+				outlineShader = new ShaderProgram(
+						Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.vs.glsl").readString(),
+						prefix + Gdx.files.classpath("net/mgsx/gltf/demo/shaders/outline.fs.glsl").readString());
+				if(!outlineShader.isCompiled()) throw new GdxRuntimeException("Outline Shader failed: " + outlineShader.getLog());
 			}
 		}
 	}
