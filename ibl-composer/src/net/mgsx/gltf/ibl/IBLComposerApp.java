@@ -73,6 +73,11 @@ public class IBLComposerApp extends ApplicationAdapter
 				exportBRDFMap(((ExportBRDFMapEvent) event).path);
 			}
 		});
+		
+		if(!GLCapabilities.i.hasMemoryInfo){
+			UI.dialog(stage, skin, "GPU Info", "Your driver doesn't support " + GLUtils.GL_NVX_gpu_memory_info_ext + " extension.\n" +
+					"High resolution generation may crash your graphic card and freeze your OS.");
+		}
 	}
 	
 	private void exportBRDFMap(String path) {

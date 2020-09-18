@@ -36,6 +36,26 @@ public class GLUtils {
 		});
 	}
 	
+	public static final String GL_NVX_gpu_memory_info_ext = "GL_NVX_gpu_memory_info";
+	public static final int GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX = 0x9048;
+	public static final int GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX = 0x9049;
+	
+	public static int getMaxMemoryKB(){
+		intBuffer.clear();
+		Gdx.gl.glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, intBuffer);
+		return intBuffer.get();
+	}
+	
+	public static int getAvailableMemoryKB(){
+		intBuffer.clear();
+		Gdx.gl.glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, intBuffer);
+		return intBuffer.get();
+	}
+	
+	public static boolean hasMemoryInfo(){
+		return Gdx.graphics.supportsExtension(GL_NVX_gpu_memory_info_ext);
+	}
+	
 	public static int getMaxCubemapSize() {
 		intBuffer.clear();
 		Gdx.gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, intBuffer);
@@ -65,11 +85,17 @@ public class GLUtils {
 	}
 	
 	private static boolean isCubemapSupported(int size, int internalFormat, int format, int type){
-		intBuffer.clear();
 		GL11.glTexImage2D(GL13.GL_PROXY_TEXTURE_CUBE_MAP, 0, internalFormat, size, size, 0, format, type, (ByteBuffer)null);
+		intBuffer.clear();
 		GL11.glGetTexLevelParameter(GL13.GL_PROXY_TEXTURE_CUBE_MAP, 0, GL11.GL_TEXTURE_INTERNAL_FORMAT, intBuffer);
-		int result = intBuffer.get();
-		return result == internalFormat;
+		int internalFormatResult = intBuffer.get();
+		intBuffer.clear();
+		GL11.glGetTexLevelParameter(GL13.GL_PROXY_TEXTURE_CUBE_MAP, 0, GL11.GL_TEXTURE_WIDTH, intBuffer);
+		int widthResult = intBuffer.get();
+		intBuffer.clear();
+		GL11.glGetTexLevelParameter(GL13.GL_PROXY_TEXTURE_CUBE_MAP, 0, GL11.GL_TEXTURE_HEIGHT, intBuffer);
+		int heightResult = intBuffer.get();
+		return internalFormatResult == internalFormat && widthResult == size && heightResult == size;
 	}
 
 	public static int sizeToPOT(int size) {

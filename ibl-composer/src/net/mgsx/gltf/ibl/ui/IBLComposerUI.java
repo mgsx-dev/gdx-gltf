@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -22,6 +23,7 @@ import net.mgsx.gltf.ibl.events.ExportRadianceMapEvent;
 import net.mgsx.gltf.ibl.io.FileSelector;
 import net.mgsx.gltf.ibl.io.RGBE.Header;
 import net.mgsx.gltf.ibl.model.IBLSettings;
+import net.mgsx.gltf.ibl.util.GLCapabilities;
 import net.mgsx.gltf.ibl.util.GLUtils;
 
 public class IBLComposerUI extends Table
@@ -49,6 +51,7 @@ public class IBLComposerUI extends Table
 	public final Label irradianceStats;
 	public final Label radianceStats;
 	public final Label brdfStats;
+	private final Label memStats;
 
 	public IBLComposerUI(Skin skin, IBLSettings settings) {
 		super(skin);
@@ -149,6 +152,8 @@ public class IBLComposerUI extends Table
 		menu.add(roughnessSlider = UI.change(new Slider(0, 1, .01f, false, getSkin()), event->settings.previewRoughness = roughnessSlider.getValue())).row();
 
 		menu.add(title("Statistics")).colspan(2).row();
+		menu.add("GPU Memory");
+		menu.add(memStats = statsLabel()).expandX().right().row();
 		menu.add("Hdr Map");
 		menu.add(hdrStats = statsLabel()).expandX().right().row();
 		menu.add("Env Map");
@@ -183,6 +188,17 @@ public class IBLComposerUI extends Table
 		UI.change(brdfSize, event->settings.setBRDFMapSize(brdfSize.getSelected().size));
 		
 		UI.changeCompleted(exposureSlider, event->settings.invalidateMaps());
+		
+		if(!GLCapabilities.i.hasMemoryInfo){
+			memStats.setText("not available");
+		}else{
+			updateMemoryStats();
+			addAction(Actions.forever(Actions.delay(1, Actions.run(()->updateMemoryStats()))));
+		}
+	}
+	
+	private void updateMemoryStats(){
+		memStats.setText((GLUtils.getAvailableMemoryKB()/1024) + " / " + (GLCapabilities.i.maxMemory/1024) + " MB");
 	}
 	
 	private Label statsLabel() {
