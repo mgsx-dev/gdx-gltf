@@ -56,6 +56,7 @@ public class IBLComposerApp extends ApplicationAdapter
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 		skin.getAtlas().getRegions().first().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 		stage = new Stage(viewport = new ScreenViewport());
+		viewport.setUnitsPerPixel(1f / defaultUIScale);
 		stage.addActor(ui = new IBLComposerUI(skin, settings));
 		ui.setFillParent(true);
 		preview = new IBLPreviewScene(settings);
