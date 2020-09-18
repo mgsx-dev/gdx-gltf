@@ -4,8 +4,7 @@ public class PerfUtil {
 	public static long milliseconds(Runnable runnable){
 		long ptime = System.nanoTime();
 		runnable.run();
-		long ctime = System.nanoTime(); // currentTimeMillis();
-		System.out.println("" + (ctime - ptime));
+		long ctime = System.nanoTime();
 		return (ctime - ptime) / 1000000L;
 	}
 	public static String millisecondsHuman(Runnable runnable) {
