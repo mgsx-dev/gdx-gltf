@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Scaling;
 
+import net.mgsx.gltf.demo.GLTFDemo;
 import net.mgsx.gltf.demo.GLTFDemo.ShaderMode;
 import net.mgsx.gltf.demo.data.ModelEntry;
 import net.mgsx.gltf.demo.events.FileOpenEvent;
@@ -122,6 +123,8 @@ public class GLTFDemoUI extends Table {
 	public final SelectBox<IBLPreset> IBLSelector;
 
 	private FileHandle rootFolder;
+
+	public final Slider uiScaleSlider;
 
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
@@ -354,6 +357,11 @@ public class GLTFDemoUI extends Table {
 		skeletonButton = new TextButton("Skeletons", getSkin(), "toggle");
 		root.add("Skeletons");
 		root.add(skeletonButton).row();
+		
+		rootRight.add("UI Scale");
+		uiScaleSlider = new Slider(1, 3, .5f, false, getSkin());
+		uiScaleSlider.setValue(GLTFDemo.defaultUIScale);
+		rootRight.add(uiScaleSlider).row();
 		
 		materialSelector = new SelectBox<String>(skin);
 		rootRight.add("Materials");

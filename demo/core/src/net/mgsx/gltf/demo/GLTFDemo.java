@@ -85,6 +85,8 @@ public class GLTFDemo extends ApplicationAdapter
 	public static String AUTOLOAD_ENTRY = null;
 	public static String AUTOLOAD_VARIANT = null;
 	public static String alternateMaps = null;
+
+	public static int defaultUIScale = 1;
 	
 	private static final String TAG = "GLTFDemo";
 	
@@ -133,6 +135,8 @@ public class GLTFDemo extends ApplicationAdapter
 	private SpriteBatch spriteBatch;
 	
 	private ShaderProgram outlineShader;
+
+	private ScreenViewport viewport;
 	
 	public GLTFDemo() {
 		this(null);
@@ -354,7 +358,8 @@ public class GLTFDemo extends ApplicationAdapter
 
 	private void createUI()
 	{
-		stage = new Stage(new ScreenViewport());
+		stage = new Stage(viewport = new ScreenViewport());
+		viewport.setUnitsPerPixel(1f / defaultUIScale);
 		Gdx.input.setInputProcessor(stage);
 		skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 		
@@ -512,6 +517,15 @@ public class GLTFDemo extends ApplicationAdapter
 			}
 		});
 		
+		ui.uiScaleSlider.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(!ui.uiScaleSlider.isDragging()){
+					viewport.setUnitsPerPixel(1f / ui.uiScaleSlider.getValue());
+					viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+				}
+			}
+		});
 	}
 	
 	private void save(FileHandle file) {

@@ -80,7 +80,7 @@ public class IBLComposerApp extends ApplicationAdapter
 			}
 			if(event instanceof UIScaleEvent){
 				viewport.setUnitsPerPixel(1f / ((UIScaleEvent) event).newScale);
-				viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+				viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 			}
 		});
 	}
@@ -158,7 +158,7 @@ public class IBLComposerApp extends ApplicationAdapter
 	@Override
 	public void resize(int width, int height) {
 		preview.resize(width, height);
-		stage.getViewport().update(width, height);
+		stage.getViewport().update(width, height, true);
 	}
 	
 	@Override
