@@ -59,21 +59,29 @@ public class SceneRenderableSorter implements RenderableSorter, Comparator<Rende
 			}
 		}
 		
-		// simple switch limitation by identifying same context.
+		// solid models are grouped by context (same shader, env, material, mesh) to minimize switches.
+		if(!b1 && !b2){
+			
+			int shaderCompare = compareIdentity(o1.shader, o2.shader);
+			if(shaderCompare != 0) return shaderCompare;
+			
+			int envCompare = compareIdentityNullable(o1.environment, o2.environment);
+			if(envCompare != 0) return envCompare;
+			
+			int materialCompare = compareIdentity(o1.material, o2.material);
+			if(materialCompare != 0) return materialCompare;
+			
+			int meshCompare = compareIdentity(o1.meshPart.mesh, o2.meshPart.mesh);
+			if(meshCompare != 0) return meshCompare;
+		}
+		// solid models should be rendered before transparent models
+		else if(b1 && !b2){
+			return 1;
+		}else if(!b1 && b2){
+			return -1;
+		}
 		
-		int shaderCompare = compareIdentity(o1.shader, o2.shader);
-		if(shaderCompare != 0) return shaderCompare;
-		
-		int envCompare = compareIdentityNullable(o1.environment, o2.environment);
-		if(envCompare != 0) return envCompare;
-		
-		int materialCompare = compareIdentity(o1.material, o2.material);
-		if(materialCompare != 0) return materialCompare;
-		
-		int meshCompare = compareIdentity(o1.meshPart.mesh, o2.meshPart.mesh);
-		if(meshCompare != 0) return meshCompare;
-		
-		// classic with distance
+		// classic with distance : front to back for solid, back to front for transparent.
 		getTranslation(o1.worldTransform, o1.meshPart.center, tmpV1);
 		getTranslation(o2.worldTransform, o2.meshPart.center, tmpV2);
 		final float dst = (int)(camera.position.dst2(tmpV1)) - (int)(camera.position.dst2(tmpV2));
