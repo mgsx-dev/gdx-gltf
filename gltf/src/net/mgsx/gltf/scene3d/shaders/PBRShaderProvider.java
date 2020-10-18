@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
@@ -90,14 +91,15 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		return prefix;
 	}
 	
-	protected Shader createShader(Renderable renderable) {
+	protected boolean isGL3(){
+		return Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
+	}
+	
+	public String createPrefixBase(Renderable renderable, PBRShaderConfig config) {
 		
-		PBRShaderConfig config = (PBRShaderConfig)this.config;
-		
-		String prefix = DefaultShader.createPrefix(renderable, config);
+		String defaultPrefix = DefaultShader.createPrefix(renderable, config);
 		String version = config.glslVersion;
-		final boolean openGL3 = Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
-		if(openGL3){
+		if(isGL3()){
 			if(Gdx.app.getType() == ApplicationType.Desktop){
 				if(version == null)
 					version = "#version 130\n" + "#define GLSL3\n";
@@ -106,11 +108,32 @@ public class PBRShaderProvider extends DefaultShaderProvider
 					version = "#version 300 es\n" + "#define GLSL3\n";
 			}
 		}
-		if(version != null){
-			prefix = version + prefix;
-		}
+		String prefix = "";
+		if(version != null) prefix += version;
+		if(config.prefix != null) prefix += config.prefix;
+		prefix += defaultPrefix;
 		
-		if(Gdx.app.getType() == ApplicationType.WebGL || !openGL3){
+		return prefix;
+	}
+	
+	public String createPrefixSRGB(Renderable renderable, PBRShaderConfig config){
+		String prefix = "";
+		if(config.manualSRGB != SRGB.NONE){
+			prefix += "#define MANUAL_SRGB\n";
+			if(config.manualSRGB == SRGB.FAST){
+				prefix += "#define SRGB_FAST_APPROXIMATION\n";
+			}
+		}
+		return prefix;
+	}
+	
+	protected Shader createShader(Renderable renderable) {
+		
+		PBRShaderConfig config = (PBRShaderConfig)this.config;
+		
+		String prefix = createPrefixBase(renderable, config);
+		
+		if(Gdx.app.getType() == ApplicationType.WebGL || !isGL3()){
 			// extension required to auto compute tangents
 			if(renderable.meshPart.mesh.getVertexAttribute(VertexAttributes.Usage.Tangent) == null && config.useTangentSpace){
 				// not that WebGL need that call to allow extension to be enabled in shaders.
@@ -156,7 +179,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 					prefix += "#define USE_IBL\n";
 					
 					boolean textureLodSupported;
-					if(openGL3){
+					if(isGL3()){
 						textureLodSupported = true;
 					}else if(Gdx.graphics.supportsExtension("EXT_shader_texture_lod")){
 						prefix += "#define USE_TEXTURE_LOD_EXT\n";
@@ -183,12 +206,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			}
 			
 			// SRGB
-			if(config.manualSRGB != SRGB.NONE){
-				prefix += "#define MANUAL_SRGB\n";
-				if(config.manualSRGB == SRGB.FAST){
-					prefix += "#define SRGB_FAST_APPROXIMATION\n";
-				}
-			}
+			prefix += createPrefixSRGB(renderable, config);
 		}
 		
 		
@@ -302,8 +320,19 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		PBRShader shader = new PBRShader(renderable, config, prefix);
-		String shaderLog = shader.program.getLog();
-		if(shader.program.isCompiled()){
+		checkShaderCompilation(shader.program);
+		
+		// prevent infinite loop (TODO remove this for libgdx 1.9.12+)
+		if(!shader.canRender(renderable)){
+			throw new GdxRuntimeException("cannot render with this shader");
+		}
+		
+		return shader;
+	}
+
+	protected void checkShaderCompilation(ShaderProgram program){
+		String shaderLog = program.getLog();
+		if(program.isCompiled()){
 			if(shaderLog.isEmpty()){
 				Gdx.app.log(TAG, "Shader compilation success");
 			}else{
@@ -312,12 +341,5 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}else{
 			throw new GdxRuntimeException("Shader compilation failed:\n" + shaderLog);
 		}
-		
-		// prevent infinite loop
-		if(!shader.canRender(renderable)){
-			throw new GdxRuntimeException("cannot render with this shader");
-		}
-		
-		return shader;
-	};
+	}
 }

@@ -21,4 +21,10 @@ public class PBRShaderConfig extends DefaultShader.Config
 	 * You typically set it to false when your custom shaders don't use tangents and normal matrix.
 	 */
 	public boolean useTangentSpace = true;
+	
+	/**
+	 * Some custom GLSL code to inject in shaders.
+	 * If not null it will be added after #version 
+	 */
+	public String prefix = null;
 }
