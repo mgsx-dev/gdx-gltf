@@ -82,11 +82,15 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
 }
 
 void main() {
-    // The albedo may be defined from a base texture or a flat color
+    // may need base texture alpha in case of blending
+#ifdef blendedFlag
 #ifdef diffuseTextureFlag
     float baseAlpha = texture2D(u_diffuseTexture, v_diffuseUV).a * u_BaseColorFactor.a;
 #else
     float baseAlpha = u_BaseColorFactor.a;
+#endif
+#else
+    float baseAlpha = 1.0;
 #endif
 
 #ifdef colorFlag
@@ -106,9 +110,9 @@ void main() {
     
     // final frag color
 #ifdef MANUAL_SRGB
-    out_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseAlpha);
+    out_FragColor.rgb = vec3(pow(color,vec3(1.0/2.2)));
 #else
-    out_FragColor = vec4(color, baseAlpha);
+    out_FragColor.rgb = color;
 #endif
     
     // Blending and Alpha Test
@@ -119,7 +123,7 @@ void main() {
 			discard;
 	#endif
 #else
-	out_FragColor.a = 1.0;
+	out_FragColor.a = baseAlpha;
 #endif
 
 }
