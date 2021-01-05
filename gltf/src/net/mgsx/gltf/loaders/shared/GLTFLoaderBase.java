@@ -1,16 +1,21 @@
 package net.mgsx.gltf.loaders.shared;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
+import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectSet;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.camera.GLTFCamera;
@@ -38,6 +43,10 @@ import net.mgsx.gltf.scene3d.scene.SceneModel;
 public class GLTFLoaderBase implements Disposable {
 
 	public static final String TAG = "GLTF";
+	
+	private static final ObjectSet<Material> materialSet = new ObjectSet<Material>();
+	private static final ObjectSet<MeshPart> meshPartSet = new ObjectSet<MeshPart>();
+	private static final ObjectSet<Mesh> meshSet = new ObjectSet<Mesh>();
 	
 	private final Array<Camera> cameras = new Array<Camera>();
 	private final Array<BaseLight> lights = new Array<BaseLight>();
@@ -200,10 +209,34 @@ public class GLTFLoaderBase implements Disposable {
 			Node node = sceneModel.model.getNode(entry.key, true);
 			if(node != null) sceneModel.lights.put(node, lights.get(entry.value));
 		}
-		sceneModel.model.meshes.addAll(meshLoader.getMeshes());
-		// TODO add materials and meshParts as well
+
+		// collect data references to store in model
+		collectData(sceneModel.model, sceneModel.model.nodes);
+		
+		copy(meshSet, sceneModel.model.meshes);
+		copy(meshPartSet, sceneModel.model.meshParts);
+		copy(materialSet, sceneModel.model.materials);
+		
+		meshSet.clear();
+		meshPartSet.clear();
+		materialSet.clear();
 		
 		return sceneModel;
+	}
+	
+	private void collectData(Model model, Iterable<Node> nodes){
+		for(Node node : nodes){
+			for(NodePart part : node.parts){
+				meshSet.add(part.meshPart.mesh);
+				meshPartSet.add(part.meshPart);
+				materialSet.add(part.material);
+			}
+			collectData(model, node.getChildren());
+		}
+	}
+	
+	private static <T> void copy(ObjectSet<T> src, Array<T> dst){
+		for(T e : src) dst.add(e);
 	}
 
 	private Node getNode(int id) 
