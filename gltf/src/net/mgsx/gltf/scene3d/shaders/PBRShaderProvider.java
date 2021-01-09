@@ -95,6 +95,12 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		return Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
 	}
 	
+	/**
+	 * override this method in order to add your own prefix.
+	 * @param renderable
+	 * @param config
+	 * @return
+	 */
 	public String createPrefixBase(Renderable renderable, PBRShaderConfig config) {
 		
 		String defaultPrefix = DefaultShader.createPrefix(renderable, config);
@@ -319,7 +325,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			Gdx.app.error(TAG, "unknow type lights not supported.");
 		}
 		
-		PBRShader shader = new PBRShader(renderable, config, prefix);
+		PBRShader shader = createShader(renderable, config, prefix);
 		checkShaderCompilation(shader.program);
 		
 		// prevent infinite loop (TODO remove this for libgdx 1.9.12+)
@@ -328,6 +334,17 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		}
 		
 		return shader;
+	}
+	
+	/**
+	 * override this method in order to provide your own PBRShader subclass.
+	 * @param renderable
+	 * @param config
+	 * @param prefix
+	 * @return
+	 */
+	protected PBRShader createShader(Renderable renderable, PBRShaderConfig config, String prefix){
+		return new PBRShader(renderable, config, prefix);
 	}
 
 	protected void checkShaderCompilation(ShaderProgram program){
