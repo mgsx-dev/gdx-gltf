@@ -43,6 +43,7 @@ Games made with this library:
 * [Forsaken Portals](https://store.steampowered.com/app/1338220/Forsaken_Portals/)
 * [Lendigastel](https://mgsx.itch.io/lendigastel) (gamejam)
 * [Santa and the giant cake](https://mgsx.itch.io/santa-and-the-giant-cake) (gamejam)
+* [Multiverse Racer](https://mgsx.itch.io/multiverse-racer) (gamejam)
 
 # GL Transmission Format (glTF) 2.0 Support
 
