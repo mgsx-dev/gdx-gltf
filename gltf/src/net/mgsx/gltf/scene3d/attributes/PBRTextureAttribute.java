@@ -1,6 +1,7 @@
 package net.mgsx.gltf.scene3d.attributes;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
@@ -39,6 +40,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	public PBRTextureAttribute(long type, Texture texture) {
 		super(type, texture);
 	}
+	public PBRTextureAttribute(long type, TextureRegion region) {
+		super(type, region);
+	}
 	public PBRTextureAttribute(PBRTextureAttribute attribute) {
 		super(attribute);
 		this.rotationUV = attribute.rotationUV;
@@ -60,6 +64,25 @@ public class PBRTextureAttribute extends TextureAttribute
 	}
 	public static PBRTextureAttribute createBRDFLookupTexture(Texture texture) {
 		return new PBRTextureAttribute(BRDFLUTTexture, texture);
+	}
+	
+	public static PBRTextureAttribute createBaseColorTexture(TextureRegion region) {
+		return new PBRTextureAttribute(BaseColorTexture, region);
+	}
+	public static PBRTextureAttribute createEmissiveTexture(TextureRegion region) {
+		return new PBRTextureAttribute(EmissiveTexture, region);
+	}
+	public static PBRTextureAttribute createNormalTexture(TextureRegion region) {
+		return new PBRTextureAttribute(NormalTexture, region);
+	}
+	public static PBRTextureAttribute createMetallicRoughnessTexture(TextureRegion region) {
+		return new PBRTextureAttribute(MetallicRoughnessTexture, region);
+	}
+	public static PBRTextureAttribute createOcclusionTexture(TextureRegion region) {
+		return new PBRTextureAttribute(OcclusionTexture, region);
+	}
+	public static PBRTextureAttribute createBRDFLookupTexture(TextureRegion region) {
+		return new PBRTextureAttribute(BRDFLUTTexture, region);
 	}
 
 	@Override
