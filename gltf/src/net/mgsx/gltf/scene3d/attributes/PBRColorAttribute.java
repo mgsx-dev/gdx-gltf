@@ -9,6 +9,10 @@ public class PBRColorAttribute extends ColorAttribute
 	public final static String BaseColorFactorAlias = "BaseColorFactor";
 	public final static long BaseColorFactor = register(BaseColorFactorAlias);
 
+	public static PBRColorAttribute createBaseColorFactor(Color color){
+		return new PBRColorAttribute(BaseColorFactor, color);
+	}
+	
 	static{
 		Mask |= BaseColorFactor;
 	}
