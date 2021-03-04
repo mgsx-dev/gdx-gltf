@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.utils.Array;
@@ -81,13 +82,13 @@ class GLTFMaterialExporter {
 				pbr(m).roughnessFactor = ((PBRFloatAttribute)a).value;
 			}
 			else if(a.type == PBRTextureAttribute.BaseColorTexture){
-				pbr(m).baseColorTexture = texture((PBRTextureAttribute)a);
+				pbr(m).baseColorTexture = texture((TextureAttribute)a);
 			}
 			else if(a.type == PBRTextureAttribute.MetallicRoughnessTexture){
-				pbr(m).metallicRoughnessTexture = texture((PBRTextureAttribute)a);
+				pbr(m).metallicRoughnessTexture = texture((TextureAttribute)a);
 			}
 			else if(a.type == PBRTextureAttribute.EmissiveTexture){
-				m.emissiveTexture = texture((PBRTextureAttribute)a);
+				m.emissiveTexture = texture((TextureAttribute)a);
 			}
 			else if(a.type == PBRTextureAttribute.NormalTexture){
 				m.normalTexture = normalTexture((PBRTextureAttribute)a, material);
@@ -132,14 +133,14 @@ class GLTFMaterialExporter {
 		return ti;
 	}
 
-	private GLTFTextureInfo texture(PBRTextureAttribute a) {
+	private GLTFTextureInfo texture(TextureAttribute a) {
 		GLTFTextureInfo ti = new GLTFTextureInfo();
 		ti.texCoord = a.uvIndex;
 		ti.index = getTexture(a);
 		return ti;
 	}
 
-	private int getTexture(PBRTextureAttribute a) {
+	private int getTexture(TextureAttribute a) {
 		GLTFTexture t = new GLTFTexture();
 		t.sampler = sampler(a);
 		t.source = source(a.textureDescription.texture);
@@ -161,7 +162,7 @@ class GLTFMaterialExporter {
 		return base.root.images.size - 1;
 	}
 
-	private Integer sampler(PBRTextureAttribute a) {
+	private Integer sampler(TextureAttribute a) {
 		GLTFSampler sampler = new GLTFSampler();
 		sampler.minFilter = mapMin(a.textureDescription.minFilter);
 		sampler.magFilter = mapMag(a.textureDescription.magFilter);
