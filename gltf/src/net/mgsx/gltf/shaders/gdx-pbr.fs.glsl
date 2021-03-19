@@ -644,7 +644,7 @@ void main() {
 #else
 	float fog = min(1.0, eyeDistance * eyeDistance * u_cameraPosition.w);
 #endif
-	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog);
+	out_FragColor.rgb = mix(out_FragColor.rgb, u_fogColor.rgb, fog * u_fogColor.a);
 #endif
 
     // Blending and Alpha Test

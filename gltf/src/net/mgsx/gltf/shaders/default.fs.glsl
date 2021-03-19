@@ -172,7 +172,7 @@ void main() {
 	#endif //lightingFlag
 
 	#ifdef fogFlag
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, v_fog);
+		gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, v_fog * u_fogColor.a);
 	#endif // end fogFlag
 
 	#ifdef blendedFlag
