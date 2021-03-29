@@ -145,7 +145,7 @@ public class Scene implements RenderableProvider, Updatable {
 		for(Entry<Node, BaseLight> e : lights){
 			Node node = e.key;
 			BaseLight light = e.value;
-			transform.set(node.globalTransform).mul(modelInstance.transform);
+			transform.set(modelInstance.transform).mul(node.globalTransform);
 			if(light instanceof DirectionalLight){
 				((DirectionalLight)light).direction.set(0,0,-1).rot(transform);
 			}else if(light instanceof PointLight){
