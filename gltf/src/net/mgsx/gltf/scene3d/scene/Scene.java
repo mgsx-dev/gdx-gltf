@@ -133,7 +133,7 @@ public class Scene implements RenderableProvider, Updatable {
 		for(Entry<Node, Camera> e : cameras){
 			Node node = e.key;
 			Camera camera = e.value;
-			transform.set(node.globalTransform).mul(modelInstance.transform);
+			transform.set(modelInstance.transform).mul(node.globalTransform);
 			camera.position.setZero().mul(transform);
 			camera.direction.set(0,0,-1).rot(transform);
 			camera.up.set(Vector3.Y).rot(transform);
