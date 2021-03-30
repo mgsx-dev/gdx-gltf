@@ -1,5 +1,6 @@
 package net.mgsx.gltf.scene3d.animation;
 
+import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationDesc;
 import com.badlogic.gdx.utils.Array;
@@ -27,6 +28,14 @@ public class AnimationsPlayer {
 		c.setAnimationDesc(animation);
 		controllers.add(c);
 	}
+	public void removeAnimation(Animation animation){
+		for(int i=controllers.size-1 ; i>=0 ; i--){
+			if(controllers.get(i).current != null && controllers.get(i).current.animation == animation){
+				controllers.removeIndex(i);
+			}
+		}
+	}
+	
 	public void clearAnimations(){
 		controllers.clear();
 		if(scene.animationController != null){
