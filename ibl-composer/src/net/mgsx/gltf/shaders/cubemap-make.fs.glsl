@@ -23,7 +23,7 @@ void main() {
 	vec3 dir = (u_mat * vec4(0.5 - v_position.x, 0.5 - v_position.y, 0.5, 1.0)).xyz;
 	dir = normalize(dir);
 	vec2 v_uv = vec2(0.0, 0.0);
-	v_uv.x = 0.5 * atan2(dir.z, dir.x) / PI + 0.5;
+	v_uv.x = 0.5 * atan(dir.z, dir.x) / PI + 0.5;
 	v_uv.y = asin(dir.y) / PI + 0.5;
     vec4 color = texture2D(u_hdr, v_uv);
 

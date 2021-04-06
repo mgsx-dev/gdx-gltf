@@ -44,6 +44,7 @@ public class EnvironmentBaker implements Disposable {
 				Gdx.files.classpath("net/mgsx/gltf/shaders/" + name + ".vs.glsl"), 
 				Gdx.files.classpath("net/mgsx/gltf/shaders/" + name + ".fs.glsl"));
 		if(!shader.isCompiled()) throw new GdxRuntimeException(shader.getLog());
+		if(shader.getLog().length() > 0) Gdx.app.error(EnvironmentBaker.class.getSimpleName(), shader.getLog());
 		return shader;
 	}
 	
