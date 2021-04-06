@@ -3,6 +3,7 @@ package net.mgsx.gltf.demo;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
@@ -814,6 +815,15 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	@Override
 	public void render() {
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)){
+			if(Gdx.input.isKeyJustPressed(Input.Keys.PLUS)){
+				ui.uiScaleSlider.setValue(ui.uiScaleSlider.getValue() * 2);
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.MINUS)){
+				ui.uiScaleSlider.setValue(ui.uiScaleSlider.getValue() / 2);
+			}
+		}
+		
 		float delta = Gdx.graphics.getDeltaTime();
 		stage.act();
 		
