@@ -53,6 +53,7 @@ Notes:
 
 * BRDF lookup texture is not related to loaded HDRI and gdx-gltf already provides one out of the box, but you can also export and use a new one for your needs.
 * This tools can be used to generate environement maps only when not used for PBR shading.
+* UI can be scaled to support high resolution, you can use the slider or `CTRL +` / `CTRL -` to zoom in / out
 
 ![IBL-composer](IBL-composer.png)
 

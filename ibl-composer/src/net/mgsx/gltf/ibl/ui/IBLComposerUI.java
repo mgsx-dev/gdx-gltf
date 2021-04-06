@@ -54,7 +54,7 @@ public class IBLComposerUI extends Table
 	public final Label radianceStats;
 	public final Label brdfStats;
 	private final Label memStats;
-	private final Slider scaleSlider;
+	public final Slider scaleSlider;
 
 	public IBLComposerUI(Skin skin, IBLSettings settings) {
 		super(skin);

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
@@ -165,6 +166,14 @@ public class IBLComposerApp extends ApplicationAdapter
 	@Override
 	public void render() {
 		float delta = Gdx.graphics.getDeltaTime();
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)){
+			if(Gdx.input.isKeyJustPressed(Input.Keys.PLUS)){
+				ui.scaleSlider.setValue(ui.scaleSlider.getValue() * 2);
+			}else if(Gdx.input.isKeyJustPressed(Input.Keys.MINUS)){
+				ui.scaleSlider.setValue(ui.scaleSlider.getValue() / 2);
+			}
+		}
 		
 		stage.act();
 		
