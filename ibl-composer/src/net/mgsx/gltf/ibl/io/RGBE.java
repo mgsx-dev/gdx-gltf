@@ -138,7 +138,7 @@ public class RGBE {
         int height = 0;
 
         String buf = in.readLine();
-        if (buf == null) {
+        if (buf == null || buf.length() < 2) {
             throw new IOException("Unexpected EOF reading magic token");
         }
         if (buf.charAt(0) == '#' && buf.charAt(1) == '?') {
@@ -148,6 +148,9 @@ public class RGBE {
             if (buf == null) {
                 throw new IOException("Unexpected EOF reading line after magic token");
             }
+        }
+        if((valid & VALID_PROGRAMTYPE) == 0 || !programType.equals("RADIANCE")){
+        	throw new IOException("not an HDR file");
         }
 
         boolean foundFormat = false;

@@ -145,9 +145,10 @@ public class IBLComposerApp extends ApplicationAdapter
 
 	private void openHDR(FileHandle file) {
 		try {
-			if(composer != null) composer.dispose();
-			composer = new IBLComposer();
+			IBLComposer composer = new IBLComposer();
 			composer.loadHDR(file);
+			if(this.composer != null) this.composer.dispose();
+			this.composer = composer;
 			ui.setHDRInfo(composer.hdrHeader);
 			ui.setHDRImage(composer.getHDRTexture());
 		} catch (IOException e) {
