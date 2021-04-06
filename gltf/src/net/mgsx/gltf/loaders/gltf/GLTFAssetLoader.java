@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -30,6 +31,9 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 		private ObjectMap<Integer, AssetDescriptor<Texture>> textureDescriptorsSimple = new ObjectMap<Integer, AssetDescriptor<Texture>>();
 		private ObjectMap<Integer, AssetDescriptor<Texture>> textureDescriptorsMipMap = new ObjectMap<Integer, AssetDescriptor<Texture>>();
 		
+		private ObjectMap<Integer, Pixmap> pixmaps = new ObjectMap<Integer, Pixmap>();
+		private ObjectMap<Integer, TextureParameter> textureParameters = new ObjectMap<Integer, TextureParameter>();
+		
 		private GLTF glModel;
 		
 		public ManagedTextureResolver(GLTF glModel) {
@@ -47,6 +51,25 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 			}
 			for(Entry<Integer, AssetDescriptor<Texture>> e : textureDescriptorsMipMap){
 				texturesMipmap.put(e.key, manager.get(e.value));
+			}
+		}
+		
+		public void loadTextures(){
+			for(Entry<Integer, TextureParameter> entry : textureResolver.textureParameters){
+				TextureParameter params = entry.value;
+				GLTFTexture glTexure = glTextures.get(entry.key);
+				Pixmap pixmap = pixmaps.get(glTexure.source);
+				Texture texture = new Texture(pixmap, params.genMipMaps);
+				texture.setFilter(params.minFilter, params.magFilter);
+				texture.setWrap(params.wrapU, params.wrapV);
+				if(params.genMipMaps){
+					texturesMipmap.put(entry.key, texture);
+				}else{
+					texturesSimple.put(entry.key, texture);
+				}
+			}
+			for(Entry<Integer, Pixmap> entry : pixmaps){
+				entry.value.dispose();
 			}
 		}
 
@@ -69,12 +92,20 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 					}else{
 						GLTFTypes.mapTextureSampler(textureParameter);
 					}
-					AssetDescriptor<Texture> assetDescriptor = new AssetDescriptor<Texture>(imageFile, Texture.class, textureParameter);
-					deps.add(assetDescriptor);
-					if(textureParameter.genMipMaps){
-						textureDescriptorsMipMap.put(glTexture.source, assetDescriptor);
+					if(imageFile == null){
+						Pixmap pixmap = pixmaps.get(glTexture.source);
+						if(pixmap == null){
+							pixmaps.put(glTexture.source, pixmap = dataFileResolver.load(glImage));
+						}
+						textureParameters.put(i, textureParameter);
 					}else{
-						textureDescriptorsSimple.put(glTexture.source, assetDescriptor);
+						AssetDescriptor<Texture> assetDescriptor = new AssetDescriptor<Texture>(imageFile, Texture.class, textureParameter);
+						deps.add(assetDescriptor);
+						if(textureParameter.genMipMaps){
+							textureDescriptorsMipMap.put(glTexture.source, assetDescriptor);
+						}else{
+							textureDescriptorsSimple.put(glTexture.source, assetDescriptor);
+						}
 					}
 				}
 			}
@@ -104,6 +135,8 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 			SceneAssetLoaderParameters parameter) {
 		
 		final boolean withData = parameter != null && parameter.withData;
+		
+		textureResolver.loadTextures();
 		
 		GLTFLoaderBase loader = new GLTFLoaderBase(textureResolver);
 		SceneAsset sceneAsset = loader.load(dataFileResolver, withData);

@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBuffer;
+import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
@@ -65,7 +66,21 @@ public class SeparatedDataFileResolver implements DataFileResolver
 	@Override
 	public Pixmap load(GLTFImage glImage) {
 		if(glImage.uri == null){
-			throw new GLTFIllegalException("GLTF image URI cannot be null");
+			// load from buffer view
+			if(glImage.mimeType == null){
+				throw new GLTFIllegalException("GLTF image: both URI and mimeType cannot be null");
+			}
+			if(glImage.mimeType.equals("image/png") || glImage.mimeType.equals("image/jpeg")){
+				GLTFBufferView bufferView = glModel.bufferViews.get(glImage.bufferView);
+				ByteBuffer data = bufferMap.get(bufferView.buffer, null);
+				byte [] bytes = new byte[bufferView.byteLength];
+				data.position(bufferView.byteOffset);
+				data.get(bytes, 0, bufferView.byteLength);
+				data.rewind();
+				return PixmapBinaryLoaderHack.load(bytes, 0, bytes.length);
+			}else{
+				throw new GLTFIllegalException("GLTF image: unexpected mimeType: " + glImage.mimeType);
+			}
 		}else if(glImage.uri.startsWith("data:")){
 			// data:application/octet-stream;base64,
 			String [] headerBody = glImage.uri.split(",", 2);
