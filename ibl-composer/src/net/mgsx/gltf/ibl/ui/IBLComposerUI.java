@@ -75,7 +75,15 @@ public class IBLComposerUI extends Table
 		add().expand();
 		add(menuRight).expandY().top();
 		
-		Table menu = menuRight;
+		TabPane tabPane = new TabPane(skin);
+		
+		Table menuHDRI = new Table(skin);
+		Table menuBuilder = new Table(skin);
+		
+		tabPane.addPane("HDRI", menuHDRI);
+		tabPane.addPane("Builder", menuBuilder);
+		
+		Table menu = menuHDRI;
 		menu.add(title("HDRi")).colspan(2).row();
 		
 		menu.add(UI.change(new TextButton("Open HDR File", getSkin()), event->openHDR())).colspan(2).row();
@@ -84,6 +92,24 @@ public class IBLComposerUI extends Table
 		
 		menu.add("Exposure");
 		menu.add(exposureSlider = UI.change(new Slider(-1, 1, .01f, false, getSkin()), event->settings.setExposure(sliderToExposure(exposureSlider.getValue())))).row();
+		
+		menu = menuBuilder;
+		
+		// TODO color controllers!
+		
+		menu.add("Sky top");
+		menu.add().row();
+		menu.add("Sky bottom");
+		menu.add().row();
+		menu.add("Ground top");
+		menu.add().row();
+		menu.add("Ground bottom");
+		menu.add().row();
+		
+		
+		menu = menuRight;
+		
+		menu.add(tabPane).colspan(2).fill().row();
 		
 		menu.add(title("Environment Map")).colspan(2).row();
 		
