@@ -212,6 +212,24 @@ The library automatically enable this feature when possible, based on these cond
 
 # Troubleshooting
 
+## Rigged model partially rendered
+
+It's a common pitfall. Most of the time, that means you didn't configure numBones for your SceneManager shader providers.
+It's highly recommended to properly configure them for your need. Default configuration is rarely optimized or adapted to your need. 
+For example, if the maximum bones among all your models is 60, and you only need one directional light for all scenes in your game, you should create your SceneManager like this: 
+
+```
+PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
+config.numBones = 60;
+config.numDirectionalLights = 1;
+config.numPointLights = 0;
+
+Config depthConfig = PBRShaderProvider.createDefaultDepthConfig();
+depthConfig.numBones = 60;
+
+SceneManager sceneManager = new SceneManager(new PBRShaderProvider(config), new PBRDepthShaderProvider(depthConfig));
+```
+
 ## Max uniforms: Constant register limit exceeded, do not fit in N vectors
 
 You may encounter this shader compilation error in case too many uniform needed on current hardware.
