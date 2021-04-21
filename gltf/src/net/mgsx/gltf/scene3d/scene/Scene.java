@@ -39,7 +39,15 @@ public class Scene implements RenderableProvider, Updatable {
 	private static final Matrix4 transform = new Matrix4();
 	
 	public Scene(SceneModel sceneModel) {
-		this(new ModelInstanceHack(sceneModel.model));
+		this(new ModelInstanceHack(sceneModel.model), sceneModel);
+	}
+	
+	public Scene(SceneModel sceneModel, String...rootNodeIds) {
+		this(new ModelInstanceHack(sceneModel.model, rootNodeIds), sceneModel);
+	}
+	
+	private Scene(ModelInstance modelInstance, SceneModel sceneModel){
+		this(modelInstance);
 		for(Entry<Node, Camera> entry : sceneModel.cameras){
 			cameras.put(modelInstance.getNode(entry.key.id, true), createCamera(entry.value));
 		}
