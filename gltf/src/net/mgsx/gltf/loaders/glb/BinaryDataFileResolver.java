@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.StreamUtils;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
@@ -57,6 +56,7 @@ public class BinaryDataFileResolver implements DataFileResolver
 		if(version != 2) throw new GLTFIllegalException("bad version");
 		long length = stream.readInt();// & 0xFFFFFFFFL;
 		
+		byte[] buffer = new byte[1024 * 1024]; // 1MB buffer
 		String jsonData = null;
 		for(int i=12 ; i<length ; ){
 			int chunkLen = stream.readInt();
@@ -69,7 +69,10 @@ public class BinaryDataFileResolver implements DataFileResolver
 			}else if(chunkType == 0x004E4942){
 				ByteBuffer bufferData = ByteBuffer.allocate(chunkLen);
 				bufferData.order(ByteOrder.LITTLE_ENDIAN);
-				bufferData.put(StreamUtils.copyStreamToByteArray(stream));
+				int bytesRead;
+				while ((bytesRead = stream.read(buffer)) != -1) {
+					bufferData.put(buffer, 0, bytesRead);
+				}
 				bufferData.flip();
 				bufferMap.put(bufferMap.size, bufferData);
 			}else{
