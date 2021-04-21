@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.StreamUtils;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
@@ -68,8 +69,7 @@ public class BinaryDataFileResolver implements DataFileResolver
 			}else if(chunkType == 0x004E4942){
 				ByteBuffer bufferData = ByteBuffer.allocate(chunkLen);
 				bufferData.order(ByteOrder.LITTLE_ENDIAN);
-				for(int j=0 ; j<chunkLen ; j++) bufferData.put(stream.readByte()); // TODO optimize with stream copy utils ?
-				//StreamUtils.copyStream(stream, bufferData, chunkLen);
+				bufferData.put(StreamUtils.copyStreamToByteArray(stream));
 				bufferData.flip();
 				bufferMap.put(bufferMap.size, bufferData);
 			}else{

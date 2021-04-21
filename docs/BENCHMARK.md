@@ -19,11 +19,11 @@ Results:
 Consistency check...
 Warmup...
 Measuring...
-G3DJ (100 iterations), average time:284.32ms
-G3DB (100 iterations), average time:45.86ms
-GLTF separated (100 iterations), average time:11.7ms
-GLTF embeded (100 iterations), average time:47.05ms
-GLB (100 iterations), average time:141.81ms
-OBJ (100 iterations), average time:136.53ms
+G3DJ (100 iterations), average time:277.72ms
+G3DB (100 iterations), average time:46.17ms
+GLTF separated (100 iterations), average time:11.09ms
+GLTF embeded (100 iterations), average time:46.93ms
+GLB (100 iterations), average time:11.02ms
+OBJ (100 iterations), average time:132.8ms
 Done.
 ```
