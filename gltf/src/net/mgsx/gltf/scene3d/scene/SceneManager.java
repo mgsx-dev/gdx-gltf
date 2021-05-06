@@ -265,7 +265,7 @@ public class SceneManager implements Disposable {
 		return renderableProviders;
 	}
 
-	public void updateViewport(int width, int height) {
+	public void updateViewport(float width, float height) {
 		if(camera != null){
 			camera.viewportWidth = width;
 			camera.viewportHeight = height;
