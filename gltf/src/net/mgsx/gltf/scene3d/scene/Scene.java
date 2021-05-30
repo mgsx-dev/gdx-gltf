@@ -49,10 +49,16 @@ public class Scene implements RenderableProvider, Updatable {
 	private Scene(ModelInstance modelInstance, SceneModel sceneModel){
 		this(modelInstance);
 		for(Entry<Node, Camera> entry : sceneModel.cameras){
-			cameras.put(modelInstance.getNode(entry.key.id, true), createCamera(entry.value));
+			Node node = modelInstance.getNode(entry.key.id, true);
+			if(node != null){
+				cameras.put(node, createCamera(entry.value));
+			}
 		}
 		for(Entry<Node, BaseLight> entry : sceneModel.lights){
-			lights.put(modelInstance.getNode(entry.key.id, true), createLight(entry.value));
+			Node node = modelInstance.getNode(entry.key.id, true);
+			if(node != null){
+				lights.put(node, createLight(entry.value));
+			}
 		}
 		syncCameras();
 		syncLights();
