@@ -64,15 +64,18 @@ public class BinaryDataFileResolver implements DataFileResolver
 			i += 8;			// chunkLen % 4;
 			if(chunkType == 0x4E4F534A){
 				byte[] data = new byte[(int)chunkLen];
-				stream.read(data, 0, chunkLen);
+				stream.readFully(data, 0, chunkLen);
 				jsonData = new String(data);
 			}else if(chunkType == 0x004E4942){
 				ByteBuffer bufferData = ByteBuffer.allocate(chunkLen);
 				bufferData.order(ByteOrder.LITTLE_ENDIAN);
+				int bytesToRead = chunkLen;
 				int bytesRead;
-				while ((bytesRead = stream.read(buffer)) != -1) {
+				while (bytesToRead > 0 && (bytesRead = stream.read(buffer, 0, Math.min(buffer.length, bytesToRead))) != -1) {
 					bufferData.put(buffer, 0, bytesRead);
+					bytesToRead -= bytesRead;
 				}
+				if(bytesToRead > 0) throw new GLTFIllegalException("premature end of file");
 				bufferData.flip();
 				bufferMap.put(bufferMap.size, bufferData);
 			}else{
