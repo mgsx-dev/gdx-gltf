@@ -5,6 +5,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -70,22 +71,55 @@ public class MeshLoader {
 					boolean rawAttribute = true;
 					
 					if(attributeName.equals("POSITION")){
+						if(!(GLTFTypes.TYPE_VEC3.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal position attribute format");
 						vertexAttributes.add(VertexAttribute.Position());
 					}else if(attributeName.equals("NORMAL")){
+						if(!(GLTFTypes.TYPE_VEC3.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal normal attribute format");
 						vertexAttributes.add(VertexAttribute.Normal());
 						hasNormals = true;
 					}else if(attributeName.equals("TANGENT")){
+						if(!(GLTFTypes.TYPE_VEC4.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal tangent attribute format");
 						vertexAttributes.add(new VertexAttribute(Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE));
 					}else if(attributeName.startsWith("TEXCOORD_")){
+						if(!GLTFTypes.TYPE_VEC2.equals(accessor.type)) throw new GLTFIllegalException("illegal texture coordinate attribute type : " + accessor.type);
+						if(accessor.componentType == GLTFTypes.C_UBYTE) throw new GLTFUnsupportedException("unsigned byte texture coordinate attribute not supported");
+						if(accessor.componentType == GLTFTypes.C_USHORT) throw new GLTFUnsupportedException("unsigned short texture coordinate attribute not supported");
+						if(accessor.componentType != GLTFTypes.C_FLOAT) throw new GLTFIllegalException("illegal texture coordinate component type : " + accessor.componentType);
 						int unit = parseAttributeUnit(attributeName);
 						vertexAttributes.add(VertexAttribute.TexCoords(unit));
 					}else if(attributeName.startsWith("COLOR_")){
 						int unit = parseAttributeUnit(attributeName);
-						if(unit == 0){
-							vertexAttributes.add(VertexAttribute.ColorUnpacked());
-						}else{
-							vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE + unit, unit));
+						String alias = unit > 0 ? ShaderProgram.COLOR_ATTRIBUTE + unit : ShaderProgram.COLOR_ATTRIBUTE;
+						if(GLTFTypes.TYPE_VEC4.equals(accessor.type)){
+							if(GLTFTypes.C_FLOAT == accessor.componentType){
+								vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, alias));
+							}
+							else if(GLTFTypes.C_USHORT == accessor.componentType){
+								vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_UNSIGNED_SHORT, true, alias));
+							}
+							else if(GLTFTypes.C_UBYTE == accessor.componentType){
+								vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_UNSIGNED_BYTE, true, alias));
+							}else{
+								throw new GLTFIllegalException("illegal color attribute component type: " + accessor.type);
+							}
 						}
+						else if(GLTFTypes.TYPE_VEC3.equals(accessor.type)){
+							if(GLTFTypes.C_FLOAT == accessor.componentType){
+								vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 3, GL20.GL_FLOAT, false, alias));
+							}
+							else if(GLTFTypes.C_USHORT == accessor.componentType){
+								throw new GLTFUnsupportedException("RGB unsigned short color attribute not supported");
+							}
+							else if(GLTFTypes.C_UBYTE == accessor.componentType){
+								throw new GLTFUnsupportedException("RGB unsigned byte color attribute not supported");
+							}else{
+								throw new GLTFIllegalException("illegal color attribute component type: " + accessor.type);
+							}
+						}
+						else{
+							throw new GLTFIllegalException("illegal color attribute type: " + accessor.type);
+						}
+							
 					}else if(attributeName.startsWith("WEIGHTS_")){
 						rawAttribute = false;
 						
@@ -158,10 +192,13 @@ public class MeshLoader {
 							glAccessors.add(accessor);
 							
 							if(attributeName.equals("POSITION")){
+								if(!(GLTFTypes.TYPE_VEC3.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal morph target position attribute format");
 								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.PositionTarget, 3, ShaderProgram.POSITION_ATTRIBUTE+unit, unit));
 							}else if(attributeName.equals("NORMAL")){
+								if(!(GLTFTypes.TYPE_VEC3.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal morph target normal attribute format");
 								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.NormalTarget, 3, ShaderProgram.NORMAL_ATTRIBUTE + unit, unit));
 							}else if(attributeName.equals("TANGENT")){
+								if(!(GLTFTypes.TYPE_VEC3.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal morph target tangent attribute format");
 								vertexAttributes.add(new VertexAttribute(PBRVertexAttributes.Usage.TangentTarget, 3, ShaderProgram.TANGENT_ATTRIBUTE + unit, unit));
 							}else{
 								throw new GLTFIllegalException("illegal morph target attribute type " + attributeName);
@@ -225,9 +262,10 @@ public class MeshLoader {
 					
 					FloatBuffer floatBuffer = dataResolver.getBufferFloat(glAccessor);
 					
-					// buffer can be interleaved, so we 
-					// in some cases we have to compute vertex stride
-					int floatStride = (glBufferView.byteStride == null ? GLTFTypes.accessorStrideSize(glAccessor) : glBufferView.byteStride) / 4;
+					int attributeFloats = GLTFTypes.accessorStrideSize(glAccessor) / 4;
+
+					// buffer can be interleaved, so vertex stride may be different than vertex size 
+					int floatStride = glBufferView.byteStride == null ? attributeFloats : glBufferView.byteStride / 4;
 					
 					for(int j=0 ; j<glAccessor.count ; j++){
 						
@@ -235,7 +273,7 @@ public class MeshLoader {
 						
 						int vIndex = j * vertexFloats + attribute.offset/4;
 						
-						floatBuffer.get(vertices, vIndex, attribute.numComponents);
+						floatBuffer.get(vertices, vIndex, attributeFloats);
 					}
 				}
 				

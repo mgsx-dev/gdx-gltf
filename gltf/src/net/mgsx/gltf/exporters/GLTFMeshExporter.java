@@ -89,6 +89,7 @@ class GLTFMeshExporter {
 		int numVertices = mesh.getNumVertices();
 		for(VertexAttribute a : mesh.getVertexAttributes()){
 			String accessorType;
+			int accessorComponentType = GLTFTypes.C_FLOAT;
 			boolean useTargets = false;
 			final String attributeKey;
 			if(a.usage == Usage.Position){
@@ -103,6 +104,15 @@ class GLTFMeshExporter {
 			}else if(a.usage == Usage.ColorUnpacked){
 				attributeKey = "COLOR_" + a.unit;
 				accessorType = GLTFTypes.TYPE_VEC4;
+				if(a.type == GL20.GL_FLOAT){
+					accessorComponentType = GLTFTypes.C_FLOAT;			
+				}else if(a.type == GL20.GL_UNSIGNED_SHORT){
+					accessorComponentType = GLTFTypes.C_USHORT;
+				}else if(a.type == GL20.GL_UNSIGNED_BYTE){
+					accessorComponentType = GLTFTypes.C_UBYTE;
+				}else{
+					throw new GdxRuntimeException("color attribute format not supported");
+				}
 			}else if(a.usage == Usage.TextureCoordinates){
 				attributeKey = "TEXCOORD_" + a.unit;
 				accessorType = GLTFTypes.TYPE_VEC2;
@@ -149,7 +159,7 @@ class GLTFMeshExporter {
 			
 			GLTFAccessor accessor = base.obtainAccessor();
 			accessor.type = accessorType;
-			accessor.componentType = GLTFTypes.C_FLOAT;
+			accessor.componentType = accessorComponentType;
 			accessor.count = numVertices;
 			
 			if(useTargets){
@@ -160,11 +170,13 @@ class GLTFMeshExporter {
 				primitive.attributes.put(attributeKey, base.root.accessors.size-1);
 			}
 			
-			FloatBuffer outBuffer = base.binManager.beginFloats(numVertices * a.numComponents);
+			int attributeFloats = GLTFTypes.accessorStrideSize(accessor) / 4;
+			
+			FloatBuffer outBuffer = base.binManager.beginFloats(numVertices * attributeFloats);
 			
 			for(int i=0 ; i<numVertices ; i++){
 				vertices.position(i * stride + a.offset/4);
-				for(int j=0 ; j<a.numComponents ; j++){
+				for(int j=0 ; j<attributeFloats ; j++){
 					outBuffer.put(vertices.get());
 				}
 			}
