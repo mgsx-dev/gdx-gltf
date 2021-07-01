@@ -383,23 +383,17 @@ public class MeshLoader {
 						maxIndex = Math.max(index, maxIndex);
 						indices[i] = (short)(index);
 					}
-					checkMaxIndex(maxIndex);
+					// Values used by some graphics APIs as "primitive restart" values are disallowed.
+			        // Specifically, the value 65535 (in UINT16) cannot be used as a vertex index. 
+					if(maxIndex >= 65535){
+						// TODO split
+						throw new GLTFUnsupportedException("high index detected: " + maxIndex + ". Not supported");
+					}
 				}
 				break;
 			case GLTFTypes.C_USHORT:
 			case GLTFTypes.C_SHORT:
 				dataResolver.getBufferShort(indicesAccessor).get(indices);
-				
-				int maxIndex;
-				if(indicesAccessor.max != null){
-					maxIndex = (int)indicesAccessor.max[0];
-				}else{
-					maxIndex = 0;
-					for(short i : indices){
-						maxIndex = Math.max(maxIndex, i & 0xFFFF);
-					}
-				}
-				checkMaxIndex(maxIndex);
 				break;
 			case GLTFTypes.C_UBYTE:
 				ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
@@ -424,10 +418,4 @@ public class MeshLoader {
 		return meshes;
 	}
 
-	private void checkMaxIndex(long maxIndex){
-		if(maxIndex >= 1<<16){
-			throw new GLTFUnsupportedException("high index detected: " + maxIndex + ". Not supported");
-		}
-	}
-	
 }
