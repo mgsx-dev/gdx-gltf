@@ -140,20 +140,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		String prefix = createPrefixBase(renderable, config);
 		
-		if(Gdx.app.getType() == ApplicationType.WebGL || !isGL3()){
-			// extension required to auto compute tangents
-			if(renderable.meshPart.mesh.getVertexAttribute(VertexAttributes.Usage.Tangent) == null && config.useTangentSpace){
-				// not that WebGL need that call to allow extension to be enabled in shaders.
-				if(Gdx.graphics.supportsExtension("GL_OES_standard_derivatives")){
-					prefix += "#define USE_DERIVATIVES_EXT\n";
-				}else{
-					throw new GdxRuntimeException("GL_OES_standard_derivatives extension or tangent vertex attribute required");
-				}
-			}
-		}
-		
 		// Morph targets
-		
 		prefix += morphTargetsPrefix(renderable);
 		
 		// Lighting
