@@ -48,7 +48,7 @@ public class GLTFTypes {
 	
 	/** https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#primitivemode */
 	public static int mapPrimitiveMode(Integer glMode){
-		if(glMode == null) return GL20.GL_TRIANGLES; // TODO not sure
+		if(glMode == null) return GL20.GL_TRIANGLES;
 		switch (glMode) {
 		case 0: return GL20.GL_POINTS;
 		case 1: return GL20.GL_LINES;
