@@ -9,12 +9,13 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 
 * Simpler workflow : no fbx-conv required, you can load gltf files directly.
 * Load cameras, lights, custom properties from Blender and other 3D softwares.
+* Support loading LINES and POINTS primitives.
 * Shape keys / Animated shape keys (aka MorphTarget) feature.
 * Multiple animations playback
 * Non linear animations keyframes interpolation ("step" and "cubic" supported)
 * Out of the box shaders for normal maps, metallic/roughness, Image based lighting (IBL) and more.
 * Texture coordinates transform.
-* 64k vertices supported (instead of 32k)
+* 64k vertices supported (instead of 32k). Meshes with integer indices are split to 64k chunks as well.
 * Faster loading time, see [benchmark](docs/BENCHMARK.md)
 
 **What's more than a 3D format parser in gdx-gltf library?**
@@ -194,8 +195,10 @@ This repository is made of a library and a demo :
 
 ### Mesh limitations
 
-Both LibGDX and gdx-gltf supports unsigned short indices : a mesh is then limited to 65535 vertices.
-Both signed int and unsigned int indices are not supported (and not supported by all GPUs anyway).
+Because LibGDX (and some GPUs) only supports unsigned short indices, meshes with integer indices are split into 64k chunks automatically at load time. For best loading performance, it's recommended to split your meshes beforehand (eg. in Blender).
+
+Note that Blender vertex count can be misleading because exported geometry may contains more vertices because of
+normal split, texture coordinates split or vertex color split.
 
 ### WebGL limitations
 
@@ -244,28 +247,10 @@ It typically means you may have too many bones. A single bone takes 4 uniforms (
 That mean you should keep bones count under 50 per skeleton.
 
 
-## Max vertices: high index detected
-
-You may encounter `high index detected` warnings or errors. 
-
-It means you may have too many vertices in a mesh. Try to reduce or split them before exporting to GLTF :
-
-* 64k vertices are fully supported.
-* more vertices are not supported at all.
-
-Note that this limitation is per mesh, not for a whole scene.
-
-Note that Blender vertex count can be misleading because exported geometry may contains more vertices because of
-normal split, texture coordinates split or vertex color split.
-Note that Blender glTF exporter split meshes for you to keep your vertices count below 64k.
-
 ## Tangent vertex attributes
 
-Without tangents, some old GPUs / OpenGL version, require an extension which may not be available.
-
-In this case you'll get the following error : `GL_OES_standard_derivatives extension or tangent vertex attribute required`
-
-It's then highly recommended to always provide tangent vertex attributes, it improve performances as well.
+When tangent attribute is missing and needed (when normal map is used), those are generated automatically.
+For best loading performance, it's recommended to export them within your GLTF files.
 
 ## Max vertex attributes : too many vertex attributes
 

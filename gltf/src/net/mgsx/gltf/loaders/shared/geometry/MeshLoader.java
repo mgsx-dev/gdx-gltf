@@ -2,7 +2,6 @@ package net.mgsx.gltf.loaders.shared.geometry;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,11 +9,11 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -30,6 +29,7 @@ import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
@@ -51,9 +51,15 @@ public class MeshLoader {
 			
 			for(GLTFPrimitive primitive : glMesh.primitives){
 				
-				// indices
-				short [] indices = loadIndices(primitive, dataResolver);
-				int maxIndices = indices == null ? 0 : indices.length;
+				final int glPrimitiveType = GLTFTypes.mapPrimitiveMode(primitive.mode);
+				
+				// material
+				Material material;
+				if(primitive.material != null){
+					material = materialLoader.get(primitive.material);
+				}else{
+					material = materialLoader.getDefaultMaterial();
+				}
 				
 				// vertices
 				Array<VertexAttribute> vertexAttributes = new Array<VertexAttribute>();
@@ -63,6 +69,7 @@ public class MeshLoader {
 				Array<float[]> bonesWeights = new Array<float[]>();
 				
 				boolean hasNormals = false;
+				boolean hasTangent = false;
 				
 				for(Entry<String, Integer> attribute : primitive.attributes){
 					String attributeName = attribute.key;
@@ -80,6 +87,7 @@ public class MeshLoader {
 					}else if(attributeName.equals("TANGENT")){
 						if(!(GLTFTypes.TYPE_VEC4.equals(accessor.type) && accessor.componentType == GLTFTypes.C_FLOAT)) throw new GLTFIllegalException("illegal tangent attribute format");
 						vertexAttributes.add(new VertexAttribute(Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE));
+						hasTangent = true;
 					}else if(attributeName.startsWith("TEXCOORD_")){
 						if(!GLTFTypes.TYPE_VEC2.equals(accessor.type)) throw new GLTFIllegalException("illegal texture coordinate attribute type : " + accessor.type);
 						if(accessor.componentType == GLTFTypes.C_UBYTE) throw new GLTFUnsupportedException("unsigned byte texture coordinate attribute not supported");
@@ -217,9 +225,31 @@ public class MeshLoader {
 					bonesAttributes.add(boneAttribute);
 				}
 				
-				if(!hasNormals){
-					vertexAttributes.add(VertexAttribute.Normal());
-					glAccessors.add(null);
+				// add missing vertex attributes (normals and tangent)
+				boolean computeNormals = false;
+				boolean computeTangents = false;
+				VertexAttribute normalMapUVs = null;
+				if(glPrimitiveType == GL20.GL_TRIANGLES){
+					if(!hasNormals){
+						vertexAttributes.add(VertexAttribute.Normal());
+						glAccessors.add(null);
+						computeNormals = true;
+					}
+					if(!hasTangent){
+						// tangent is only needed when normal map is used
+						PBRTextureAttribute normalMap = material.get(PBRTextureAttribute.class, PBRTextureAttribute.NormalTexture);
+						if(normalMap != null){
+							vertexAttributes.add(new VertexAttribute(Usage.Tangent, 4, ShaderProgram.TANGENT_ATTRIBUTE));
+							glAccessors.add(null);
+							computeTangents = true;
+							for(VertexAttribute attribute : vertexAttributes){
+								if(attribute.usage == Usage.TextureCoordinates && attribute.unit == normalMap.uvIndex){
+									normalMapUVs = attribute;
+								}
+							}
+							if(normalMapUVs == null) throw new GLTFIllegalException("UVs not found for normal map");
+						}
+					}
 				}
 				
 				VertexAttributes attributesGroup = new VertexAttributes((VertexAttribute[])vertexAttributes.toArray(VertexAttribute.class));
@@ -277,77 +307,118 @@ public class MeshLoader {
 					}
 				}
 				
-				if(!hasNormals){
-					int posOffset = attributesGroup.getOffset(VertexAttributes.Usage.Position);
-					int normalOffset = attributesGroup.getOffset(VertexAttributes.Usage.Normal);
-					int stride = attributesGroup.vertexSize / 4;
+				// indices
+				if(primitive.indices != null){
 					
-					Vector3 vab = new Vector3();
-					Vector3 vac = new Vector3();
-					for(int index = 0 ; index<maxIndices ; ){
-						
-						int vIndexA = indices[index++];
-						float ax = vertices[vIndexA * stride + posOffset];
-						float ay = vertices[vIndexA * stride + posOffset+1];
-						float az = vertices[vIndexA * stride + posOffset+2];
-						
-						int vIndexB = indices[index++];
-						float bx = vertices[vIndexB * stride + posOffset];
-						float by = vertices[vIndexB * stride + posOffset+1];
-						float bz = vertices[vIndexB * stride + posOffset+2];
-						
-						int vIndexC = indices[index++];
-						float cx = vertices[vIndexC * stride + posOffset];
-						float cy = vertices[vIndexC * stride + posOffset+1];
-						float cz = vertices[vIndexC * stride + posOffset+2];
-						
-						vab.set(bx,by,bz).sub(ax,ay,az);
-						vac.set(cx,cy,cz).sub(ax,ay,az);
-						Vector3 n = vab.crs(vac).nor();
-						
-						vertices[vIndexA * stride + normalOffset] = n.x;
-						vertices[vIndexA * stride + normalOffset+1] = n.y;
-						vertices[vIndexA * stride + normalOffset+2] = n.z;
-						
-						vertices[vIndexB * stride + normalOffset] = n.x;
-						vertices[vIndexB * stride + normalOffset+1] = n.y;
-						vertices[vIndexB * stride + normalOffset+2] = n.z;
-						
-						vertices[vIndexC * stride + normalOffset] = n.x;
-						vertices[vIndexC * stride + normalOffset+1] = n.y;
-						vertices[vIndexC * stride + normalOffset+2] = n.z;
-						
+					GLTFAccessor indicesAccessor = dataResolver.getAccessor(primitive.indices);
+					
+					if(!indicesAccessor.type.equals(GLTFTypes.TYPE_SCALAR)){
+						throw new GLTFIllegalException("indices accessor must be SCALAR but was " + indicesAccessor.type);
 					}
-				}
-				
-				Mesh mesh = new Mesh(true, maxVertices, maxIndices, attributesGroup);
-				meshes.add(mesh);
-				mesh.setVertices(vertices);
-				
-				if(indices != null){
-					mesh.setIndices(indices);
-				}
-				
-				int len = indices == null ? maxVertices : indices.length;
-				
-				MeshPart meshPart = new MeshPart(glMesh.name, mesh, 0, len, GLTFTypes.mapPrimitiveMode(primitive.mode));
-				
-				
-				NodePartPlus nodePart = new NodePartPlus();
-				nodePart.morphTargets = ((NodePlus)node).weights;
-				nodePart.meshPart = meshPart;
-				if(primitive.material != null){
-					nodePart.material = materialLoader.get(primitive.material);
+						
+					int maxIndices = indicesAccessor.count;
+					
+					switch(indicesAccessor.componentType){
+					case GLTFTypes.C_UINT:
+						{
+							Gdx.app.error("GLTF", "integer indices partially supported, mesh will be split");
+							Gdx.app.error("GLTF", "splitting mesh: " + maxVertices + " vertices, " + maxIndices + " indices.");
+
+							int verticesPerPrimitive;
+							if(glPrimitiveType == GL20.GL_TRIANGLES){
+								verticesPerPrimitive = 3;
+							}else if(glPrimitiveType == GL20.GL_LINES){
+								verticesPerPrimitive = 2;
+							}else{
+								throw new GLTFUnsupportedException("integer indices only supported for triangles or lines");
+							}
+							
+							int [] indices = new int[maxIndices];
+							dataResolver.getBufferInt(indicesAccessor).get(indices);
+							
+							Array<float[]> splitVertices = new Array<float[]>();
+							Array<short[]> splitIndices = new Array<short[]>();
+							
+							MeshSpliter.split(splitVertices, splitIndices, vertices, attributesGroup, indices, verticesPerPrimitive);
+							
+							int stride = attributesGroup.vertexSize / 4;
+							int groups = splitIndices.size;
+							int totalVertices = 0;
+							int totalIndices = 0;
+							for(int i=0 ; i<groups ; i++){
+								float[] groupVertices = splitVertices.get(i);
+								short[] groupIndices = splitIndices.get(i);
+								int groupVertexCount = groupVertices.length / stride;
+								
+								totalVertices += groupVertexCount;
+								totalIndices += groupIndices.length;
+								
+								Gdx.app.error("GLTF", "generate mesh: " + groupVertexCount + " vertices, " + groupIndices.length + " indices.");
+								
+								generateParts(node, parts, material, glMesh.name, groupVertices, groupVertexCount, groupIndices, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs);
+							}
+							Gdx.app.error("GLTF", "mesh split: " + parts.size + " meshes generated: " + totalVertices + " vertices, " + totalIndices + " indices.");
+						}
+						break;
+					case GLTFTypes.C_USHORT:
+					case GLTFTypes.C_SHORT:
+					{
+						short [] indices = new short[maxIndices];
+						dataResolver.getBufferShort(indicesAccessor).get(indices);
+						generateParts(node, parts, material, glMesh.name, vertices, maxVertices, indices, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs);
+						break;
+					}
+					case GLTFTypes.C_UBYTE:
+					{
+						short [] indices = new short[maxIndices];
+						ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
+						for(int i=0 ; i<maxIndices ; i++){
+							indices[i] = (short)(byteBuffer.get() & 0xFF);
+						}
+						generateParts(node, parts, material, glMesh.name, vertices, maxVertices, indices, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs);
+						break;
+					}
+					default:
+						throw new GLTFIllegalException("illegal componentType " + indicesAccessor.componentType);
+					}
 				}else{
-					nodePart.material = materialLoader.getDefaultMaterial();
+					// non indexed mesh
+					generateParts(node, parts, material, glMesh.name, vertices, maxVertices, null, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs);
 				}
-				
-				parts.add(nodePart);
 			}
-			
 			meshMap.put(glMesh, parts);
 		}
 		node.parts.addAll(parts);
+	}
+
+	private void generateParts(Node node, Array<NodePart> parts, Material material, String id, float[] vertices, int vertexCount, short[] indices, VertexAttributes attributesGroup, int glPrimitiveType, boolean computeNormals, boolean computeTangents, VertexAttribute normalMapUVs) {
+
+		if(computeNormals || computeTangents){
+			if(computeNormals && computeTangents) Gdx.app.log("GLTF", "compute normals and tangents for primitive " + id);
+			else if(computeTangents) Gdx.app.log("GLTF", "compute tangents for primitive " + id);
+			else Gdx.app.log("GLTF", "compute normals for primitive " + id);
+			MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs);
+		}
+		
+		Mesh mesh = new Mesh(true, vertexCount, indices == null ? 0 : indices.length, attributesGroup);
+		meshes.add(mesh);
+		mesh.setVertices(vertices);
+		
+		if(indices != null){
+			mesh.setIndices(indices);
+		}
+		
+		int len = indices == null ? vertexCount : indices.length;
+		
+		MeshPart meshPart = new MeshPart(id, mesh, 0, len, glPrimitiveType);
+		
+		
+		NodePartPlus nodePart = new NodePartPlus();
+		nodePart.morphTargets = ((NodePlus)node).weights;
+		nodePart.meshPart = meshPart;
+		nodePart.material = material;
+		parts.add(nodePart);
+		
 	}
 
 	private int parseAttributeUnit(String attributeName) {
@@ -357,57 +428,6 @@ public class MeshLoader {
 		}catch(NumberFormatException e){
 			throw new GLTFIllegalException("illegal attribute name " + attributeName);
 		}
-	}
-
-	private short[] loadIndices(GLTFPrimitive primitive, DataResolver dataResolver) {
-		short [] indices = null;
-		
-		if(primitive.indices != null){
-			
-			GLTFAccessor indicesAccessor = dataResolver.getAccessor(primitive.indices);
-			
-			if(!indicesAccessor.type.equals(GLTFTypes.TYPE_SCALAR)){
-				throw new GLTFIllegalException("indices accessor must be SCALAR but was " + indicesAccessor.type);
-			}
-				
-			int maxIndices = indicesAccessor.count;
-			indices = new short[maxIndices];
-			
-			switch(indicesAccessor.componentType){
-			case GLTFTypes.C_UINT:
-				{
-					IntBuffer intBuffer = dataResolver.getBufferInt(indicesAccessor);
-					long maxIndex = 0;
-					for(int i=0 ; i<maxIndices ; i++){
-						long index = intBuffer.get() & 0xFFFFFFFFL;
-						maxIndex = Math.max(index, maxIndex);
-						indices[i] = (short)(index);
-					}
-					// Values used by some graphics APIs as "primitive restart" values are disallowed.
-			        // Specifically, the value 65535 (in UINT16) cannot be used as a vertex index. 
-					if(maxIndex >= 65535){
-						// TODO split
-						throw new GLTFUnsupportedException("high index detected: " + maxIndex + ". Not supported");
-					}
-				}
-				break;
-			case GLTFTypes.C_USHORT:
-			case GLTFTypes.C_SHORT:
-				dataResolver.getBufferShort(indicesAccessor).get(indices);
-				break;
-			case GLTFTypes.C_UBYTE:
-				ByteBuffer byteBuffer = dataResolver.getBufferByte(indicesAccessor);
-				for(int i=0 ; i<maxIndices ; i++){
-					indices[i] = (short)(byteBuffer.get() & 0xFF);
-				}
-				break;
-			default:
-				throw new GLTFIllegalException("illegal componentType " + indicesAccessor.componentType);
-			}
-					
-		}
-		
-		return indices;
 	}
 
 	public int getMaxBones() {

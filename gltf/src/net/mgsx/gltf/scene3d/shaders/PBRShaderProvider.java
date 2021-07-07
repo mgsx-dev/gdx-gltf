@@ -2,6 +2,7 @@ package net.mgsx.gltf.scene3d.shaders;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -156,8 +157,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		prefix += morphTargetsPrefix(renderable);
 		
 		// Lighting
+		int primitiveType = renderable.meshPart.primitiveType;
+		boolean isLineOrPoint = primitiveType == GL20.GL_POINTS || primitiveType == GL20.GL_LINES || primitiveType == GL20.GL_LINE_LOOP || primitiveType == GL20.GL_LINE_STRIP;
 		
-		if(renderable.material.has(PBRFlagAttribute.Unlit)){
+		if(renderable.material.has(PBRFlagAttribute.Unlit) || isLineOrPoint){
 			
 			prefix += "#define unlitFlag\n";
 			
@@ -217,7 +220,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		
 		// multi UVs
-		int maxUVIndex = 0;
+		int maxUVIndex = -1;
 		
 		{
 			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, TextureAttribute.Diffuse);
