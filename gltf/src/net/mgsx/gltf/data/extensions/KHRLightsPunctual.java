@@ -82,17 +82,8 @@ abstract public class KHRLightsPunctual {
 			sl.intensity = light.intensity / 10f;
 			sl.range = light.range;
 			
-			// from https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
-			float cosOuterAngle = (float)Math.cos(light.spot.outerConeAngle);
-			float cosInnerAngle = (float)Math.cos(light.spot.innerConeAngle);
-			float lightAngleScale = 1.0f / Math.max(0.001f, cosInnerAngle - cosOuterAngle);
-			float lightAngleOffset = -cosOuterAngle * lightAngleScale;
+			sl.setConeRad(light.spot.outerConeAngle, light.spot.innerConeAngle);
 			
-			// XXX we hack libgdx cutoffAngle and exponent variables to store cached scale/offset values.
-			// it's not an issue since libgdx default shader doesn't implement spot lights.
-			
-			sl.cutoffAngle = lightAngleOffset;
-			sl.exponent = lightAngleScale;
 			return sl;
 		} else{
 			throw new GdxRuntimeException("unsupported light type " + light.type);
