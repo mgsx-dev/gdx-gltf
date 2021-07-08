@@ -38,18 +38,12 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 - Tangent space recalculation not really defined and morphed normals doesn't really work ...
   see: https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-a-tangent-space-recalculation
 
-## max vertices
-
-Libgdx has a limit of 32767 vertices because of short indices (note: index 32767 is reserved, that's why limit is not 32768)
-
-Limit can be easily raised to 64k using unsigned short. This is the reason of MeshPlus hack.
-
-In order get rid of max vertices limit, indices array should use int (in order to support unsigned int).
-For unsigned int case (index greater than max integer) there is no solution in java because array require int.
-However if only NIO buffer are used it may not be an issue.
-
-
 ## Extensions
 
-* **KHR_materials_pbrSpecularGlossiness** not yet implemented
+Extension used by Blender exporter and not implemented :
+
+* **KHR_materials_pbrSpecularGlossiness**
+* **KHR_materials_clearcoat** 
+* **KHR_materials_transmission** 
+* **KHR_draco_mesh_compression**  
 

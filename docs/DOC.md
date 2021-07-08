@@ -108,55 +108,62 @@ You can then retrieve attributes in your custom vertex shader : **a_color1** for
 For compatibility reasons, 1st layer is **a_color**
 
 
-## Export from Blender (2.80+)
+## Export from Blender (2.93 LTS or newer)
 
-### A complete example
+First you have to read the [Blender GLTF exporter documentation](https://docs.blender.org/manual/en/2.93/addons/import_export/scene_gltf2.html) to know how to setup your materials and what kind of objects can be exported.
 
 ### GLTF exporter options
 
-Based on glTF Exporter 0.9.36 addon.
+Based on glTF Exporter 1.6.16 addon (Blender 2.93.1 LTS).
 
 Here is the recommended settings and some hint about some of them :
 
-<img src="../img/blender-gltf-export-general.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-main.png" style="float: left; margin: 5px 30px;">
 
 **General settings:**
 
 * Format: glTF separate is recommended for best loading time performances and compatibility.
 
+<br style="clear: both;">
+
+
+<img src="../img/blender-gltf-include.png" style="float: left; margin: 5px 30px;">
+
+**What to include:**
+
+* Limit to: By default Blender export only enabled collections. It's helpful to exclude some objects (guides) or split into several files. You can check some boxes here to fine tune your selection.
+* Cameras and Punctual lights: Check these if your want to export cameras and lights (point, sun and spot lights are supported)
 * Custom properties: should be checked if you want to export shape keys names or any user defined properties, see [Custom Properties section](#custom-properties)
 
 <br style="clear: both;">
 
 
-<img src="../img/blender-gltf-export-meshes.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-geometry.png" style="float: left; margin: 5px 30px;">
 
-**Mesh settings:**
+**Geometry settings:**
 
 * Normals: not mandatory but recomended, when not exported flat normals will be generated at loading time.
-* Tangents: only important if your models use normal maps. Include them for better loading time.
+* Tangents: not mandatory but recomended, when not exported they are generated at loading time.
 * Vertex Colors: only one vertex color attribute is supported by gdx-gltf PBR shader but you can have multiple one to be used in your custom shader or any other advanced usage.
-* Draco mesh compression: not supported by gdx-gltf for now.
+* Looses Edges and Points: Export edges only models or vertex only models. They will be rendered as `GL_LINES` or `GL_POINTS`.
 
-<br style="clear: both;">
+Note that these attributes will only be exported when geometry have them. For example, if an object doesn't have UVs, the exported mesh won't have UVs even if the box is checked, so it doesn't hurt to have them checked.
 
-
-<img src="../img/blender-gltf-export-objects.png" style="float: left; margin: 5px 30px;">
-
-**Object settings:**
-
-* Cameras: exports cameras.
-* Punctual lights: export lights (all light types). Note: Area Lights are not supported by Blender exporter.
+* Compression: not supported by gdx-gltf for now.
 
 
 <br style="clear: both;">
 
 
-<img src="../img/blender-gltf-export-animations.png" style="float: left; margin: 5px 30px;">
+<img src="../img/blender-gltf-animations.png" style="float: left; margin: 5px 30px;">
 
 **Animation settings:**
 
+* Use current frame: You rarely want that, when unchecked it will export models in base pose regardless of current playback frame.
+* Limit to playback range: You rarely want that, when unchecked it will export animations as is regardless of current playback range.
 * Always Sample Animation: Required when using bone constraints (IK), set a proper Sampling Rate in this case to limit number of keyframes: too many keyframes may impact performances (loading, memory and playback).
+* Group by NLA track: You need to have this checked in order to export all animations including not active ones (stashed or pushed).
+* Export deformation bones only: Uncheck that if you want to export some bones used as placeholder (eg. weapon attachement).
 * Include All Bone Influences: by default, exporter will limit to 4 influences (4 bones influences a vertex), you can disable this limit if you need more: gdx-gltf supports up to 8 influences, you then have to manually limit influences in your skinning (in Weight Paint mode, you can limit total weights).
 * Shape Key Tangent: required if your model with shape keys uses normal maps.
 
