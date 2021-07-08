@@ -118,29 +118,23 @@ Based on glTF Exporter 1.6.16 addon (Blender 2.93.1 LTS).
 
 Here is the recommended settings and some hint about some of them :
 
-<img src="../img/blender-gltf-main.png" style="float: left; margin: 5px 30px;">
-
 **General settings:**
+
+<img src="../img/blender-gltf-main.png" style="margin: 5px 30px;">
 
 * Format: glTF separate is recommended for best loading time performances and compatibility.
 
-<br style="clear: both;">
-
-
-<img src="../img/blender-gltf-include.png" style="float: left; margin: 5px 30px;">
-
 **What to include:**
+
+<img src="../img/blender-gltf-include.png" style="margin: 5px 30px;">
 
 * Limit to: By default Blender export only enabled collections. It's helpful to exclude some objects (guides) or split into several files. You can check some boxes here to fine tune your selection.
 * Cameras and Punctual lights: Check these if your want to export cameras and lights (point, sun and spot lights are supported)
 * Custom properties: should be checked if you want to export shape keys names or any user defined properties, see [Custom Properties section](#custom-properties)
 
-<br style="clear: both;">
-
-
-<img src="../img/blender-gltf-geometry.png" style="float: left; margin: 5px 30px;">
-
 **Geometry settings:**
+
+<img src="../img/blender-gltf-geometry.png" style="margin: 5px 30px;">
 
 * Normals: not mandatory but recomended, when not exported flat normals will be generated at loading time.
 * Tangents: not mandatory but recomended, when not exported they are generated at loading time.
@@ -151,13 +145,9 @@ Note that these attributes will only be exported when geometry have them. For ex
 
 * Compression: not supported by gdx-gltf for now.
 
-
-<br style="clear: both;">
-
-
-<img src="../img/blender-gltf-animations.png" style="float: left; margin: 5px 30px;">
-
 **Animation settings:**
+
+<img src="../img/blender-gltf-animations.png" style="margin: 5px 30px;">
 
 * Use current frame: You rarely want that, when unchecked it will export models in base pose regardless of current playback frame.
 * Limit to playback range: You rarely want that, when unchecked it will export animations as is regardless of current playback range.
@@ -166,8 +156,6 @@ Note that these attributes will only be exported when geometry have them. For ex
 * Export deformation bones only: Uncheck that if you want to export some bones used as placeholder (eg. weapon attachement).
 * Include All Bone Influences: by default, exporter will limit to 4 influences (4 bones influences a vertex), you can disable this limit if you need more: gdx-gltf supports up to 8 influences, you then have to manually limit influences in your skinning (in Weight Paint mode, you can limit total weights).
 * Shape Key Tangent: required if your model with shape keys uses normal maps.
-
-<br style="clear: both;">
 
 
 ### Custom properties
