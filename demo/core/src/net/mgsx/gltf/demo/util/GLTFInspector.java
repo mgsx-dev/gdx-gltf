@@ -96,7 +96,7 @@ public class GLTFInspector {
 	}
 
 	private void logTexures(SceneAsset asset) {
-		log("Textures", "count", asset.textures.size);
+		log("Managed textures", "count", asset.textures.size);
 	}
 
 	private void logAnimations(SceneAsset asset) {

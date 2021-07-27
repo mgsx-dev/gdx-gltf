@@ -1,4 +1,4 @@
-package net.mgsx.gltf.exporters;
+package net.mgsx.gltf.loaders;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
