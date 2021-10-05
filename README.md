@@ -29,7 +29,7 @@ LibGDX GLTF 2.0 support and PBR shader implementation. Alternative to libGDX G3D
 
 * Yes, it's the same API, only materials differs : by default gdx-gltf uses its own shader (PBR) to enable all glTF features.
 * Note that libgdx default shader doesn't implements spot lights.
-* If you don't want/need high quality rendering (PBR), you still can configure loaders to use libgdx materials (and libgdx DefaultShader).
+* If you don't want/need high quality rendering (PBR), you still can use DefaultShaderProvider and DepthShaderProvider. 
 
 ## Demo and gallery
 
