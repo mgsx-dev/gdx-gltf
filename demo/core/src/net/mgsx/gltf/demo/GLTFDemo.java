@@ -77,6 +77,7 @@ import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 import net.mgsx.gltf.scene3d.utils.LightUtils;
 import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
+import net.mgsx.gltf.scene3d.utils.MaterialConverter;
 
 public class GLTFDemo extends ApplicationAdapter
 {
@@ -625,6 +626,10 @@ public class GLTFDemo extends ApplicationAdapter
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
 				config.numSpotLights = info.spotLights;
+				
+				if(scene != null){
+					MaterialConverter.makeCompatible(scene);
+				}
 				
 				return new DefaultShaderProvider(config);
 			}
