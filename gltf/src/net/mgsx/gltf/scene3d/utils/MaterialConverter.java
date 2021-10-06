@@ -26,14 +26,15 @@ public class MaterialConverter {
 		PBRColorAttribute baseColorAttribute = material.get(PBRColorAttribute.class, PBRColorAttribute.BaseColorFactor);
 		Color baseColor = baseColorAttribute != null ? baseColorAttribute.color : Color.WHITE;
 		material.set(ColorAttribute.createDiffuse(baseColor));
+		material.set(ColorAttribute.createSpecular(baseColor));
 
+		PBRFloatAttribute rougnessAttribute = material.get(PBRFloatAttribute.class, PBRFloatAttribute.Roughness);
+		// default roughness is 1 as per GLTF specification.
+		float roughness = rougnessAttribute != null ? rougnessAttribute.value : 1;
+		
 		// Conversion approximation based on Blender FBX export plugin.
 		// https://github.com/blender/blender-addons/blob/master/io_scene_fbx/export_fbx_bin.py#L1345
-		PBRFloatAttribute rougness = material.get(PBRFloatAttribute.class, PBRFloatAttribute.Roughness);
-		if(rougness != null){
-			float shininess = (1 - rougness.value) * 10;
-			material.set(FloatAttribute.createShininess(shininess * shininess));
-			material.set(ColorAttribute.createSpecular(baseColor));
-		}
+		float shininess = (1 - roughness) * 10;
+		material.set(FloatAttribute.createShininess(shininess * shininess));
 	}
 }
