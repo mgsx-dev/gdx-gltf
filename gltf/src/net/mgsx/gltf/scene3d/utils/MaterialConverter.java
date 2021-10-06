@@ -25,20 +25,15 @@ public class MaterialConverter {
 	public static void makeCompatible(Material material){
 		PBRColorAttribute baseColorAttribute = material.get(PBRColorAttribute.class, PBRColorAttribute.BaseColorFactor);
 		Color baseColor = baseColorAttribute != null ? baseColorAttribute.color : Color.WHITE;
-		if(baseColor != null){
-			material.set(ColorAttribute.createDiffuse(baseColor));
-		}
+		material.set(ColorAttribute.createDiffuse(baseColor));
+
 		// Conversion approximation based on Blender FBX export plugin.
 		// https://github.com/blender/blender-addons/blob/master/io_scene_fbx/export_fbx_bin.py#L1345
 		PBRFloatAttribute rougness = material.get(PBRFloatAttribute.class, PBRFloatAttribute.Roughness);
 		if(rougness != null){
 			float shininess = (1 - rougness.value) * 10;
 			material.set(FloatAttribute.createShininess(shininess * shininess));
-			material.set(ColorAttribute.createSpecular(baseColor.cpy().mul(.5f)));
-		}
-		PBRFloatAttribute metallic = material.get(PBRFloatAttribute.class, PBRFloatAttribute.Metallic);
-		if(metallic != null){
-			material.set(ColorAttribute.createReflection(baseColor.cpy().mul(metallic.value)));
+			material.set(ColorAttribute.createSpecular(baseColor));
 		}
 	}
 }
