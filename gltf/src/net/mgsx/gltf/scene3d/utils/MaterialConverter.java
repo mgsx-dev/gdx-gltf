@@ -35,6 +35,8 @@ public class MaterialConverter {
 		// Conversion approximation based on Blender FBX export plugin.
 		// https://github.com/blender/blender-addons/blob/master/io_scene_fbx/export_fbx_bin.py#L1345
 		float shininess = (1 - roughness) * 10;
-		material.set(FloatAttribute.createShininess(shininess * shininess));
+		if(shininess > 0){
+			material.set(FloatAttribute.createShininess(shininess * shininess));
+		}
 	}
 }
