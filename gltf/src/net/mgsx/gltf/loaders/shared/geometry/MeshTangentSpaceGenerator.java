@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.math.Vector3;
 
-class MeshTangentSpaceGenerator {
+public class MeshTangentSpaceGenerator {
 	public static void computeTangentSpace(float[] vertices, short[] indices, VertexAttributes attributesGroup, boolean computeNormals, boolean computeTangents, VertexAttribute normalMapUVs) {
 		if(computeNormals) computeNormals(vertices, indices, attributesGroup);
 		if(computeTangents) computeTangents(vertices, indices, attributesGroup, normalMapUVs);
