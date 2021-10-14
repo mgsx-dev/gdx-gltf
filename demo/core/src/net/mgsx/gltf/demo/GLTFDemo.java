@@ -741,7 +741,11 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		this.scene = scene;
 		
-		scene.modelInstance.calculateBoundingBox(sceneBox);
+		BoundingBox box = new BoundingBox();
+		scene.modelInstance.calculateBoundingBox(box);
+		if(box.isValid()){
+			sceneBox.set(box);
+		}
 		
 		ui.setMaterials(scene.modelInstance.materials);
 		ui.setAnimations(scene.modelInstance.animations);

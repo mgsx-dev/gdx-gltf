@@ -16,11 +16,13 @@ import net.mgsx.gltf.loaders.shared.data.DataResolver;
 public class SkinLoader {
 	
 	public void load(Array<GLTFSkin> glSkins, Array<GLTFNode> glNodes, NodeResolver nodeResolver, DataResolver dataResolver) {
-		for(int i=0 ; i<glNodes.size ; i++){
-			GLTFNode glNode = glNodes.get(i);
-			if(glNode.skin != null){
-				GLTFSkin glSkin = glSkins.get(glNode.skin);
-				load(glSkin, glNode, nodeResolver.get(i), nodeResolver, dataResolver);
+		if(glNodes != null){
+			for(int i=0 ; i<glNodes.size ; i++){
+				GLTFNode glNode = glNodes.get(i);
+				if(glNode.skin != null){
+					GLTFSkin glSkin = glSkins.get(glNode.skin);
+					load(glSkin, glNode, nodeResolver.get(i), nodeResolver, dataResolver);
+				}
 			}
 		}
 	}
