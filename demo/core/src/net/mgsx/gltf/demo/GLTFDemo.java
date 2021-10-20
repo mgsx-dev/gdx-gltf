@@ -195,13 +195,13 @@ public class GLTFDemo extends ApplicationAdapter
 					"textures/" + alternateMaps + "/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
 		}else{
 			diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-					"textures/diffuse/diffuse_", "_0.jpg", EnvironmentUtil.FACE_NAMES_FULL);
+					"textures/diffuse/diffuse_", "_0.jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
 			
 			environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-					"textures/environment/environment_", "_0.png", EnvironmentUtil.FACE_NAMES_FULL);
+					"textures/environment/environment_", "_0.png", EnvironmentUtil.FACE_NAMES_NEG_POS);
 			
 			specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-					"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_FULL);
+					"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
 		}
 	}
 	
