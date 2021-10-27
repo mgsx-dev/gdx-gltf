@@ -51,7 +51,7 @@ public class AnimationControllerHack extends AnimationController
 			translation.set(t);
 			rotation.set(r);
 			scale.set(s);
-			weights.set(w);
+			if(w != null) weights.set(w); else weights.set();
 			return this;
 		}
 
@@ -67,7 +67,7 @@ public class AnimationControllerHack extends AnimationController
 			translation.lerp(targetT, alpha);
 			rotation.slerp(targetR, alpha);
 			scale.lerp(targetS, alpha);
-			weights.lerp(targetW, alpha);
+			if(targetW != null) weights.lerp(targetW, alpha);
 			return this;
 		}
 
