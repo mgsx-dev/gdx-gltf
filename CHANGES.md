@@ -8,6 +8,8 @@
 * [BREAKING CHANGE] Tangent are automatically computed when necessary: when normal map is used and tangent attribute is missing.
 * Meshes with integer indices are now partially supported, vertices are split into 64k chunks.
 * Added LINES and POINTS support.
+* BaseColorFactor is now optional.
+* Mesh without normal is rendered as unlit.
 
 ### 1.0.0
 

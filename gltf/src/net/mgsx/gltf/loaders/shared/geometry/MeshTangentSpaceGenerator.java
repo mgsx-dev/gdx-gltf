@@ -1,10 +1,44 @@
 package net.mgsx.gltf.loaders.shared.geometry;
 
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
 
+import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+
 public class MeshTangentSpaceGenerator {
+	
+	public static void computeTangentSpace(Mesh mesh, Material material, boolean computeNormals, boolean computeTangents) {
+		
+		if(mesh.getNumIndices() == 0) throw new IllegalArgumentException("non indexed mesh not implemented");
+		
+		float [] vertices = new float[mesh.getNumVertices() * mesh.getVertexAttributes().vertexSize/4];
+		short [] indices = new short[mesh.getNumIndices()];
+		mesh.getVertices(vertices);
+		mesh.getIndices(indices);
+		
+		PBRTextureAttribute normalMap = material.get(PBRTextureAttribute.class, PBRTextureAttribute.NormalTexture);
+		if(normalMap == null) throw new IllegalArgumentException("normal map not found in material");
+		
+		VertexAttributes attributesGroup = mesh.getVertexAttributes();
+		VertexAttribute normalMapUVs = null;
+		for(VertexAttribute a : attributesGroup){
+			if(a.usage == Usage.TextureCoordinates && a.unit == normalMap.uvIndex){
+				normalMapUVs = a;
+			}
+		}
+		
+		if(normalMapUVs == null) throw new IllegalArgumentException("texture coordinates not found");
+		
+		computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs);
+		
+		mesh.setVertices(vertices);
+		mesh.setIndices(indices);
+	}
+	
 	public static void computeTangentSpace(float[] vertices, short[] indices, VertexAttributes attributesGroup, boolean computeNormals, boolean computeTangents, VertexAttribute normalMapUVs) {
 		if(computeNormals) computeNormals(vertices, indices, attributesGroup);
 		if(computeTangents) computeTangents(vertices, indices, attributesGroup, normalMapUVs);
@@ -156,4 +190,5 @@ public class MeshTangentSpaceGenerator {
 			vertices[i * stride + tangentOffset+3] = tangentW;
 		}
 	}
+	
 }

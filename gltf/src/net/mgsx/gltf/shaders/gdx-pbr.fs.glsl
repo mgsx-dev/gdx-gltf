@@ -100,7 +100,9 @@ varying MED vec2 v_texCoord1;
 uniform vec4 u_diffuseColor;
 #endif
 
+#ifdef baseColorFactorFlag
 uniform vec4 u_BaseColorFactor;
+#endif
 
 #ifdef diffuseTextureFlag
 uniform sampler2D u_diffuseTexture;
@@ -366,10 +368,16 @@ float microfacetDistribution(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
 #ifdef unlitFlag
 
 void main() {
-#ifdef diffuseTextureFlag
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * u_BaseColorFactor;
+#ifdef baseColorFactorFlag
+	vec4 baseColorFactor = u_BaseColorFactor;
 #else
-    vec4 baseColor = u_BaseColorFactor;
+	vec4 baseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
+#endif
+
+#ifdef diffuseTextureFlag
+    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
+#else
+    vec4 baseColor = baseColorFactor;
 #endif
 
 #ifdef colorFlag
@@ -496,10 +504,16 @@ void main() {
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
     // The albedo may be defined from a base texture or a flat color
-#ifdef diffuseTextureFlag
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * u_BaseColorFactor;
+#ifdef baseColorFactorFlag
+	vec4 baseColorFactor = u_BaseColorFactor;
 #else
-    vec4 baseColor = u_BaseColorFactor;
+	vec4 baseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
+#endif
+
+#ifdef diffuseTextureFlag
+    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
+#else
+    vec4 baseColor = baseColorFactor;
 #endif
 
 #ifdef colorFlag

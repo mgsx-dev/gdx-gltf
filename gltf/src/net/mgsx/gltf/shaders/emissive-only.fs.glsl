@@ -52,7 +52,9 @@ varying MED vec2 v_texCoord1;
 #define v_emissiveUV v_texCoord0
 #endif
 
+#ifdef baseColorFactorFlag
 uniform vec4 u_BaseColorFactor;
+#endif
 
 #ifdef diffuseTextureFlag
 uniform sampler2D u_diffuseTexture;
@@ -83,11 +85,17 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
 
 void main() {
     // may need base texture alpha in case of blending
+#ifdef baseColorFactorFlag
+	float baseAlphaFactor = u_BaseColorFactor.a;
+#else
+	float baseAlphaFactor = 1.0;
+#endif
+
 #ifdef blendedFlag
 #ifdef diffuseTextureFlag
-    float baseAlpha = texture2D(u_diffuseTexture, v_diffuseUV).a * u_BaseColorFactor.a;
+    float baseAlpha = texture2D(u_diffuseTexture, v_diffuseUV).a * baseAlphaFactor;
 #else
-    float baseAlpha = u_BaseColorFactor.a;
+    float baseAlpha = baseAlphaFactor;
 #endif
 #else
     float baseAlpha = 1.0;

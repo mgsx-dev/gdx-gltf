@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+
 public class PBREmissiveShaderProvider extends PBRShaderProvider
 {
 	
@@ -28,6 +30,11 @@ public class PBREmissiveShaderProvider extends PBRShaderProvider
 		prefix += morphTargetsPrefix(renderable);
 		
 		prefix += createPrefixSRGB(renderable, config);
+		
+		// optional base color factor
+		if(renderable.material.has(PBRColorAttribute.BaseColorFactor)){
+			prefix += "#define baseColorFactorFlag\n";
+		}
 		
 		int maxUVIndex = 0;
 		{

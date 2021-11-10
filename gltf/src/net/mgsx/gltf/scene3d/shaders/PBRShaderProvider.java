@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -143,11 +145,17 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		// Morph targets
 		prefix += morphTargetsPrefix(renderable);
 		
+		// optional base color factor
+		if(renderable.material.has(PBRColorAttribute.BaseColorFactor)){
+			prefix += "#define baseColorFactorFlag\n";
+		}
+		
 		// Lighting
 		int primitiveType = renderable.meshPart.primitiveType;
 		boolean isLineOrPoint = primitiveType == GL20.GL_POINTS || primitiveType == GL20.GL_LINES || primitiveType == GL20.GL_LINE_LOOP || primitiveType == GL20.GL_LINE_STRIP;
+		boolean unlit = isLineOrPoint || renderable.material.has(PBRFlagAttribute.Unlit) || renderable.meshPart.mesh.getVertexAttribute(Usage.Normal) == null;
 		
-		if(renderable.material.has(PBRFlagAttribute.Unlit) || isLineOrPoint){
+		if(unlit){
 			
 			prefix += "#define unlitFlag\n";
 			
