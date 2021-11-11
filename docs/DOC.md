@@ -27,6 +27,50 @@ sceneManager.renderDepth();
 fbo.end();
 ```
 
+### Manage the render list
+
+You can manage the renderable provider list within a SceneManager, it allows to add arbitrary renderable providers (eg. ModelCache)
+
+#### Filter objects in rendering
+
+In some situations you only want to render some objects (eg. only visible objet). 
+
+```java
+sceneManager.getRenderableProviders().clear();
+sceneManager.getRenderableProviders().add(scene1, scene2);
+sceneManager.update(delta);
+sceneManager.render();
+```
+
+### Filter objects from shadow casting
+
+The same way you want to exclude some objets from the rendering, you may want to exclude some objects from shadow casting.
+Or even having some shadow casting only objects.
+
+In this example, we have 3 scenes : 
+
+* baseScene : both rendered and casting shadows
+* shadowOnlyScene : not rendered, it only cast shadows
+* renderOnlyScene : rendered but not casting shadows
+
+```java
+// update the 3 scenes
+sceneManager.getRenderableProviders().clear();
+sceneManager.getRenderableProviders().add(baseScene, shadowOnlyScene, renderOnlyScene);
+sceneManager.update(delta);
+
+// render depth for shadows with only 2 scenes
+sceneManager.getRenderableProviders().clear();
+sceneManager.getRenderableProviders().add(baseScene, shadowOnlyScene);
+sceneManager.renderShadows();
+
+// final render with only 2 scenes
+sceneManager.getRenderableProviders().clear();
+sceneManager.getRenderableProviders().add(baseScene, renderOnlyScene);
+sceneManager.renderColors();
+
+```
+
 ### Advanced Fog
 
 Fog can be enabled like with libGDX default shader:
@@ -77,6 +121,8 @@ TODO implements Displacement map with/without tesslation shader..
 
 ## Animations
 
+### Playing animations
+
 Scene own a AnimationController to play animation on its modelInstance (regular libgdx animation player).
 
 When your scene is an individual model (single skeleton) you typically use `scene.animationController` to play
@@ -86,6 +132,15 @@ Also, Scene own a more advanced animation player providing some features like pl
 
 When your scene is made of several individual models with their own animation (cinematic scene), you want to play a bunch
 of animation on the same modelInstance. In this case use `scene.animationsPlayer` instead of `scene.animationController`.
+
+### Merge animations from other files
+
+You may want to have separated GLTF files for a model and its animations and merge them at runtime.
+
+All you have to do is to add those extra animations from one SceneAsset to the other before creating your Scene.
+
+`modelAsset.scene.model.animations.addAll(animationsAsset.animations)`
+`Scene scene = new Scene(modelAsset.scene)`
 
 ## Customizations
 
