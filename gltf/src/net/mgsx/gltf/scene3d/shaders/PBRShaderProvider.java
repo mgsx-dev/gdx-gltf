@@ -349,7 +349,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		String shaderLog = program.getLog();
 		if(program.isCompiled()){
 			if(shaderLog.isEmpty()){
-				Gdx.app.log(TAG, "Shader compilation success");
+				Gdx.app.debug(TAG, "Shader compilation success");
 			}else{
 				Gdx.app.error(TAG, "Shader compilation warnings:\n" + shaderLog);
 			}
