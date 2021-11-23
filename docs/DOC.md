@@ -315,7 +315,7 @@ Current Blender exporter [only export 2 vertex color layers](https://github.com/
 
 if you need more, you can always modify your local file in *BlenderInstallDirectory/scripts/addons/io_scene_gltf2/blender/exp/gltf2_blender_extract.py* and restart Blender.
 
-### Troubleshottings
+### Troubleshootings
 
 #### Morph targets
 
