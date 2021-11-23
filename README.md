@@ -137,7 +137,7 @@ SceneAsset sceneAsset = new GLBLoader().load(Gdx.files.internal("myModel.glb"));
 assetManager.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
 assetManager.setLoader(SceneAsset.class, ".glb", new GLBAssetLoader());
 ...
-assetManager.load("myModel.gltf");
+assetManager.load("myModel.gltf", SceneAsset.class);
 ...
 SceneAsset sceneAsset = assetManager.get("myModel.gltf", SceneAsset.class);
 ```
