@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import net.mgsx.gltf.data.GLTFObject;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
@@ -26,7 +27,7 @@ abstract public class KHRLightsPunctual {
 		public float outerConeAngle = MathUtils.PI / 4f;
 	}
 
-	public static class GLTFLight {
+	public static class GLTFLight extends GLTFObject {
 		public static final String TYPE_DIRECTIONAL = "directional";
 		public static final String TYPE_POINT = "point";
 		public static final String TYPE_SPOT = "spot";
