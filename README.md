@@ -271,3 +271,12 @@ This limit can be quickly reached depending on mesh information :
 * a_normalX: up to 8 normals
 * a_tangentX: up to 8 tangents
 
+## pbrSpecularGlossiness extension not supported
+
+You may encounter this warning when loading a model :
+
+`KHR_materials_pbrSpecularGlossiness extension is deprecated by glTF 2.0 specification and not fully supported.`
+
+This extension is [now archived and no longer recommended](https://github.com/KhronosGroup/glTF/tree/main/extensions#archived-extensions-for-gltf-20) by glTF 2.0 specification.
+
+It was never really supported by this this library and won't be, use it at your own risks.

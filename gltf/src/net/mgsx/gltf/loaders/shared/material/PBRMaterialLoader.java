@@ -1,5 +1,6 @@
 package net.mgsx.gltf.loaders.shared.material;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -100,17 +101,17 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 			{
 				KHRMaterialsPBRSpecularGlossiness ext = glMaterial.extensions.get(KHRMaterialsPBRSpecularGlossiness.class, KHRMaterialsPBRSpecularGlossiness.EXT);
 				if(ext != null){
+					Gdx.app.error("GLTF", KHRMaterialsPBRSpecularGlossiness.EXT + " extension is deprecated by glTF 2.0 specification and not fully supported.");
+					
 					material.set(new ColorAttribute(ColorAttribute.Diffuse, GLTFTypes.mapColor(ext.diffuseFactor, Color.WHITE)));
 					material.set(new ColorAttribute(ColorAttribute.Specular, GLTFTypes.mapColor(ext.specularFactor, Color.WHITE)));
 					
-					// TODO not sure how to map normalized gloss to exponent ...
+					// not sure how to map normalized gloss to exponent ...
 					material.set(new FloatAttribute(FloatAttribute.Shininess, MathUtils.lerp(1, 100, ext.glossinessFactor)));
 					if(ext.diffuseTexture != null){
-						// TODO use another attribe : DiffuseTexture
 						material.set(getTexureMap(PBRTextureAttribute.Diffuse, ext.diffuseTexture));
 					}
 					if(ext.specularGlossinessTexture != null){
-						// TODO use another attribute : SpecularTexture
 						material.set(getTexureMap(PBRTextureAttribute.Specular, ext.specularGlossinessTexture));
 					}
 				}
