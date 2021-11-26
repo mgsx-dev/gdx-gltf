@@ -43,7 +43,7 @@ public class GLTFQuickStartExample extends ApplicationAdapter
 		sceneManager = new SceneManager();
 		sceneManager.addScene(scene);
 		
-		// setup camera
+		// setup camera (The BoomBox model is very small so you may need to adapt camera settings for your scene)
 		camera = new PerspectiveCamera(60f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		float d = .02f;
 		camera.near = d / 1000f;
