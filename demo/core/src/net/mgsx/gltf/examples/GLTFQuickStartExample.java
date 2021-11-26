@@ -62,6 +62,8 @@ public class GLTFQuickStartExample extends ApplicationAdapter
 		diffuseCubemap = iblBuilder.buildIrradianceMap(256);
 		specularCubemap = iblBuilder.buildRadianceMap(10);
 		iblBuilder.dispose();
+		
+		// This texture is provided by the library, no need to have it in your assets.
 		brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 		
 		sceneManager.setAmbientLight(1f);
