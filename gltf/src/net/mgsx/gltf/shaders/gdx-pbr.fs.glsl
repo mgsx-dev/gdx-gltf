@@ -194,6 +194,7 @@ uniform float u_OcclusionStrength;
 uniform sampler2D u_MetallicRoughnessSampler;
 #endif
 
+#ifdef lightingFlag
 #if numDirectionalLights > 0
 struct DirectionalLight
 {
@@ -224,7 +225,7 @@ struct SpotLight
 };
 uniform SpotLight u_spotLights[numSpotLights];
 #endif // numSpotLights
-
+#endif
 
 uniform vec4 u_cameraPosition;
 
