@@ -1,8 +1,5 @@
 eclipse.project.name = "gdx-gltf"
 
-apply plugin: "java"
-apply plugin: 'maven-publish'
-
 dependencies {
     compile "com.badlogicgames.gdx:gdx:$gdxVersion"
     

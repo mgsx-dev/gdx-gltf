@@ -3,6 +3,11 @@ allprojects {
     group = 'com.github.mgsx-dev.gdx-gltf'
     version = '2.0.0'
     
+    apply plugin: "eclipse"
+	apply plugin: "idea"
+}
+   
+subprojects {
     ext {
     	gdxVersion = '1.9.11'
     	junitVersion = '4.12'
@@ -26,8 +31,9 @@ allprojects {
         jcenter()
     }
 	
-	apply plugin: "eclipse"
-	apply plugin: "idea"
+	apply plugin: "java"
+	apply plugin: 'maven-publish'
+	
 }
 
 eclipse.project.name = "gltf-root"
