@@ -264,7 +264,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		
 		// Fog
 		
-		if(renderable.environment.has(FogAttribute.FogEquation)){
+		if(renderable.environment != null && renderable.environment.has(FogAttribute.FogEquation)){
 			prefix += "#define fogEquationFlag\n";
 		}
 		
@@ -309,18 +309,20 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			Gdx.app.error(TAG, "more than " + config.numVertexColors + " color attributes not supported: " + numColor + " found.");
 		}
 		
-		LightUtils.getLightsInfo(lightsInfo, renderable.environment);
-		if(lightsInfo.dirLights > config.numDirectionalLights){
-			Gdx.app.error(TAG, "too many directional lights detected: " + lightsInfo.dirLights + "/" + config.numDirectionalLights);
-		}
-		if(lightsInfo.pointLights > config.numPointLights){
-			Gdx.app.error(TAG, "too many point lights detected: " + lightsInfo.pointLights + "/" + config.numPointLights);
-		}
-		if(lightsInfo.spotLights > config.numSpotLights){
-			Gdx.app.error(TAG, "too many spot lights detected: " + lightsInfo.spotLights + "/" + config.numSpotLights);
-		}
-		if(lightsInfo.miscLights > 0){
-			Gdx.app.error(TAG, "unknow type lights not supported.");
+		if(renderable.environment != null){
+			LightUtils.getLightsInfo(lightsInfo, renderable.environment);
+			if(lightsInfo.dirLights > config.numDirectionalLights){
+				Gdx.app.error(TAG, "too many directional lights detected: " + lightsInfo.dirLights + "/" + config.numDirectionalLights);
+			}
+			if(lightsInfo.pointLights > config.numPointLights){
+				Gdx.app.error(TAG, "too many point lights detected: " + lightsInfo.pointLights + "/" + config.numPointLights);
+			}
+			if(lightsInfo.spotLights > config.numSpotLights){
+				Gdx.app.error(TAG, "too many spot lights detected: " + lightsInfo.spotLights + "/" + config.numSpotLights);
+			}
+			if(lightsInfo.miscLights > 0){
+				Gdx.app.error(TAG, "unknow type lights not supported.");
+			}
 		}
 		
 		PBRShader shader = createShader(renderable, config, prefix);
