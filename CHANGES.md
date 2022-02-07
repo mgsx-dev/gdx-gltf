@@ -10,6 +10,8 @@
 * Added LINES and POINTS support.
 * BaseColorFactor is now optional.
 * Mesh without normal is rendered as unlit.
+* Shadows no longer impacts other directional lights.
+* Fix light contribution when using shadows. Directional light was slightly dimmed for no reason.
 
 ### 1.0.0
 
