@@ -557,15 +557,6 @@ void main() {
 		specularColor
     );
 
-    vec3 color = vec3(0.0);
-
-#if (numDirectionalLights > 0)
-    // Directional lights calculation
-    for(int i=0 ; i<numDirectionalLights ; i++){
-    	color += getDirectionalLightContribution(pbrSurface, u_dirLights[i]);
-    }
-#endif
-
     // Calculate lighting contribution from image based lighting source (IBL)
 #if defined(USE_IBL) && defined(ambientLightFlag)
     vec3 ambientColor = getIBLContribution(pbrSurface, n, reflection) * u_ambientLight;
@@ -577,12 +568,19 @@ void main() {
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #endif
 
+    vec3 color = vec3(0.0);
+
+#if (numDirectionalLights > 0)
+    // Directional lights calculation
 #ifdef shadowMapFlag
-    vec3 l0 = normalize(-u_dirLights[0].direction);
-    float NdotL0 = clamp(dot(n, l0), 0.001, 1.0);
-    color = ambientColor + color * getShadow() * NdotL0;
+    color += ambientColor + getDirectionalLightContribution(pbrSurface, u_dirLights[0]) * getShadow();
 #else
-    color += ambientColor;
+    color += ambientColor + getDirectionalLightContribution(pbrSurface, u_dirLights[0]);
+#endif
+
+    for(int i=1 ; i<numDirectionalLights ; i++){
+    	color += getDirectionalLightContribution(pbrSurface, u_dirLights[i]);
+    }
 #endif
 
 #if (numPointLights > 0)
