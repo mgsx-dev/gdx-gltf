@@ -28,35 +28,48 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	
 	public SceneSkybox(Cubemap cubemap){
 		super();
-		
+
+		// create box
+		initBox(cubemap);
+
 		// create shader provider
 		Config shaderConfig = new Config();
 		String basePathName = "net/mgsx/gltf/shaders/skybox";
 		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
 		shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs.glsl").readString();
 		shaderProvider =  new DefaultShaderProvider(shaderConfig);
-		
+
+		// assign shader
+		box.shader = shaderProvider.getShader(box);
+	}
+
+	public SceneSkybox(Cubemap cubemap, ShaderProvider shaderProvider){
+		super();
+
 		// create box
+		initBox(cubemap);
+
+		// assign shader
+		box.shader = shaderProvider.getShader(box);
+	}
+
+	private void initBox(Cubemap cubemap) {
 		float boxScale = (float)(1.0 / Math.sqrt(2.0));
 		boxModel = new ModelBuilder().createBox(boxScale, boxScale, boxScale, new Material(), VertexAttributes.Usage.Position);
 		box = boxModel.nodes.first().parts.first().setRenderable(new Renderable());
-		
+
 		// assign environment
 		Environment env = new Environment();
 		env.set(new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap));
 		env.set(new ColorAttribute(ColorAttribute.AmbientLight, Color.WHITE));
 		box.environment = env;
-		
+
 		// set hint to render last but before transparent ones
 		box.userData = SceneRenderableSorter.Hints.OPAQUE_LAST;
-		
+
 		// set material options : preserve background depth
 		box.material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
 		box.material.set(new DepthTestAttribute(false));
-		
-		
-		// assign shader
-		box.shader = shaderProvider.getShader(box);
 	}
 	
 	public SceneSkybox set(Cubemap cubemap){
