@@ -37,7 +37,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 		String basePathName = "net/mgsx/gltf/shaders/skybox";
 		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
 		shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs.glsl").readString();
-		shaderProvider =  new DefaultShaderProvider(shaderConfig);
+		shaderProvider = new DefaultShaderProvider(shaderConfig);
 
 		// assign shader
 		box.shader = shaderProvider.getShader(box);
@@ -50,10 +50,11 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 		initBox(cubemap);
 
 		// assign shader
+		this.shaderProvider = shaderProvider;
 		box.shader = shaderProvider.getShader(box);
 	}
 
-	private void initBox(Cubemap cubemap) {
+	private void initBox(Cubemap cubemap){
 		float boxScale = (float)(1.0 / Math.sqrt(2.0));
 		boxModel = new ModelBuilder().createBox(boxScale, boxScale, boxScale, new Material(), VertexAttributes.Usage.Position);
 		box = boxModel.nodes.first().parts.first().setRenderable(new Renderable());
