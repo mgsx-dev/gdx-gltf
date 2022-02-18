@@ -68,7 +68,7 @@ GLTF extensions implemented:
 
 Here is few tutorials that help you starting with both Blender and gdx-gltf.
 
-* [Importing 3D Models From Blender to libGDX with gdx-gltf](https://youtu.be/e-3OMXY9bDU)
+* [JamesTKhan tutorial serie](https://www.youtube.com/playlist?list=PLjUR2MkQ0cuHZ70Ps8F9WMyoyKHKAbYvQ)
 
 ## Compatibility
 
