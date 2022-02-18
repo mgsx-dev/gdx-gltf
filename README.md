@@ -68,7 +68,7 @@ GLTF extensions implemented:
 
 Here is few tutorials that help you starting with both Blender and gdx-gltf.
 
-* [JamesTKhan tutorial serie](https://www.youtube.com/playlist?list=PLjUR2MkQ0cuHZ70Ps8F9WMyoyKHKAbYvQ)
+* [JamesTKhan tutorials serie](https://www.youtube.com/playlist?list=PLjUR2MkQ0cuHZ70Ps8F9WMyoyKHKAbYvQ)
 
 ## Compatibility
 
