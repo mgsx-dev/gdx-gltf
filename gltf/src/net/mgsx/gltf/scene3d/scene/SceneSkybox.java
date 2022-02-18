@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
@@ -26,15 +27,29 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	private Model boxModel;
 	private Renderable box;
 	
+	/**
+	 * Create a sky box with a default shader.
+	 * @param cubemap
+	 */
 	public SceneSkybox(Cubemap cubemap){
-		super();
+		this(cubemap, null);
+	}
+	
+	/**
+	 * Create a sky box with an optional custom shader.
+	 * @param cubemap
+	 * @param shaderProvider when null, a default shader provider is used. when not null, caller is responsible to dispose it.
+	 */
+	public SceneSkybox(Cubemap cubemap, ShaderProvider shaderProvider){
 		
-		// create shader provider
-		Config shaderConfig = new Config();
-		String basePathName = "net/mgsx/gltf/shaders/skybox";
-		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
-		shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs.glsl").readString();
-		shaderProvider =  new DefaultShaderProvider(shaderConfig);
+		// create shader provider if needed
+		if(shaderProvider == null){
+			Config shaderConfig = new Config();
+			String basePathName = "net/mgsx/gltf/shaders/skybox";
+			shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
+			shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs.glsl").readString();
+			shaderProvider = this.shaderProvider = new DefaultShaderProvider(shaderConfig);
+		}
 		
 		// create box
 		float boxScale = (float)(1.0 / Math.sqrt(2.0));
@@ -86,7 +101,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 
 	@Override
 	public void dispose() {
-		shaderProvider.dispose();
+		if(shaderProvider != null) shaderProvider.dispose();
 		boxModel.dispose();
 	}
 }
