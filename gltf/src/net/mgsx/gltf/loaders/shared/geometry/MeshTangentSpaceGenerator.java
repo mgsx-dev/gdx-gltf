@@ -51,39 +51,74 @@ public class MeshTangentSpaceGenerator {
 		
 		Vector3 vab = new Vector3();
 		Vector3 vac = new Vector3();
-		for(int index = 0, count = indices.length ; index<count ; ){
-			
-			int vIndexA = indices[index++] & 0xFFFF;
-			float ax = vertices[vIndexA * stride + posOffset];
-			float ay = vertices[vIndexA * stride + posOffset+1];
-			float az = vertices[vIndexA * stride + posOffset+2];
-			
-			int vIndexB = indices[index++] & 0xFFFF;
-			float bx = vertices[vIndexB * stride + posOffset];
-			float by = vertices[vIndexB * stride + posOffset+1];
-			float bz = vertices[vIndexB * stride + posOffset+2];
-			
-			int vIndexC = indices[index++] & 0xFFFF;
-			float cx = vertices[vIndexC * stride + posOffset];
-			float cy = vertices[vIndexC * stride + posOffset+1];
-			float cz = vertices[vIndexC * stride + posOffset+2];
-			
-			vab.set(bx,by,bz).sub(ax,ay,az);
-			vac.set(cx,cy,cz).sub(ax,ay,az);
-			Vector3 n = vab.crs(vac).nor();
-			
-			vertices[vIndexA * stride + normalOffset] = n.x;
-			vertices[vIndexA * stride + normalOffset+1] = n.y;
-			vertices[vIndexA * stride + normalOffset+2] = n.z;
-			
-			vertices[vIndexB * stride + normalOffset] = n.x;
-			vertices[vIndexB * stride + normalOffset+1] = n.y;
-			vertices[vIndexB * stride + normalOffset+2] = n.z;
-			
-			vertices[vIndexC * stride + normalOffset] = n.x;
-			vertices[vIndexC * stride + normalOffset+1] = n.y;
-			vertices[vIndexC * stride + normalOffset+2] = n.z;
-			
+		if(indices != null){
+			for(int index = 0, count = indices.length ; index<count ; ){
+				
+				int vIndexA = indices[index++] & 0xFFFF;
+				float ax = vertices[vIndexA * stride + posOffset];
+				float ay = vertices[vIndexA * stride + posOffset+1];
+				float az = vertices[vIndexA * stride + posOffset+2];
+				
+				int vIndexB = indices[index++] & 0xFFFF;
+				float bx = vertices[vIndexB * stride + posOffset];
+				float by = vertices[vIndexB * stride + posOffset+1];
+				float bz = vertices[vIndexB * stride + posOffset+2];
+				
+				int vIndexC = indices[index++] & 0xFFFF;
+				float cx = vertices[vIndexC * stride + posOffset];
+				float cy = vertices[vIndexC * stride + posOffset+1];
+				float cz = vertices[vIndexC * stride + posOffset+2];
+				
+				vab.set(bx,by,bz).sub(ax,ay,az);
+				vac.set(cx,cy,cz).sub(ax,ay,az);
+				Vector3 n = vab.crs(vac).nor();
+				
+				vertices[vIndexA * stride + normalOffset] = n.x;
+				vertices[vIndexA * stride + normalOffset+1] = n.y;
+				vertices[vIndexA * stride + normalOffset+2] = n.z;
+				
+				vertices[vIndexB * stride + normalOffset] = n.x;
+				vertices[vIndexB * stride + normalOffset+1] = n.y;
+				vertices[vIndexB * stride + normalOffset+2] = n.z;
+				
+				vertices[vIndexC * stride + normalOffset] = n.x;
+				vertices[vIndexC * stride + normalOffset+1] = n.y;
+				vertices[vIndexC * stride + normalOffset+2] = n.z;
+			}
+		}else{
+			for(int index = 0, count = vertices.length / stride ; index<count ; ){
+				
+				int vIndexA = index++;
+				float ax = vertices[vIndexA * stride + posOffset];
+				float ay = vertices[vIndexA * stride + posOffset+1];
+				float az = vertices[vIndexA * stride + posOffset+2];
+				
+				int vIndexB = index++;
+				float bx = vertices[vIndexB * stride + posOffset];
+				float by = vertices[vIndexB * stride + posOffset+1];
+				float bz = vertices[vIndexB * stride + posOffset+2];
+				
+				int vIndexC = index++;
+				float cx = vertices[vIndexC * stride + posOffset];
+				float cy = vertices[vIndexC * stride + posOffset+1];
+				float cz = vertices[vIndexC * stride + posOffset+2];
+				
+				vab.set(bx,by,bz).sub(ax,ay,az);
+				vac.set(cx,cy,cz).sub(ax,ay,az);
+				Vector3 n = vab.crs(vac).nor();
+				
+				vertices[vIndexA * stride + normalOffset] = n.x;
+				vertices[vIndexA * stride + normalOffset+1] = n.y;
+				vertices[vIndexA * stride + normalOffset+2] = n.z;
+				
+				vertices[vIndexB * stride + normalOffset] = n.x;
+				vertices[vIndexB * stride + normalOffset+1] = n.y;
+				vertices[vIndexB * stride + normalOffset+2] = n.z;
+				
+				vertices[vIndexC * stride + normalOffset] = n.x;
+				vertices[vIndexC * stride + normalOffset+1] = n.y;
+				vertices[vIndexC * stride + normalOffset+2] = n.z;
+			}
 		}
 	}
 	
