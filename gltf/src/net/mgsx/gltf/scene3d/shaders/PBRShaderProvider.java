@@ -133,6 +133,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define SRGB_FAST_APPROXIMATION\n";
 			}
 		}
+		if(config.gammaCorrection){
+			prefix += "#define GAMMA_CORRECTION\n";
+		}
 		return prefix;
 	}
 	
@@ -202,16 +205,16 @@ public class PBRShaderProvider extends DefaultShaderProvider
 					}
 				}
 				// TODO check GLSL extension 'OES_standard_derivatives' for WebGL
-				// TODO check GLSL extension 'EXT_SRGB' for WebGL
 				
 				if(renderable.environment.has(ColorAttribute.AmbientLight)){
 					prefix += "#define ambientLightFlag\n";
 				}
 			}
 			
-			// SRGB
-			prefix += createPrefixSRGB(renderable, config);
 		}
+		
+		// SRGB
+		prefix += createPrefixSRGB(renderable, config);
 		
 		
 		// multi UVs

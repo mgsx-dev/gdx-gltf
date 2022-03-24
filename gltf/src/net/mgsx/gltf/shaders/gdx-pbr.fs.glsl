@@ -388,7 +388,7 @@ void main() {
     vec3 color = baseColor.rgb;
 
     // final frag color
-#ifdef MANUAL_SRGB
+#ifdef GAMMA_CORRECTION
     out_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
 #else
     out_FragColor = vec4(color, baseColor.a);
@@ -619,7 +619,7 @@ void main() {
 
     
     // final frag color
-#ifdef MANUAL_SRGB
+#ifdef GAMMA_CORRECTION
     out_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
 #else
     out_FragColor = vec4(color, baseColor.a);
