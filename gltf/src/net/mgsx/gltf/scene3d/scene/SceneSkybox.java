@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
@@ -31,6 +32,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	
 	/**
 	 * Create a sky box with a default shader.
+	 * 
 	 * @param cubemap
 	 */
 	public SceneSkybox(Cubemap cubemap){
@@ -41,26 +43,39 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	 * Create a sky box with color space conversion settings.
 	 * @param cubemap
 	 * @param manualSRGB see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#manualSRGB}
-	 * @param gammaCorrection see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#gammaCorrection}
+	 * @param gammaCorrection when null, gamma correction is disabled.
+	 * 		see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#manualGammaCorrection}
+	 */
+	public SceneSkybox(Cubemap cubemap, SRGB manualSRGB, Float gammaCorrection){
+		createShaderProvider(manualSRGB, gammaCorrection);
+		createBox(cubemap, shaderProvider);
+	}
+
+	/**
+	 * Create a sky box with color space conversion settings.
+	 * @param cubemap
+	 * @param manualSRGB see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#manualSRGB}
+	 * @param gammaCorrection when true, {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#DEFAULT_GAMMA} is used.
 	 */
 	public SceneSkybox(Cubemap cubemap, SRGB manualSRGB, boolean gammaCorrection){
-		createShaderProvider(manualSRGB, gammaCorrection);
+		createShaderProvider(manualSRGB, gammaCorrection ? PBRShaderConfig.DEFAULT_GAMMA : null);
 		createBox(cubemap, shaderProvider);
 	}
 
 	/**
 	 * Create a sky box with an optional custom shader.
 	 * @param cubemap
-	 * @param shaderProvider when null, a default shader provider is used. when not null, caller is responsible to dispose it.
+	 * @param shaderProvider when null, a default shader provider is used (without manual SRGB nor gamma correction). 
+	 * when not null, caller is responsible to dispose it.
 	 */
 	public SceneSkybox(Cubemap cubemap, ShaderProvider shaderProvider){
 		if(shaderProvider == null){
-			shaderProvider = createShaderProvider(SRGB.NONE, false);
+			shaderProvider = createShaderProvider(SRGB.NONE, null);
 		}
 		createBox(cubemap, shaderProvider);
 	}
 	
-	private ShaderProvider createShaderProvider(SRGB manualSRGB, boolean gammaCorrection){
+	private ShaderProvider createShaderProvider(SRGB manualSRGB, Float gammaCorrection){
 		String prefix = "";
 		if(manualSRGB != SRGB.NONE){
 			prefix += "#define MANUAL_SRGB\n";
@@ -68,8 +83,8 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 				prefix += "#define SRGB_FAST_APPROXIMATION\n";
 			}
 		}
-		if(gammaCorrection){
-			prefix += "#define GAMMA_CORRECTION\n";
+		if(gammaCorrection != null){
+			prefix += "#define GAMMA_CORRECTION " + gammaCorrection + "\n";
 		}
 		Config shaderConfig = new Config();
 		String basePathName = "net/mgsx/gltf/shaders/skybox";

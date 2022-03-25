@@ -133,8 +133,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define SRGB_FAST_APPROXIMATION\n";
 			}
 		}
-		if(config.gammaCorrection){
-			prefix += "#define GAMMA_CORRECTION\n";
+		if(config.manualGammaCorrection){
+			prefix += "#define GAMMA_CORRECTION " + config.gamma + "\n";
 		}
 		return prefix;
 	}

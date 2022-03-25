@@ -666,7 +666,7 @@ public class GLTFDemo extends ApplicationAdapter
 			{
 				PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
-				config.gammaCorrection = ui.shaderGammaCorrection.isOn();
+				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
@@ -679,7 +679,7 @@ public class GLTFDemo extends ApplicationAdapter
 				config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.vs.glsl").readString();
 				config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.fs.glsl").readString();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
-				config.gammaCorrection = ui.shaderGammaCorrection.isOn();
+				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;

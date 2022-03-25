@@ -20,7 +20,16 @@ public class PBRShaderConfig extends DefaultShader.Config
 	 * be automatically done by OpenGL.
 	 * Default is true.
 	 */
-	public boolean gammaCorrection = true;
+	public boolean manualGammaCorrection = true;
+	
+	/** Default gamma factor that gives good results on most monitors. */
+	public static final float DEFAULT_GAMMA = 2.2f;
+	
+	/**
+	 * Gamma value used when {@link #manualGammaCorrection} is enabled.
+	 * Default is 2.2 which is a standard value that gives good results on most monitors
+	 */
+	public float gamma = DEFAULT_GAMMA;
 	
 	/** string to prepend to shaders (version), automatic if null */
 	public String glslVersion = null;

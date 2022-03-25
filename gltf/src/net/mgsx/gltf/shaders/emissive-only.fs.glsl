@@ -118,7 +118,7 @@ void main() {
     
     // final frag color
 #ifdef GAMMA_CORRECTION
-    out_FragColor.rgb = vec3(pow(color,vec3(1.0/2.2)));
+    out_FragColor.rgb = vec3(pow(color,vec3(1.0/GAMMA_CORRECTION)));
 #else
     out_FragColor.rgb = color;
 #endif

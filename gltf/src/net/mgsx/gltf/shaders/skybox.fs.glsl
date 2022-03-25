@@ -38,7 +38,7 @@ void main() {
 	color *= u_diffuseColor;
 #endif
 #ifdef GAMMA_CORRECTION
-	gl_FragColor = vec4(pow(color.rgb, vec3(1.0/2.2)), 1.0);
+	gl_FragColor = vec4(pow(color.rgb, vec3(1.0/GAMMA_CORRECTION)), 1.0);
 #else
 	gl_FragColor = vec4(color.rgb, 1.0);
 #endif
