@@ -12,6 +12,8 @@
 * Mesh without normal is rendered as unlit.
 * Shadows no longer impacts other directional lights.
 * Fix light contribution when using shadows. Directional light was slightly dimmed for no reason.
+* Manual gamma correction is now configurable for PBRShaderProvider.
+* Added SkyBox color space conversion options.
 
 ### 1.0.0
 

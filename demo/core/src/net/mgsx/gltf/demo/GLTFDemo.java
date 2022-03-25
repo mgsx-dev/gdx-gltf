@@ -130,6 +130,7 @@ public class GLTFDemo extends ApplicationAdapter
 	private DirectionalLight defaultLight;
 	private boolean shadersValid;
 	private boolean outlineShaderValid;
+	private boolean skyboxValid = true;
 	
 	private FrameBuffer depthFbo;
 	
@@ -418,6 +419,17 @@ public class GLTFDemo extends ApplicationAdapter
 		};
 		
 		ui.shaderSRGB.addListener(shaderOptionListener);
+		ui.shaderGammaCorrection.addListener(shaderOptionListener);
+		
+		ChangeListener skyboxOptionListener = new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateSkybox();
+			}
+		};
+		
+		ui.skyboxSRGB.addListener(skyboxOptionListener);
+		ui.skyboxGammaCorrection.addListener(skyboxOptionListener);
 		
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
@@ -579,7 +591,21 @@ public class GLTFDemo extends ApplicationAdapter
 	private void invalidateOutlineShaders() {
 		outlineShaderValid = false;
 	}
+	private void invalidateSkybox() {
+		skyboxValid = false;
+	}
 	
+	private void validateSkybox(){
+		if(!skyboxValid){
+			skyboxValid = true;
+			skybox.dispose();
+			skybox = new SceneSkybox(environmentCubemap, ui.skyboxSRGB.getSelected(), ui.skyboxGammaCorrection.isOn());
+			if(ui.skyBoxEnabled.isOn()){
+				sceneManager.setSkyBox(skybox);
+			}
+		}
+	}
+
 	private void validateShaders(){
 		if(rootModel != null){
 			if(!shadersValid){
@@ -640,6 +666,7 @@ public class GLTFDemo extends ApplicationAdapter
 			{
 				PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
+				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
@@ -652,6 +679,7 @@ public class GLTFDemo extends ApplicationAdapter
 				config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.vs.glsl").readString();
 				config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/demo/shaders/gltf-ceil-shading.fs.glsl").readString();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
+				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
@@ -837,6 +865,7 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		// recreate shaders if needed
 		validateShaders();
+		validateSkybox();
 
 		sceneManager.update(delta);
 		

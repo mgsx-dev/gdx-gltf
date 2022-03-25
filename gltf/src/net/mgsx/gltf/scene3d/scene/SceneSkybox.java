@@ -21,36 +21,79 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
+
 public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 
-	private DefaultShaderProvider shaderProvider;
+	private ShaderProvider shaderProvider;
 	private Model boxModel;
 	private Renderable box;
 	
 	/**
 	 * Create a sky box with a default shader.
+	 * 
 	 * @param cubemap
 	 */
 	public SceneSkybox(Cubemap cubemap){
 		this(cubemap, null);
 	}
-	
+
+	/**
+	 * Create a sky box with color space conversion settings.
+	 * @param cubemap
+	 * @param manualSRGB see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#manualSRGB}
+	 * @param gammaCorrection when null, gamma correction is disabled.
+	 * 		see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#manualGammaCorrection}
+	 */
+	public SceneSkybox(Cubemap cubemap, SRGB manualSRGB, Float gammaCorrection){
+		createShaderProvider(manualSRGB, gammaCorrection);
+		createBox(cubemap, shaderProvider);
+	}
+
+	/**
+	 * Create a sky box with color space conversion settings.
+	 * @param cubemap
+	 * @param manualSRGB see {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#manualSRGB}
+	 * @param gammaCorrection when true, {@link net.mgsx.gltf.scene3d.shaders.PBRShaderConfig#DEFAULT_GAMMA} is used.
+	 */
+	public SceneSkybox(Cubemap cubemap, SRGB manualSRGB, boolean gammaCorrection){
+		createShaderProvider(manualSRGB, gammaCorrection ? PBRShaderConfig.DEFAULT_GAMMA : null);
+		createBox(cubemap, shaderProvider);
+	}
+
 	/**
 	 * Create a sky box with an optional custom shader.
 	 * @param cubemap
-	 * @param shaderProvider when null, a default shader provider is used. when not null, caller is responsible to dispose it.
+	 * @param shaderProvider when null, a default shader provider is used (without manual SRGB nor gamma correction). 
+	 * when not null, caller is responsible to dispose it.
 	 */
 	public SceneSkybox(Cubemap cubemap, ShaderProvider shaderProvider){
-		
-		// create shader provider if needed
 		if(shaderProvider == null){
-			Config shaderConfig = new Config();
-			String basePathName = "net/mgsx/gltf/shaders/skybox";
-			shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
-			shaderConfig.fragmentShader = Gdx.files.classpath(basePathName + ".fs.glsl").readString();
-			shaderProvider = this.shaderProvider = new DefaultShaderProvider(shaderConfig);
+			shaderProvider = createShaderProvider(SRGB.NONE, null);
 		}
-		
+		createBox(cubemap, shaderProvider);
+	}
+	
+	private ShaderProvider createShaderProvider(SRGB manualSRGB, Float gammaCorrection){
+		String prefix = "";
+		if(manualSRGB != SRGB.NONE){
+			prefix += "#define MANUAL_SRGB\n";
+			if(manualSRGB == SRGB.FAST){
+				prefix += "#define SRGB_FAST_APPROXIMATION\n";
+			}
+		}
+		if(gammaCorrection != null){
+			prefix += "#define GAMMA_CORRECTION " + gammaCorrection + "\n";
+		}
+		Config shaderConfig = new Config();
+		String basePathName = "net/mgsx/gltf/shaders/skybox";
+		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
+		shaderConfig.fragmentShader = prefix + Gdx.files.classpath(basePathName + ".fs.glsl").readString();
+		return this.shaderProvider = new DefaultShaderProvider(shaderConfig);
+	}
+	
+	private void createBox(Cubemap cubemap, ShaderProvider shaderProvider){
 		// create box
 		float boxScale = (float)(1.0 / Math.sqrt(2.0));
 		boxModel = new ModelBuilder().createBox(boxScale, boxScale, boxScale, new Material(), VertexAttributes.Usage.Position);

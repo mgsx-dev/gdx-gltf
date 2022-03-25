@@ -73,6 +73,7 @@ public class GLTFDemoUI extends Table {
 	private Node selectedNode;
 	protected CollapsableUI shaderOptions;
 	public SelectBox<SRGB> shaderSRGB;
+	public BooleanUI shaderGammaCorrection;
 	private CollapsableUI lightOptions;
 	public SelectBox<SceneModel> sceneSelector;
 	public SelectBox<String> lightSelector;
@@ -83,6 +84,8 @@ public class GLTFDemoUI extends Table {
 	public TextButton btAllAnimations;
 	public BooleanUI fogEnabled;
 	public BooleanUI skyBoxEnabled;
+	public SelectBox<SRGB> skyboxSRGB;
+	public BooleanUI skyboxGammaCorrection;
 	public Vector4UI fogColor;
 	public Vector3UI fogEquation;
 
@@ -232,6 +235,9 @@ public class GLTFDemoUI extends Table {
 		shaderOptions.optTable.add(shaderSRGB = new SelectBox<SRGB>(skin)).row();
 		shaderSRGB.setItems(SRGB.values());
 		shaderSRGB.setSelected(SRGB.ACCURATE);
+		
+		shaderOptions.optTable.add("Gamma correction");
+		shaderOptions.optTable.add(shaderGammaCorrection = new BooleanUI(skin, true)).row();
 
 		// Fog
 		shaderOptions.optTable.add("Fog");
@@ -250,6 +256,14 @@ public class GLTFDemoUI extends Table {
 		shaderOptions.optTable.add("SkyBox Color");
 		shaderOptions.optTable.add(skyBoxColor = new Vector4UI(skin, new Color(Color.WHITE))).row();
 		
+		shaderOptions.optTable.add("Skybox SRGB");
+		shaderOptions.optTable.add(skyboxSRGB = new SelectBox<SRGB>(skin)).row();
+		skyboxSRGB.setItems(SRGB.values());
+		skyboxSRGB.setSelected(SRGB.NONE);
+		
+		shaderOptions.optTable.add("Skybox Gamma");
+		shaderOptions.optTable.add(skyboxGammaCorrection = new BooleanUI(skin, false)).row();
+
 		// Outlines
 		root.add();
 		root.add(outlineOptions = new CollapsableUI(skin, "Outline Options", false)).row();
