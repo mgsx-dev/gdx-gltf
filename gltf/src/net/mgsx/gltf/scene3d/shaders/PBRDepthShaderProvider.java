@@ -1,5 +1,6 @@
 package net.mgsx.gltf.scene3d.shaders;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
@@ -11,9 +12,34 @@ import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 
 public class PBRDepthShaderProvider extends DepthShaderProvider
 {
+	private static String defaultVertexShader = null;
+
+	public static String getDefaultVertexShader () {
+		if (defaultVertexShader == null)
+			defaultVertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.vs.glsl").readString();
+		return defaultVertexShader;
+	}
+
+	private static String defaultFragmentShader = null;
+
+	public static String getDefaultFragmentShader () {
+		if (defaultFragmentShader == null)
+			defaultFragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.fs.glsl").readString();
+		return defaultFragmentShader;
+	}
+
+	public static DepthShader.Config createDefaultConfig() {
+		DepthShader.Config config = new DepthShader.Config();
+		config.vertexShader = getDefaultVertexShader();
+		config.fragmentShader = getDefaultFragmentShader();
+		return config;
+	};
+
 	
 	public PBRDepthShaderProvider(Config config) {
-		super(config);
+		super(config == null ? new DepthShader.Config() : config);
+		if(config.vertexShader == null) config.vertexShader = getDefaultVertexShader();
+		if(config.fragmentShader == null) config.fragmentShader = getDefaultFragmentShader();
 	}
 
 	protected String morphTargetsPrefix(Renderable renderable){

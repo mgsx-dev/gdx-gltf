@@ -34,19 +34,32 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	
 	private static final LightsInfo lightsInfo = new LightsInfo();
 	
+	private static String defaultVertexShader = null;
+
+	public static String getDefaultVertexShader () {
+		if (defaultVertexShader == null)
+			defaultVertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
+		return defaultVertexShader;
+	}
+
+	private static String defaultFragmentShader = null;
+
+	public static String getDefaultFragmentShader () {
+		if (defaultFragmentShader == null)
+			defaultFragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.fs.glsl").readString();
+		return defaultFragmentShader;
+	}
+
 	
 	public static PBRShaderConfig createDefaultConfig() {
 		PBRShaderConfig config = new PBRShaderConfig();
-		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
-		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.fs.glsl").readString();
+		config.vertexShader = getDefaultVertexShader();
+		config.fragmentShader = getDefaultFragmentShader();
 		return config;
 	};
 	
 	public static DepthShader.Config createDefaultDepthConfig() {
-		DepthShader.Config config = new DepthShader.Config();
-		config.vertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.vs.glsl").readString();
-		config.fragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/depth.fs.glsl").readString();
-		return config;
+		return PBRDepthShaderProvider.createDefaultConfig();
 	};
 	
 	public static PBRShaderProvider createDefault(int maxBones){
@@ -70,7 +83,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	}
 	
 	public PBRShaderProvider(PBRShaderConfig config) {
-		super(config);
+		super(config == null ? createDefaultConfig() : config);
+		if(this.config.vertexShader == null) this.config.vertexShader = getDefaultVertexShader();
+		if(this.config.fragmentShader == null) this.config.fragmentShader = getDefaultFragmentShader();
 	}
 	
 	public int getShaderCount(){
