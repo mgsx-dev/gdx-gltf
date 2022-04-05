@@ -246,6 +246,10 @@ public class SceneManager implements Disposable {
 		this.skyBox = skyBox;
 	}
 	
+	public SceneSkybox getSkyBox() {
+		return skyBox;
+	}
+	
 	public void setAmbientLight(float lum) {
 		environment.get(ColorAttribute.class, ColorAttribute.AmbientLight).color.set(lum, lum, lum, 1);
 	}
