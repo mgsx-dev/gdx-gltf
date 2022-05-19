@@ -83,7 +83,7 @@ gdx-gltf is available via Jitpack.
 
 ensure you have jitpack repository declared in your Gradle configuration and add a gltfVersion variable.
 
-Version can be any release (latest release is recommended) or master-SNAPSHOT
+Version can be any release (latest release is recommended) or -SNAPSHOT
 
 ```
 allprojects {
