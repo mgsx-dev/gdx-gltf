@@ -93,12 +93,12 @@ allprojects {
 	}
 	ext {
         ...
-        gltfVersion = 'master-SNAPSHOT'
+        gltfVersion = '-SNAPSHOT'
     }
 }
 ```
 
-Add dependency in your core project (replace master-SNAPSHOT by latest release to use a stable version) : 
+Add dependency in your core project (replace -SNAPSHOT by latest release to use a stable version) : 
 
 ```
 project(":core") {
