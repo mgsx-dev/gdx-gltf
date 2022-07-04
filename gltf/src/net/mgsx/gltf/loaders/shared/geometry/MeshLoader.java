@@ -15,7 +15,6 @@ import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
@@ -25,6 +24,7 @@ import net.mgsx.gltf.data.geometry.GLTFMesh;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
 import net.mgsx.gltf.loaders.blender.BlenderShapeKeys;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
+import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
 import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
@@ -276,7 +276,7 @@ public class MeshLoader {
 					if(glAccessor == null) continue;
 					
 					if(glAccessor.bufferView == null){
-						throw new GdxRuntimeException("bufferView is null (mesh compression ?)");
+						throw new GLTFIllegalException("bufferView is null (mesh compression ?)");
 					}
 					
 					GLTFBufferView glBufferView = dataResolver.getBufferView(glAccessor.bufferView);
@@ -286,7 +286,7 @@ public class MeshLoader {
 						if(glBufferView.target == 34963){ // ELEMENT_ARRAY_BUFFER
 						}else if(glBufferView.target == 34962){ // ARRAY_BUFFER
 						}else{
-							throw new GdxRuntimeException("bufferView target unknown : " + glBufferView.target);
+							throw new GLTFRuntimeException("bufferView target unknown : " + glBufferView.target);
 						}
 					}
 					

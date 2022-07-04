@@ -15,7 +15,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
@@ -24,6 +23,8 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 import net.mgsx.gltf.data.data.GLTFBuffer;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
+import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 
 class GLTFBinaryExporter {
 	private final Array<ByteBuffer> buffers = new Array<ByteBuffer>();
@@ -92,7 +93,7 @@ class GLTFBinaryExporter {
 		}else if(currentBuffer instanceof ShortBuffer){
 			size = currentBuffer.position() * 2;
 		}else{
-			throw new GdxRuntimeException("bad buffer type...");
+			throw new GLTFUnsupportedException("bad buffer type");
 		}
 		currentBuffer = null;
 		view.byteLength = size;
@@ -142,7 +143,7 @@ class GLTFBinaryExporter {
 	
 	public static void savePNG(FileHandle file, Pixmap pixmap){
 		if(Gdx.app.getType() == ApplicationType.WebGL){
-			throw new GdxRuntimeException("saving pixmap not supported for WebGL");
+			throw new GLTFUnsupportedException("saving pixmap not supported for WebGL");
 		}else{
 			// call PixmapIO.writePNG(file, pixmap); via reflection to
 			// avoid compilation error with GWT.
@@ -151,7 +152,7 @@ class GLTFBinaryExporter {
 				Method pixmapIO_writePNG = ClassReflection.getMethod(pixmapIO, "writePNG", FileHandle.class, Pixmap.class);
 				pixmapIO_writePNG.invoke(null, file, pixmap);
 			} catch (ReflectionException e) {
-				throw new GdxRuntimeException(e);
+				throw new GLTFRuntimeException(e);
 			} 
 		}
 	}

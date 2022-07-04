@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
@@ -18,6 +17,7 @@ import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.material.GLTFMaterial;
 import net.mgsx.gltf.data.material.GLTFpbrMetallicRoughness;
 import net.mgsx.gltf.data.texture.GLTFTextureInfo;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.texture.TextureResolver;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
@@ -70,7 +70,7 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 			material.set(new BlendingAttribute()); // opacity is set by pbrMetallicRoughness below
 			alphaBlend = true;
 		}else if(glMaterial.alphaMode != null){
-			throw new GdxRuntimeException("unknow alpha mode : " + glMaterial.alphaMode);
+			throw new GLTFIllegalException("unknow alpha mode : " + glMaterial.alphaMode);
 		}
 		
 		if(glMaterial.pbrMetallicRoughness != null){

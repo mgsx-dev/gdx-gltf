@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.g3d.model.NodeKeyframe;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.animation.GLTFAnimation;
 import net.mgsx.gltf.data.animation.GLTFAnimationChannel;
 import net.mgsx.gltf.data.animation.GLTFAnimationSampler;
 import net.mgsx.gltf.data.data.GLTFAccessor;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.scene.NodeResolver;
@@ -168,7 +168,7 @@ public class AnimationLoader {
 					}
 				}
 			}else{
-				throw new GdxRuntimeException("unsupported " + property);
+				throw new GLTFUnsupportedException("unsupported " + property);
 			}
 		}
 		

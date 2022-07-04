@@ -8,13 +8,13 @@ import com.badlogic.gdx.graphics.g3d.model.NodeKeyframe;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.animation.GLTFAnimation;
 import net.mgsx.gltf.data.animation.GLTFAnimationChannel;
 import net.mgsx.gltf.data.animation.GLTFAnimationSampler;
 import net.mgsx.gltf.data.animation.GLTFAnimationTarget;
 import net.mgsx.gltf.data.data.GLTFAccessor;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.loaders.shared.animation.Interpolation;
 import net.mgsx.gltf.scene3d.animation.NodeAnimationHack;
@@ -218,6 +218,6 @@ class GLTFAnimationExporter {
 		if(type == null || type == Interpolation.LINEAR) return null; // default "LINEAR";
 		if(type == Interpolation.STEP) return "STEP";
 		if(type == Interpolation.CUBICSPLINE) return "CUBICSPLINE";
-		throw new GdxRuntimeException("unexpected interpolation type " + type);
+		throw new GLTFIllegalException("unexpected interpolation type " + type);
 	}
 }

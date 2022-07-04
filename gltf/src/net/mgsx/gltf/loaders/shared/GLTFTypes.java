@@ -14,12 +14,12 @@ import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.texture.GLTFSampler;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.animation.Interpolation;
 import net.mgsx.gltf.scene3d.model.CubicQuaternion;
 import net.mgsx.gltf.scene3d.model.CubicVector3;
@@ -58,7 +58,7 @@ public class GLTFTypes {
 		case 5: return GL20.GL_TRIANGLE_STRIP;
 		case 6: return GL20.GL_TRIANGLE_FAN;
 		}
-		throw new GdxRuntimeException("unsupported mode " + glMode);
+		throw new GLTFIllegalException("unsupported mode " + glMode);
 	}
 	
 	public static Color mapColor(float [] c, Color defaultColor){
@@ -201,7 +201,7 @@ public class GLTFTypes {
 			camera.viewportHeight = glCamera.orthographic.ymag / canvasRatio;
 			return camera;
 		}else{
-			throw new GdxRuntimeException("unknow camera type " + glCamera.type);
+			throw new GLTFIllegalException("unknow camera type " + glCamera.type);
 		}
 	}
 
@@ -234,7 +234,7 @@ public class GLTFTypes {
 		case 33648: return TextureWrap.MirroredRepeat;
 		case 10497: return TextureWrap.Repeat;
 		}
-		throw new GdxRuntimeException("unexpected texture wrap " + wrap);
+		throw new GLTFIllegalException("unexpected texture wrap " + wrap);
 	}
 
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#samplermagfilter
@@ -244,7 +244,7 @@ public class GLTFTypes {
 		case 9728: return TextureFilter.Nearest;
 		case 9729: return TextureFilter.Linear;
 		}
-		throw new GdxRuntimeException("unexpected texture mag filter " + filter);
+		throw new GLTFIllegalException("unexpected texture mag filter " + filter);
 	}
 	
 	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#samplerminfilter
@@ -258,7 +258,7 @@ public class GLTFTypes {
 		case 9986: return TextureFilter.MipMapNearestLinear;
 		case 9987: return TextureFilter.MipMapLinearLinear;
 		}
-		throw new GdxRuntimeException("unexpected texture mag filter " + filter);
+		throw new GLTFIllegalException("unexpected texture mag filter " + filter);
 	}
 
 	public static boolean isMipMapFilter(GLTFSampler sampler) {
@@ -273,7 +273,7 @@ public class GLTFTypes {
 		case MipMapLinearLinear:
 			return true;
 		default:
-			throw new GdxRuntimeException("unexpected texture min filter " + filter);
+			throw new GLTFIllegalException("unexpected texture min filter " + filter);
 		}
 	}
 	
@@ -287,7 +287,7 @@ public class GLTFTypes {
 		}else if("CUBICSPLINE".equals(type)){
 			return Interpolation.CUBICSPLINE;
 		}else{
-			throw new GdxRuntimeException("unexpected interpolation type " + type);
+			throw new GLTFIllegalException("unexpected interpolation type " + type);
 		}
 	}
 }

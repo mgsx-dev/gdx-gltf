@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -26,6 +25,7 @@ import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFScene;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.animation.AnimationLoader;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
@@ -99,7 +99,7 @@ public class GLTFLoaderBase implements Disposable {
 					}else if(KHRLightsPunctual.EXT.equals(extension)){
 					}else if(KHRMaterialsUnlit.EXT.equals(extension)){
 					}else{
-						throw new GdxRuntimeException("Extension " + extension + " required but not supported");
+						throw new GLTFUnsupportedException("Extension " + extension + " required but not supported");
 					}
 				}
 			}

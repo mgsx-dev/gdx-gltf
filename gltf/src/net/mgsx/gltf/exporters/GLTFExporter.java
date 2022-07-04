@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 
@@ -20,6 +19,8 @@ import net.mgsx.gltf.data.geometry.GLTFMesh;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
 import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFScene;
+import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
+import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
@@ -184,7 +185,7 @@ public class GLTFExporter {
 		}
 		
 		root.scene = scenes.indexOf(defaultScene, true);
-		if(root.scene < 0) throw new GdxRuntimeException("scene not found");
+		if(root.scene < 0) throw new GLTFIllegalException("scene not found");
 		
 		end(file);
 	}
@@ -198,7 +199,7 @@ public class GLTFExporter {
 		}
 		
 		root.scene = scenes.indexOf(defaultScene, true);
-		if(root.scene < 0) throw new GdxRuntimeException("scene not found");
+		if(root.scene < 0) throw new GLTFIllegalException("scene not found");
 		
 		end(file);
 	}
@@ -270,7 +271,7 @@ public class GLTFExporter {
 				for(NodePart nodePart : node.parts){
 					GLTFPrimitive primitive = meshExporter.exportMeshPart(nodePart.meshPart);
 					int materialIndex = materialMapping.indexOf(nodePart.material, true);
-					if(materialIndex < 0) throw new GdxRuntimeException("material not found");
+					if(materialIndex < 0) throw new GLTFRuntimeException("material not found");
 					primitive.material = materialIndex;
 					gltfMesh.primitives.add(primitive);
 				}

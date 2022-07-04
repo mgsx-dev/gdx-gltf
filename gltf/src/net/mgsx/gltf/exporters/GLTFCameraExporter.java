@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
@@ -14,6 +13,8 @@ import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.camera.GLTFOrthographic;
 import net.mgsx.gltf.data.camera.GLTFPerspective;
 import net.mgsx.gltf.data.scene.GLTFNode;
+import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 
 class GLTFCameraExporter {
 
@@ -26,7 +27,7 @@ class GLTFCameraExporter {
 	public void export(ObjectMap<Node, Camera> cameras) {
 		for(Entry<Node, Camera> entry : cameras){
 			int nodeID = base.nodeMapping.indexOf(entry.key, true);
-			if(nodeID < 0) throw new GdxRuntimeException("node not found");
+			if(nodeID < 0) throw new GLTFRuntimeException("node not found");
 			GLTFNode glNode = base.root.nodes.get(nodeID);
 			if(base.root.cameras == null){
 				base.root.cameras = new Array<GLTFCamera>();
@@ -58,7 +59,7 @@ class GLTFCameraExporter {
 			glCamera.orthographic.ymag = camera.viewportHeight * ocam.zoom; // TODO not sure
 		}
 		else{
-			throw new GdxRuntimeException("unsupported camera type " + camera.getClass());
+			throw new GLTFUnsupportedException("unsupported camera type " + camera.getClass());
 		}
 		
 		return glCamera;

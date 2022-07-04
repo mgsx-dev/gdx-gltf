@@ -9,12 +9,12 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import net.mgsx.gltf.data.data.GLTFAccessor;
 import net.mgsx.gltf.data.geometry.GLTFMorphTarget;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 
@@ -111,7 +111,7 @@ class GLTFMeshExporter {
 				}else if(a.type == GL20.GL_UNSIGNED_BYTE){
 					accessorComponentType = GLTFTypes.C_UBYTE;
 				}else{
-					throw new GdxRuntimeException("color attribute format not supported");
+					throw new GLTFUnsupportedException("color attribute format not supported");
 				}
 			}else if(a.usage == Usage.TextureCoordinates){
 				attributeKey = "TEXCOORD_" + a.unit;
@@ -154,7 +154,7 @@ class GLTFMeshExporter {
 				// skip this attribute because will be output later
 				continue;
 			}else{
-				throw new GdxRuntimeException("unsupported vertex attribute " + a.alias);
+				throw new GLTFUnsupportedException("unsupported vertex attribute " + a.alias);
 			}
 			
 			GLTFAccessor accessor = base.obtainAccessor();
@@ -247,6 +247,6 @@ class GLTFMeshExporter {
 		case GL20.GL_TRIANGLE_STRIP: return 5;
 		case GL20.GL_TRIANGLE_FAN: return 6;
 		}
-		throw new GdxRuntimeException("unsupported primitive type " + type);
+		throw new GLTFUnsupportedException("unsupported primitive type " + type);
 	}
 }

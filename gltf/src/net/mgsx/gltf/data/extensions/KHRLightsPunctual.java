@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import net.mgsx.gltf.data.GLTFObject;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
@@ -87,7 +86,7 @@ abstract public class KHRLightsPunctual {
 			
 			return sl;
 		} else{
-			throw new GdxRuntimeException("unsupported light type " + light.type);
+			throw new GLTFIllegalException("unsupported light type " + light.type);
 		}
 	}
 }

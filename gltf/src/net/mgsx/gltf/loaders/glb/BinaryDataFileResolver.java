@@ -9,7 +9,6 @@ import java.nio.ByteOrder;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -18,6 +17,7 @@ import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
+import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
 import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
@@ -45,7 +45,7 @@ public class BinaryDataFileResolver implements DataFileResolver
 			loadInternal(stream);
 			
 		} catch (IOException e) {
-			throw new GdxRuntimeException(e);
+			throw new GLTFRuntimeException(e);
 		}
 	}
 	

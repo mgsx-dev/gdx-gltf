@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
@@ -17,6 +16,8 @@ import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLightNode;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLights;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFSpotLight;
 import net.mgsx.gltf.data.scene.GLTFNode;
+import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
+import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.lights.PointLightEx;
 import net.mgsx.gltf.scene3d.lights.SpotLightEx;
@@ -45,7 +46,7 @@ class GLTFLightExporter {
 		
 		for(Entry<Node, BaseLight> entry : lights){
 			int nodeID = base.nodeMapping.indexOf(entry.key, true);
-			if(nodeID < 0) throw new GdxRuntimeException("node not found");
+			if(nodeID < 0) throw new GLTFRuntimeException("node not found");
 			GLTFNode glNode = base.root.nodes.get(nodeID);
 			
 			if(base.root.extensions == null){
@@ -112,7 +113,7 @@ class GLTFLightExporter {
 			glLight.spot.innerConeAngle = (float)Math.acos(cosOuterAngle + cosDeltaAngle);
 		}
 		else{
-			throw new GdxRuntimeException("unsupported light type " + light.getClass());
+			throw new GLTFUnsupportedException("unsupported light type " + light.getClass());
 		}
 		
 		// rescale color based on intensity
