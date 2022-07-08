@@ -220,6 +220,15 @@ The library automatically enable this feature when possible, based on these cond
 * For GLES 3 and WebGL 2, this feature is always supported and always activated.
 * For Desktop, it can be enabled if platform supports OpenGL 3.2+ or GL_ARB_seamless_cube_map
 
+### GL version requirements
+
+PBR shader needs `textureLod` in order to render material roughness with a radiance map (IBL) which is only available in those cases :
+* Desktop OpenGL 3.0+ or `EXT_shader_texture_lod` extension.
+* Android or iOS with either OpenGL ES 3.0+ or `EXT_shader_texture_lod` extension.
+* WebGL 2.0+ or `EXT_shader_texture_lod` extension.
+
+If target platform doesn't fulfill those requirements, you can still use the library (eg. to load your GLTF files) but PBR rendering will be a bit broken.
+
 # Troubleshooting
 
 ## Rigged model partially rendered
