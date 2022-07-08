@@ -109,6 +109,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		return prefix;
 	}
 	
+	/**
+	 * @return if target platform is running with at least OpenGL ES 3 (GLSL 300 es), WebGL 2.0 (GLSL 300 es)
+	 *  or desktop OpenGL 3.0 (GLSL 130).
+	 */
 	protected boolean isGL3(){
 		return Gdx.graphics.getGLVersion().isVersionEqualToOrHigher(3, 0);
 	}
@@ -127,7 +131,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			if(Gdx.app.getType() == ApplicationType.Desktop){
 				if(version == null)
 					version = "#version 130\n" + "#define GLSL3\n";
-			}else if(Gdx.app.getType() == ApplicationType.Android){
+			}else if(Gdx.app.getType() == ApplicationType.Android || 
+					Gdx.app.getType() == ApplicationType.iOS ||
+					Gdx.app.getType() == ApplicationType.WebGL){
 				if(version == null)
 					version = "#version 300 es\n" + "#define GLSL3\n";
 			}
