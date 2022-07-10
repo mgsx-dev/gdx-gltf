@@ -309,7 +309,7 @@ vec3 getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
 #ifdef brdfLUTTexture
-	vec2 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness))).xy;
+	vec2 brdf = texture2D(u_brdfLUT, vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness)).xy;
 #else // TODO not sure about how to compute it ...
 	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
 #endif
