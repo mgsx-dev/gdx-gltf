@@ -20,6 +20,7 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
@@ -144,6 +145,16 @@ public class PBRShader extends DefaultShader
 		
 	};
 	
+	public final static Uniform envRotationUniform = new Uniform("u_envRotation", PBRMatrixAttribute.EnvRotation);
+	public final static Setter envRotationSetter = new LocalSetter() {
+		private final Matrix3 mat3 = new Matrix3();
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRMatrixAttribute attribute = combinedAttributes.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
+			shader.set(inputID, mat3.set(attribute.matrix));
+		}
+	};
+	
 	public final static Uniform brdfLUTTextureUniform = new Uniform("u_brdfLUT");
 	public final static Setter brdfLUTTextureSetter = new LocalSetter() {
 		@Override
@@ -184,6 +195,7 @@ public class PBRShader extends DefaultShader
 	public final int u_occlusionTexture;
 	public final int u_DiffuseEnvSampler;
 	public final int u_SpecularEnvSampler;
+	public final int u_envRotation;
 	public final int u_brdfLUTTexture;
 	public final int u_NormalScale;
 	public final int u_BaseColorTexture;
@@ -231,6 +243,7 @@ public class PBRShader extends DefaultShader
 		// environment
 		u_DiffuseEnvSampler = register(diffuseEnvTextureUniform, diffuseEnvTextureSetter);
 		u_SpecularEnvSampler = register(specularEnvTextureUniform, specularEnvTextureSetter);
+		u_envRotation = register(envRotationUniform, envRotationSetter);
 		
 		// metallic roughness
 		u_metallicRoughness = register(metallicRoughnessUniform, metallicRoughnessSetter);

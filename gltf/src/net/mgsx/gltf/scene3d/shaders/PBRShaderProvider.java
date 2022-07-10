@@ -22,6 +22,7 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
@@ -229,6 +230,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				
 				if(renderable.environment.has(ColorAttribute.AmbientLight)){
 					prefix += "#define ambientLightFlag\n";
+				}
+				
+				if(renderable.environment.has(PBRMatrixAttribute.EnvRotation)){
+					prefix += "#define ENV_ROTATION\n";
 				}
 			}
 			

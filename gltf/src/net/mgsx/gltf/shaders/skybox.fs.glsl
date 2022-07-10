@@ -17,6 +17,10 @@ uniform samplerCube u_environmentCubemap;
 uniform vec4 u_diffuseColor;
 #endif
 
+#ifdef ENV_ROTATION
+uniform mat3 u_envRotation;
+#endif
+
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
     #ifdef MANUAL_SRGB
@@ -33,7 +37,13 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
 }
 
 void main() {
-	vec4 color = SRGBtoLINEAR(textureCube(u_environmentCubemap, v_position.xyz));
+#ifdef ENV_ROTATION
+	vec3 direction = u_envRotation * v_position;
+#else
+	vec3 direction = v_position;
+#endif
+
+	vec4 color = SRGBtoLINEAR(textureCube(u_environmentCubemap, direction));
 #ifdef diffuseColorFlag
 	color *= u_diffuseColor;
 #endif

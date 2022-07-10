@@ -431,6 +431,13 @@ public class GLTFDemo extends ApplicationAdapter
 		ui.skyboxSRGB.addListener(skyboxOptionListener);
 		ui.skyboxGammaCorrection.addListener(skyboxOptionListener);
 		
+		ui.envRotation.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				sceneManager.setEnvironmentRotation(ui.envRotation.getValue() * 360);
+			}
+		});
+		
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {

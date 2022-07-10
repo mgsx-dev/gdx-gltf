@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
+import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.lights.PointLightEx;
 import net.mgsx.gltf.scene3d.lights.SpotLightEx;
@@ -80,6 +81,19 @@ public class SceneManager implements Disposable {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, lum, lum, lum, 1));
 	}
 	
+	public void setEnvironmentRotation(float azymuthAngleDegree){
+		PBRMatrixAttribute attribute = environment.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
+		if(attribute != null){
+			attribute.set(azymuthAngleDegree);
+		}else{
+			environment.set(PBRMatrixAttribute.createEnvRotation(azymuthAngleDegree));
+		}
+	}
+	
+	public void removeEnvironmentRotation(){
+		environment.remove(PBRMatrixAttribute.EnvRotation);
+	}
+	
 	public ModelBatch getBatch() {
 		return batch;
 	}
@@ -127,7 +141,22 @@ public class SceneManager implements Disposable {
 		}
 	}
 	
+	/**
+	 * Automatically set skybox rotation matching this environement rotation.
+	 * Subclasses could override this method in order to change this behavior.
+	 */
+	protected void updateSkyboxRotation(){
+		if(skyBox != null){
+			PBRMatrixAttribute rotationAttribute = environment.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
+			if(rotationAttribute != null){
+				skyBox.setRotation(rotationAttribute.matrix);
+			}
+		}
+	}
+	
 	protected void updateEnvironment(){
+		updateSkyboxRotation();
+		
 		computedEnvironement.setCache(environment);
 		pointLights.lights.clear();
 		spotLights.lights.clear();

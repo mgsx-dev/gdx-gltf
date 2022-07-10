@@ -10,23 +10,29 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 
+import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
+import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
 public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 
 	private ShaderProvider shaderProvider;
+	private boolean ownShaderProvider;
 	private Model boxModel;
 	private Renderable box;
 	
@@ -48,7 +54,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	 */
 	public SceneSkybox(Cubemap cubemap, SRGB manualSRGB, Float gammaCorrection){
 		createShaderProvider(manualSRGB, gammaCorrection);
-		createBox(cubemap, shaderProvider);
+		createBox(cubemap);
 	}
 
 	/**
@@ -59,7 +65,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	 */
 	public SceneSkybox(Cubemap cubemap, SRGB manualSRGB, boolean gammaCorrection){
 		createShaderProvider(manualSRGB, gammaCorrection ? PBRShaderConfig.DEFAULT_GAMMA : null);
-		createBox(cubemap, shaderProvider);
+		createBox(cubemap);
 	}
 
 	/**
@@ -70,12 +76,14 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	 */
 	public SceneSkybox(Cubemap cubemap, ShaderProvider shaderProvider){
 		if(shaderProvider == null){
-			shaderProvider = createShaderProvider(SRGB.NONE, null);
+			createShaderProvider(SRGB.NONE, null);
+		}else{
+			this.shaderProvider = shaderProvider;
 		}
-		createBox(cubemap, shaderProvider);
+		createBox(cubemap);
 	}
 	
-	private ShaderProvider createShaderProvider(SRGB manualSRGB, Float gammaCorrection){
+	private void createShaderProvider(SRGB manualSRGB, Float gammaCorrection){
 		String prefix = "";
 		if(manualSRGB != SRGB.NONE){
 			prefix += "#define MANUAL_SRGB\n";
@@ -90,10 +98,11 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 		String basePathName = "net/mgsx/gltf/shaders/skybox";
 		shaderConfig.vertexShader = Gdx.files.classpath(basePathName + ".vs.glsl").readString();
 		shaderConfig.fragmentShader = prefix + Gdx.files.classpath(basePathName + ".fs.glsl").readString();
-		return this.shaderProvider = new DefaultShaderProvider(shaderConfig);
+		ownShaderProvider = true;
+		this.shaderProvider = new SkyboxShaderProvider(shaderConfig);
 	}
 	
-	private void createBox(Cubemap cubemap, ShaderProvider shaderProvider){
+	private void createBox(Cubemap cubemap){
 		// create box
 		float boxScale = (float)(1.0 / Math.sqrt(2.0));
 		boxModel = new ModelBuilder().createBox(boxScale, boxScale, boxScale, new Material(), VertexAttributes.Usage.Position);
@@ -111,10 +120,32 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 		// set material options : preserve background depth
 		box.material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
 		box.material.set(new DepthTestAttribute(false));
-		
-		
-		// assign shader
-		box.shader = shaderProvider.getShader(box);
+	}
+	
+	private static class SkyboxShader extends DefaultShader {
+
+		public SkyboxShader(Renderable renderable, Config config) {
+			super(renderable, config, createPrefix(renderable, config) + createSkyBoxPrefix(renderable));
+			register(PBRShader.envRotationUniform, PBRShader.envRotationSetter);
+		}
+
+		private static String createSkyBoxPrefix(Renderable renderable) {
+			String prefix = "";
+			if(renderable.environment.has(PBRMatrixAttribute.EnvRotation)){
+				prefix += "#define ENV_ROTATION\n";
+			}
+			return prefix;
+		}
+	}
+	
+	private static class SkyboxShaderProvider extends DefaultShaderProvider {
+		public SkyboxShaderProvider(Config config) {
+			super(config);
+		}
+		@Override
+		protected Shader createShader (final Renderable renderable) {
+			return new SkyboxShader(renderable, config);
+		}
 	}
 	
 	public SceneSkybox set(Cubemap cubemap){
@@ -139,12 +170,36 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	
 	@Override
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
+		// assign shader
+		box.shader = shaderProvider.getShader(box);
 		renderables.add(box);
 	}
 
 	@Override
 	public void dispose() {
-		if(shaderProvider != null) shaderProvider.dispose();
+		if(shaderProvider != null && ownShaderProvider) shaderProvider.dispose();
 		boxModel.dispose();
+	}
+
+	public void setRotation(float azymuthAngleDegree) {
+		PBRMatrixAttribute attribute = box.environment.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
+		if(attribute != null){
+			attribute.set(azymuthAngleDegree);
+		}else{
+			box.environment.set(PBRMatrixAttribute.createEnvRotation(azymuthAngleDegree));
+		}
+	}
+	
+	public void setRotation(Matrix4 envRotation) {
+		PBRMatrixAttribute attribute = box.environment.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
+		if(envRotation != null){
+			if(attribute != null){
+				attribute.matrix.set(envRotation);
+			}else{
+				box.environment.set(PBRMatrixAttribute.createEnvRotation(envRotation));
+			}
+		}else if(attribute != null){
+			box.environment.remove(PBRMatrixAttribute.EnvRotation);
+		}
 	}
 }

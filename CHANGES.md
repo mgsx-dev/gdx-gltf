@@ -1,5 +1,9 @@
 # Changes history
 
+### 2.1.0
+
+* Added optional environement and skybox rotation.
+
 ### 2.0.0
 
 * [BREAKING CHANGE] upgrade to libGDX 1.9.11, you can't use older libGDX with this version.

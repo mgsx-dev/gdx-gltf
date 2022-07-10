@@ -297,6 +297,10 @@ vec3 getNormal()
 }
 #endif
 
+#ifdef ENV_ROTATION
+uniform mat3 u_envRotation;
+#endif
+
 // Calculation of the lighting contribution from an optional Image Based Light source.
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
@@ -310,13 +314,24 @@ vec3 getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
 	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
 #endif
     
-    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, n)).rgb;
+#ifdef ENV_ROTATION
+	vec3 diffuseDirection = u_envRotation * n;
+#else
+	vec3 diffuseDirection = n;
+#endif
+    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, diffuseDirection)).rgb;
+
+#ifdef ENV_ROTATION
+	vec3 specularDirection = u_envRotation * reflection;
+#else
+	vec3 specularDirection = reflection;
+#endif
 
 #ifdef USE_TEX_LOD
     float lod = (pbrSurface.perceptualRoughness * u_mipmapScale);
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, reflection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
 #else
-    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, reflection)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
 #endif
 
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;

@@ -86,6 +86,7 @@ public class GLTFDemoUI extends Table {
 	public BooleanUI skyBoxEnabled;
 	public SelectBox<SRGB> skyboxSRGB;
 	public BooleanUI skyboxGammaCorrection;
+	public FloatUI envRotation;
 	public Vector4UI fogColor;
 	public Vector3UI fogEquation;
 
@@ -263,6 +264,9 @@ public class GLTFDemoUI extends Table {
 		
 		shaderOptions.optTable.add("Skybox Gamma");
 		shaderOptions.optTable.add(skyboxGammaCorrection = new BooleanUI(skin, false)).row();
+		
+		shaderOptions.optTable.add("Rotation");
+		shaderOptions.optTable.add(envRotation = new FloatUI(skin, 0)).row();
 
 		// Outlines
 		root.add();
