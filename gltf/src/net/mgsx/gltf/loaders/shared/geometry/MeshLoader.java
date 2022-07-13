@@ -39,7 +39,6 @@ public class MeshLoader {
 	
 	private ObjectMap<GLTFMesh, Array<NodePart>> meshMap = new ObjectMap<GLTFMesh, Array<NodePart>>();
 	private final Array<Mesh> meshes = new Array<Mesh>();
-	private int maxBones;
 	
 	public void load(Node node, GLTFMesh glMesh, DataResolver dataResolver, MaterialLoader materialLoader) 
 	{
@@ -163,16 +162,6 @@ public class MeshLoader {
 							bonesIndices.set(unit, dataResolver.readBufferUShort(accessorId));
 						}else{
 							throw new GLTFIllegalException("illegal type for joints: " + accessor.componentType);
-						}
-						if(accessor.max != null){
-							for(float boneIndex : accessor.max){
-								maxBones = Math.max(maxBones, (int)boneIndex + 1);
-							}
-						}else{
-							// compute from data
-							for(int boneIndex : bonesIndices.get(unit)){
-								maxBones = Math.max(maxBones, boneIndex + 1);
-							}
 						}
 					}
 					else if(attributeName.startsWith("_")){
@@ -428,10 +417,6 @@ public class MeshLoader {
 		}catch(NumberFormatException e){
 			throw new GLTFIllegalException("illegal attribute name " + attributeName);
 		}
-	}
-
-	public int getMaxBones() {
-		return maxBones;
 	}
 
 	public Array<? extends Mesh> getMeshes() {

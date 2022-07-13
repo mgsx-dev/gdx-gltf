@@ -15,6 +15,8 @@ import net.mgsx.gltf.loaders.shared.data.DataResolver;
 
 public class SkinLoader {
 	
+	private int maxBones;
+
 	public void load(Array<GLTFSkin> glSkins, Array<GLTFNode> glNodes, NodeResolver nodeResolver, DataResolver dataResolver) {
 		if(glNodes != null){
 			for(int i=0 ; i<glNodes.size ; i++){
@@ -33,6 +35,7 @@ public class SkinLoader {
 		Array<Integer> joints = new Array<Integer>();
 		
 		int bonesCount = glSkin.joints.size;
+		maxBones = Math.max(maxBones, bonesCount);
 		
 		FloatBuffer floatBuffer = dataResolver.getBufferFloat(glSkin.inverseBindMatrices);
 		
@@ -56,6 +59,10 @@ public class SkinLoader {
 				}
 			}
 		}
+	}
+
+	public int getMaxBones() {
+		return maxBones;
 	}
 
 	
