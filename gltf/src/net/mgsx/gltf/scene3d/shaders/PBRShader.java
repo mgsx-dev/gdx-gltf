@@ -186,6 +186,24 @@ public class PBRShader extends DefaultShader
 			shader.set(inputID, value);
 		}
 	};
+	
+	// override default setter in order to scale by emissive intensity
+	public final static Setter emissiveScaledColor = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			ColorAttribute emissive = combinedAttributes.get(ColorAttribute.class, ColorAttribute.Emissive);
+			PBRFloatAttribute emissiveIntensity = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.EmissiveIntensity);
+			if(emissiveIntensity != null){
+				shader.set(inputID, 
+						emissive.color.r * emissiveIntensity.value, 
+						emissive.color.g * emissiveIntensity.value, 
+						emissive.color.b * emissiveIntensity.value, 
+						emissive.color.a * emissiveIntensity.value);
+			}else{
+				shader.set(inputID, emissive.color);
+			}
+		}
+	};
 
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
@@ -221,6 +239,8 @@ public class PBRShader extends DefaultShader
 	private long morphTargetsMask;
 	
 	private int vertexColorLayers;
+
+	public int u_emissive;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -263,6 +283,7 @@ public class PBRShader extends DefaultShader
 		
 		u_FogEquation = register(fogEquationUniform, fogEquationSetter);
 		
+		u_emissive = register(Inputs.emissiveColor, emissiveScaledColor);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {

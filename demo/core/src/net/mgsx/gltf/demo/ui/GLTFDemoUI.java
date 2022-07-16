@@ -130,6 +130,8 @@ public class GLTFDemoUI extends Table {
 
 	public final Slider uiScaleSlider;
 
+	public final Slider emissiveSlider;
+
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
 		this.sceneManager = sceneManager;
@@ -319,6 +321,11 @@ public class GLTFDemoUI extends Table {
 		ambiantSlider.setValue(1f);
 		lightOptions.optTable.add("Ambient Light");
 		lightOptions.optTable.add(ambiantSlider).row();
+		
+		emissiveSlider = new Slider(0, 10, .1f, false, skin);
+		emissiveSlider.setValue(1f);
+		lightOptions.optTable.add("Emissive intensity");
+		lightOptions.optTable.add(emissiveSlider).row();
 
 		// IBL options
 		

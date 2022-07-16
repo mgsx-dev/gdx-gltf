@@ -874,6 +874,13 @@ public class GLTFDemo extends ApplicationAdapter
 		validateShaders();
 		validateSkybox();
 
+		PBRFloatAttribute emissive = sceneManager.environment.get(PBRFloatAttribute.class, PBRFloatAttribute.EmissiveIntensity);
+		if(emissive == null){
+			sceneManager.environment.set(PBRFloatAttribute.createEmissiveIntensity(ui.emissiveSlider.getValue()));
+		}else{
+			emissive.value = ui.emissiveSlider.getValue();
+		}
+		
 		sceneManager.update(delta);
 		
 		if(cameraControl != null){

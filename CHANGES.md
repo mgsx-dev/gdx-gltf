@@ -3,6 +3,7 @@
 ### 2.1.0
 
 * Added optional environement and skybox rotation.
+* Added optional emissive intensity
 
 ### 2.0.0
 

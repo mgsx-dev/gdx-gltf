@@ -20,6 +20,9 @@ public class PBRFloatAttribute extends FloatAttribute
 	public final static String ShadowBiasAlias = "ShadowBias";
 	public final static long ShadowBias = register(ShadowBiasAlias);
 	
+	public final static String EmissiveIntensityAlias = "EmissiveIntensity";
+	public final static long EmissiveIntensity = register(EmissiveIntensityAlias);
+	
 	public PBRFloatAttribute(long type, float value) {
 		super(type, value);
 	}
@@ -41,5 +44,8 @@ public class PBRFloatAttribute extends FloatAttribute
 	}
 	public static Attribute createOcclusionStrength(float value) {
 		return new PBRFloatAttribute(OcclusionStrength, value);
+	}
+	public static Attribute createEmissiveIntensity(float value) {
+		return new PBRFloatAttribute(EmissiveIntensity, value);
 	}
 }
