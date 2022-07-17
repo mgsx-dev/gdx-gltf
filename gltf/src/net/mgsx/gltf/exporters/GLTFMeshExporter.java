@@ -100,7 +100,7 @@ class GLTFMeshExporter {
 				accessorType = GLTFTypes.TYPE_VEC3;
 			}else if(a.usage == Usage.Tangent){
 				attributeKey = "TANGENT";
-				accessorType = GLTFTypes.TYPE_VEC3;
+				accessorType = GLTFTypes.TYPE_VEC4;
 			}else if(a.usage == Usage.ColorUnpacked){
 				attributeKey = "COLOR_" + a.unit;
 				accessorType = GLTFTypes.TYPE_VEC4;
@@ -126,7 +126,7 @@ class GLTFMeshExporter {
 				useTargets = true;
 			}else if(a.usage == PBRVertexAttributes.Usage.TangentTarget){
 				attributeKey = "TANGENT";
-				accessorType = GLTFTypes.TYPE_VEC3;
+				accessorType = GLTFTypes.TYPE_VEC4;
 				useTargets = true;
 			}else if(a.usage == Usage.BoneWeight){
 				
