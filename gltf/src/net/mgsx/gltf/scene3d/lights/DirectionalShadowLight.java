@@ -2,6 +2,7 @@ package net.mgsx.gltf.scene3d.lights;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -119,6 +120,34 @@ public class DirectionalShadowLight extends DirectionalLightEx implements Shadow
 
 	public Camera getCamera () {
 		return cam;
+	}
+
+	@Override
+	public DirectionalShadowLight set(Color color, Vector3 direction) {
+		if (color != null) this.baseColor.set(color);
+		if (direction != null) this.direction.set(direction).nor();
+		return this;
+	}
+
+	@Override
+	public DirectionalShadowLight set(float r, float g, float b, Vector3 direction) {
+		this.baseColor.set(r, g, b, 1f);
+		if (direction != null) this.direction.set(direction).nor();
+		return this;
+	}
+
+	@Override
+	public DirectionalShadowLight set(Color color, float dirX, float dirY, float dirZ) {
+		if (color != null) this.baseColor.set(color);
+		this.direction.set(dirX, dirY, dirZ).nor();
+		return this;
+	}
+
+	@Override
+	public DirectionalShadowLight set(float r, float g, float b, float dirX, float dirY, float dirZ) {
+		this.baseColor.set(r, g, b, 1f).clamp();
+		this.direction.set(dirX, dirY, dirZ).nor();
+		return this;
 	}
 
 	@Override
