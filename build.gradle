@@ -1,3 +1,17 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		maven { url 'https://s01.oss.sonatype.org' }
+		mavenLocal()
+		google()
+		gradlePluginPortal()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+	}
+	dependencies {
+		classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
+	}
+}
 allprojects {
 
     group = 'com.github.mgsx-dev.gdx-gltf'
@@ -6,34 +20,28 @@ allprojects {
     apply plugin: "eclipse"
 	apply plugin: "idea"
 }
-   
+configure(subprojects) {
+	apply plugin: 'java-library'
+	compileJava {
+		options.incremental = true
+	}
+}
 subprojects {
     ext {
     	gdxVersion = '1.9.11'
     	junitVersion = '4.12'
     }
     
-	buildscript {
-	    repositories {
-	        mavenLocal()
-	        mavenCentral()
-	        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-	        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-	        jcenter()
-	    }
-	}
-	
-	repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        jcenter()
-    }
-	
-	apply plugin: "java"
 	apply plugin: 'maven-publish'
 	
+	repositories {
+		mavenCentral()
+		maven { url 'https://s01.oss.sonatype.org' }
+		mavenLocal()
+		gradlePluginPortal()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+	}
 }
 
 eclipse.project.name = "gltf-root"

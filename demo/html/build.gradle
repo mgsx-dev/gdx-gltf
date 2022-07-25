@@ -1,23 +1,25 @@
 buildscript {
+    repositories {
+        mavenCentral()
+    }
     dependencies {
-        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
+        classpath "org.gretty:gretty:3.0.7"
     }
 }
 apply plugin: "gwt"
 apply plugin: "war"
-apply plugin: "java"
-apply plugin: "jetty"
+apply plugin: "org.gretty"
 
 dependencies {
-    compile project(":demo:core")
-    compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
-    compile "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
-    compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+    implementation project(":demo:core")
+    implementation "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+    implementation "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
     
 }
 
 gwt {
-    gwtVersion='2.8.2' // Should match the gwt version used for building the gwt backend
+    gwtVersion="$gwtFrameworkVersion" // Should match the gwt version used for building the gwt backend
     maxHeapSize="1G" // Default 256m is not enough for gwt compiler. GWT is HUNGRY
     minHeapSize="1G"
 
@@ -32,36 +34,68 @@ gwt {
     }
 }
 
-task draftRun(type: JettyRunWar) {
-    dependsOn draftWar
-    dependsOn.remove('war')
-    webApp=draftWar.archivePath
-    daemon=true
-}
 
-task superDev(type: de.richsource.gradle.plugins.gwt.GwtSuperDev) {
-    dependsOn draftRun
+import org.akhikhl.gretty.AppBeforeIntegrationTestTask
+import org.wisepersist.gradle.plugins.gwt.GwtSuperDev
+
+gretty.httpPort = 8080
+gretty.resourceBase = project.buildDir.path + "/gwt/draftOut"
+gretty.contextPath = "/"
+gretty.portPropertiesFileName = "TEMP_PORTS.properties"
+
+task startHttpServer (dependsOn: [draftCompileGwt]) {
     doFirst {
-    	gwt.modules = gwt.devModules
-    }
-}
-
-task distWeb(dependsOn: [clean, compileGwt]) {
-    doLast {
-        file("build/dist").mkdirs()
-        copy {
-            from "build/gwt/out"
-            into "build/dist"
-            exclude 'WEB-INF', 'html/clear.cache.gif', 'html/html.devmode.js'
-        }
         copy {
             from "webapp"
-            into "build/dist"
-            exclude 'WEB-INF'
+            into gretty.resourceBase
         }
         copy {
             from "war"
-            into "build/dist"
+            into gretty.resourceBase
+        }
+    }
+}
+task beforeRun(type: AppBeforeIntegrationTestTask, dependsOn: startHttpServer) {
+    // The next line allows ports to be reused instead of
+    // needing a process to be manually terminated.
+    file("build/TEMP_PORTS.properties").delete()
+    // Somewhat of a hack; uses Gretty's support for wrapping a task in
+    // a start and then stop of a Jetty server that serves files while
+    // also running the SuperDev code server.
+    integrationTestTask 'superDev'
+
+    interactive false
+}
+
+task superDev(type: GwtSuperDev) {
+    doFirst {
+        gwt.modules = gwt.devModules
+    }
+}
+// This next line can be changed if you want to, for instance, always build into the
+// docs/ folder of a Git repo, which can be set to automatically publish on GitHub Pages.
+// This is relative to the html/ folder.
+var outputPath = "build/dist/"
+
+task distWeb(dependsOn: [clean, compileGwt]) {
+    doLast {
+        file(outputPath).mkdirs()
+        copy {
+            from("build/gwt/out"){
+                exclude '**/*.symbolMap' // Not used by a dist, and these can be large.
+                exclude 'WEB-INF', 'html/clear.cache.gif', 'html/html.devmode.js'
+            }
+            into outputPath
+        }
+        copy {
+            from("webapp") {
+                exclude 'WEB-INF'
+            }
+            into outputPath
+            }
+        copy {
+            from "war"
+            into outputPath
             exclude 'WEB-INF'
         }
     }
@@ -71,23 +105,22 @@ task validateDistWeb(type: Exec /*, dependsOn: distWeb*/) {
 	commandLine 'ruby', '-e', "require 'sinatra' ; set public_folder: '$buildDir/dist' ; set bind: '0.0.0.0'"
 }
 
-task distWebZip(type: Zip, /*, dependsOn: distWeb*/){
-	from 'build/dist/'
-   	archiveName "dist-${version}.zip"
-   	destinationDir(file("build"))
+task distWebZip(type: Zip, dependsOn: distWeb){
+    from(outputPath)
+    archiveBaseName.set("dist-${version}.zip")
+    destinationDir(file("build"))
 }
 
-draftWar {
-   from "war"
-}
-
-task addSource << {
-    sourceSets.main.compileClasspath += files(project(':gltf').sourceSets.main.allJava.srcDirs)
-	sourceSets.main.compileClasspath += files(project(':demo:core').sourceSets.main.allJava.srcDirs)
+task addSource {
+    doLast {
+    	sourceSets.main.compileClasspath += files(project(':gltf').sourceSets.main.allJava.srcDirs)
+		sourceSets.main.compileClasspath += files(project(':demo:core').sourceSets.main.allJava.srcDirs)
+    }
 }
 
 tasks.compileGwt.dependsOn(addSource)
 tasks.draftCompileGwt.dependsOn(addSource)
+tasks.checkGwt.dependsOn(addSource)
 
 sourceCompatibility = 1.6
 sourceSets.main.java.srcDirs = [ "src/" ]

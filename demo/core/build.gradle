@@ -2,13 +2,13 @@ apply plugin: "java"
 
 dependencies {
 
-    compile project(":gltf")
+    api project(":gltf")
 
-    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
     
-    testCompile "junit:junit:$junitVersion"
-    testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
 
 sourceCompatibility = 1.6

@@ -1,9 +1,9 @@
-apply plugin: "java"
+apply plugin: 'application'
 
 dependencies {
-    compile project(":demo:core")
-    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    api project(":demo:core")
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
     
 sourceCompatibility = 1.6
@@ -13,61 +13,37 @@ sourceSets.test.java.srcDirs = [ "test/" ]
 project.ext.mainClassName = "net.mgsx.gltf.demo.DesktopLauncher"
 project.ext.assetsDir = new File("../android/assets");
 
-task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
+run {
+	workingDir = '../android/assets'
+	setIgnoreExitValue(true)
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
-    debug = true
+jar {
+	archiveBaseName.set("$appName-desktop")
+	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+	dependsOn configurations.runtimeClasspath
+	from '../android/assets'
+	exclude 'models'
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+	dependencies {
+		exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+	}
+	manifest {
+		attributes 'Main-Class': project.mainClassName
+	}
+	doLast {
+		file(archiveFile).setExecutable(true, false)
+	}
 }
 
-task distDesktop(type: Jar, dependsOn: [classes]) {
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir)
- 	
- 	exclude("models")
- 	
- 	// additional files could be added like this :
- 	// from file("$projectDir/LICENSE");
-    
-    // final JAR basename could be modified like this (default is project name) :
- 	baseName = "$appName-desktop"
-
-    manifest {
-        attributes 'Main-Class': project.mainClassName
-    }
-    doLast { 
-    	file(archivePath).setExecutable(true, false) 
-    } 
+task distDesktop(dependsOn: [jar]) {
 }
 
 eclipse {
     project {
         name = appName + "-desktop"
-        linkedResource name: 'assets', type: '2', location: 'PARENT-1-PROJECT_LOC/android/assets'
     }
-}
-
-task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
-  doLast {
-    def classpath = new XmlParser().parse(file(".classpath"))
-    new Node(classpath, "classpathentry", [ kind: 'src', path: 'assets' ]);
-    def writer = new FileWriter(file(".classpath"))
-    def printer = new XmlNodePrinter(new PrintWriter(writer))
-    printer.setPreserveWhitespace(true)
-    printer.print(classpath)
-  }
 }
 
 publishing {
