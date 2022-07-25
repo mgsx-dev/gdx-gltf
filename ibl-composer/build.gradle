@@ -58,6 +58,10 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+javadoc {
+    failOnError = false
+}
+
 java {
 	withSourcesJar()
 	withJavadocJar()

@@ -20,6 +20,10 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+javadoc {
+    failOnError = false
+}
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 java {
