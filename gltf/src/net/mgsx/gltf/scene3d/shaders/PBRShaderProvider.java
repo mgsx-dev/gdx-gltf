@@ -122,7 +122,6 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	 * override this method in order to add your own prefix.
 	 * @param renderable
 	 * @param config
-	 * @return
 	 */
 	public String createPrefixBase(Renderable renderable, PBRShaderConfig config) {
 		
@@ -370,7 +369,6 @@ public class PBRShaderProvider extends DefaultShaderProvider
 	 * @param renderable
 	 * @param config
 	 * @param prefix
-	 * @return
 	 */
 	protected PBRShader createShader(Renderable renderable, PBRShaderConfig config, String prefix){
 		return new PBRShader(renderable, config, prefix);

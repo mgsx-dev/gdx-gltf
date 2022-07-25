@@ -174,7 +174,7 @@ public class IBLBuilder implements Disposable
 	/**
 	 * Creates an radiance map, to be used with {@link net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute#SpecularEnv}
 	 * generated cubemap contains mipmaps in order to perform roughness in PBR shading
-	 * @param levels mipMapLevels how many mipmaps level, eg. 10 levels produce a 1024x1024 cubemap with mipmaps.
+	 * @param mipMapLevels how many mipmaps level, eg. 10 levels produce a 1024x1024 cubemap with mipmaps.
 	 * @return generated cubemap, caller is responsible to dispose it when no longer used.
 	 */
 	public Cubemap buildRadianceMap(final int mipMapLevels){
