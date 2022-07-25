@@ -22,6 +22,7 @@ public class BlenderShapeKeys {
             "weights" : [0.6, 0.3]
           }
         ]
+        </pre>
 	 */
 	public static Array<String> parse(GLTFMesh glMesh) {
 		if(glMesh.extras == null) return null;
