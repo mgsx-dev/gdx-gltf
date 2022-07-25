@@ -28,7 +28,35 @@ public class DirectionalLightEx extends DirectionalLight
 		updateColor();
 		return this;
 	}
-	
+
+	@Override
+	public DirectionalLightEx set(Color color, Vector3 direction) {
+		if (color != null) this.baseColor.set(color);
+		if (direction != null) this.direction.set(direction).nor();
+		return this;
+	}
+
+	@Override
+	public DirectionalLightEx set(float r, float g, float b, Vector3 direction) {
+		this.baseColor.set(r, g, b, 1f);
+		if (direction != null) this.direction.set(direction).nor();
+		return this;
+	}
+
+	@Override
+	public DirectionalLightEx set(Color color, float dirX, float dirY, float dirZ) {
+		if (color != null) this.baseColor.set(color);
+		this.direction.set(dirX, dirY, dirZ).nor();
+		return this;
+	}
+
+	@Override
+	public DirectionalLightEx set(float r, float g, float b, float dirX, float dirY, float dirZ) {
+		this.baseColor.set(r, g, b, 1f).clamp();
+		this.direction.set(dirX, dirY, dirZ).nor();
+		return this;
+	}
+
 	public void updateColor(){
 		this.color.r = baseColor.r * intensity;
 		this.color.g = baseColor.g * intensity;
