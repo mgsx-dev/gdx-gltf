@@ -5,15 +5,16 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationDesc;
 import com.badlogic.gdx.utils.Array;
 
+import net.mgsx.gltf.scene3d.scene.AbstractScene;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
 public class AnimationsPlayer {
 
-	private Scene scene;
+	private final AbstractScene scene;
 	
 	private Array<AnimationController> controllers = new Array<AnimationController>();
 
-	public AnimationsPlayer(Scene scene) {
+	public AnimationsPlayer(AbstractScene scene) {
 		this.scene = scene;
 	}
 	

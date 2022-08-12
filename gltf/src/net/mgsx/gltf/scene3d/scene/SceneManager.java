@@ -112,11 +112,11 @@ public class SceneManager implements Disposable {
 		depthBatch = new ModelBatch(depthShaderProvider);
 	}
 	
-	public void addScene(Scene scene){
+	public void addScene(AbstractScene scene){
 		addScene(scene, true);
 	}
 	
-	public void addScene(Scene scene, boolean appendLights){
+	public void addScene(AbstractScene scene, boolean appendLights){
 		renderableProviders.add(scene);
 		if(appendLights){
 			for(Entry<Node, BaseLight> e : scene.getLights()){
@@ -287,7 +287,7 @@ public class SceneManager implements Disposable {
 		this.camera = camera;
 	}
 
-	public void removeScene(Scene scene) {
+	public void removeScene(AbstractScene scene) {
 		renderableProviders.removeValue(scene, true);
 		for(Entry<Node, BaseLight> e : scene.getLights()){
 			environment.remove(e.value);

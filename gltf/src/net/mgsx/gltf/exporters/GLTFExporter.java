@@ -21,6 +21,7 @@ import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFScene;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
+import net.mgsx.gltf.scene3d.scene.AbstractScene;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
@@ -123,7 +124,7 @@ public class GLTFExporter {
 		end(file);
 	}
 	/** convenient method to export a single scene */
-	public void export(Scene scene, FileHandle file) {
+	public void export(AbstractScene scene, FileHandle file) {
 		GLTFScene glScene = beginSingleScene(file);
 		
 		exportScene(glScene, scene);
@@ -139,7 +140,7 @@ public class GLTFExporter {
 		end(file);
 	}
 	
-	private void exportScene(GLTFScene glScene, Scene scene){
+	private void exportScene(GLTFScene glScene, AbstractScene scene){
 		new GLTFMaterialExporter(this).export(scene.getModelInstance().nodes);
 		
 		glScene.nodes = exportNodes(glScene, scene.getModelInstance().nodes);

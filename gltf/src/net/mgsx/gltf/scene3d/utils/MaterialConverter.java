@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.scene.AbstractScene;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
 /**
@@ -14,7 +15,7 @@ import net.mgsx.gltf.scene3d.scene.Scene;
  * Some conversion are approximation because PBR and Gouraud lighting models are very different.
  */
 public class MaterialConverter {
-	public static void makeCompatible(Scene scene){
+	public static void makeCompatible(AbstractScene scene){
 		makeCompatible(scene.getModelInstance().materials);
 	}
 	public static void makeCompatible(Iterable<Material> materials){
