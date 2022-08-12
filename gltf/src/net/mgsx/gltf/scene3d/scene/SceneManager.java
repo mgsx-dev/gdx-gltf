@@ -214,7 +214,7 @@ public class SceneManager implements Disposable {
 	}
 	
 	/**
-	 * Render shadows only to interal frame buffers.
+	 * Render shadows only to internal frame buffers.
 	 * (useful when you're using your own frame buffer to render scenes)
 	 */
 	@SuppressWarnings("deprecation")
@@ -259,12 +259,12 @@ public class SceneManager implements Disposable {
 		batch.end();
 	}
 	
-	public DirectionalLight getFirstDirectionalLight(){
+	public DirectionalLight getFirstDirectionalLight() {
 		DirectionalLightsAttribute dla = environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
-		if(dla != null){
-			for(DirectionalLight dl : dla.lights){
-				if(dl instanceof DirectionalLight){
-					return (DirectionalLight)dl;
+		if (dla != null) {
+			for (DirectionalLight dl : dla.lights) {
+				if (dl != null) {
+					return dl;
 				}
 			}
 		}
