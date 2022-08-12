@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
@@ -23,7 +22,7 @@ import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
 import net.mgsx.gltf.scene3d.utils.CameraUtils;
 import net.mgsx.gltf.scene3d.utils.LightUtils;
 
-public class Scene implements RenderableProvider, Updatable {
+public class Scene implements AbstractScene {
 	public ModelInstance modelInstance;
 	public AnimationController animationController;
 	
@@ -129,6 +128,7 @@ public class Scene implements RenderableProvider, Updatable {
 		}
 	}
 
+	@Override
 	public Camera getCamera(String name) {
 		for (Entry<Node, Camera> e : getCameras()) {
 			if (name.equals(e.key.id)) {
@@ -138,6 +138,7 @@ public class Scene implements RenderableProvider, Updatable {
 		return null;
 	}
 
+	@Override
 	public BaseLight getLight(String name) {
 		for (Entry<Node, BaseLight> e : getLights()) {
 			if (name.equals(e.key.id)) {
@@ -147,6 +148,7 @@ public class Scene implements RenderableProvider, Updatable {
 		return null;
 	}
 
+	@Override
 	public int getDirectionalLightCount() {
 		int count = 0;
 		for (Entry<Node, BaseLight> entry : getLights()) {
@@ -162,30 +164,37 @@ public class Scene implements RenderableProvider, Updatable {
 		modelInstance.getRenderables(renderables, pool);
 	}
 
+	@Override
 	public ModelInstance getModelInstance() {
 		return modelInstance;
 	}
 
+	@Override
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 	}
 
+	@Override
 	public AnimationController getAnimationController() {
 		return animationController;
 	}
 
+	@Override
 	public void setAnimationController(AnimationController animationController) {
 		this.animationController = animationController;
 	}
 
+	@Override
 	public ObjectMap<Node, BaseLight> getLights() {
 		return lights;
 	}
 
+	@Override
 	public ObjectMap<Node, Camera> getCameras() {
 		return cameras;
 	}
 
+	@Override
 	public AnimationsPlayer getAnimations() {
 		return animations;
 	}
