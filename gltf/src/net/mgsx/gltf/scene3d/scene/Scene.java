@@ -162,4 +162,32 @@ public class Scene implements RenderableProvider, Updatable {
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
 		modelInstance.getRenderables(renderables, pool);
 	}
+
+	public ModelInstance getModelInstance() {
+		return modelInstance;
+	}
+
+	public void setModelInstance(ModelInstance modelInstance) {
+		this.modelInstance = modelInstance;
+	}
+
+	public AnimationController getAnimationController() {
+		return animationController;
+	}
+
+	public void setAnimationController(AnimationController animationController) {
+		this.animationController = animationController;
+	}
+
+	public ObjectMap<Node, BaseLight> getLights() {
+		return lights;
+	}
+
+	public ObjectMap<Node, Camera> getCameras() {
+		return cameras;
+	}
+
+	public AnimationsPlayer getAnimations() {
+		return animations;
+	}
 }

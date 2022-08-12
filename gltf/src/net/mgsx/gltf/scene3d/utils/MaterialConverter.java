@@ -15,7 +15,7 @@ import net.mgsx.gltf.scene3d.scene.Scene;
  */
 public class MaterialConverter {
 	public static void makeCompatible(Scene scene){
-		makeCompatible(scene.modelInstance.materials);
+		makeCompatible(scene.getModelInstance().materials);
 	}
 	public static void makeCompatible(Iterable<Material> materials){
 		for(Material m : materials){

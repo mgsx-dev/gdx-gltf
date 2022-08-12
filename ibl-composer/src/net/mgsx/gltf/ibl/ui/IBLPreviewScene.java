@@ -66,7 +66,7 @@ public class IBLPreviewScene {
 		sphereScene = new Scene(mb.end(), false);
 		
 		// XXX references to attribute are lost during copy, better get them on the fly
-		material = sphereScene.modelInstance.materials.first();
+		material = sphereScene.getModelInstance().materials.first();
 		material.set(baseColor = new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE));
 		material.set(metallic = new PBRFloatAttribute(PBRFloatAttribute.Metallic, 1f));
 		material.set(roughness = new PBRFloatAttribute(PBRFloatAttribute.Roughness, 0f));

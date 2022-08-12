@@ -456,9 +456,9 @@ public class GLTFDemo extends ApplicationAdapter
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				if(ui.btAllAnimations.isChecked()){
-					scene.animations.playAll();
+					scene.getAnimations().playAll();
 				}else{
-					scene.animations.stopAll();
+					scene.getAnimations().stopAll();
 				}
 			}
 		});
@@ -697,11 +697,11 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 
 	private void setAnimation(String name) {
-		if(scene != null && scene.animationController != null){
+		if(scene != null && scene.getAnimationController() != null){
 			if(name == null || name.isEmpty()){
-				scene.animationController.setAnimation(null);
+				scene.getAnimationController().setAnimation(null);
 			}else{
-				scene.animationController.animate(name, -1, 1f, null, 0f);
+				scene.getAnimationController().animate(name, -1, 1f, null, 0f);
 			}
 		}
 	}
@@ -776,16 +776,16 @@ public class GLTFDemo extends ApplicationAdapter
 		this.scene = scene;
 		
 		BoundingBox box = new BoundingBox();
-		scene.modelInstance.calculateBoundingBox(box);
+		scene.getModelInstance().calculateBoundingBox(box);
 		if(box.isValid()){
 			sceneBox.set(box);
 		}
 		
-		ui.setMaterials(scene.modelInstance.materials);
-		ui.setAnimations(scene.modelInstance.animations);
-		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.modelInstance));
-		ui.setCameras(scene.cameras);
-		ui.setLights(scene.lights);
+		ui.setMaterials(scene.getModelInstance().materials);
+		ui.setAnimations(scene.getModelInstance().animations);
+		ui.setNodes(NodeUtil.getAllNodes(new Array<Node>(), scene.getModelInstance()));
+		ui.setCameras(scene.getCameras());
+		ui.setLights(scene.getLights());
 		
 		if(scene.getDirectionalLightCount() == 0){
 			resetDefaultLight();
@@ -992,7 +992,7 @@ public class GLTFDemo extends ApplicationAdapter
 		if(ui.skeletonButton.isChecked() && scene != null){
 			shapeRenderer.setProjectionMatrix(sceneManager.camera.combined);
 			shapeRenderer.begin(ShapeType.Line);
-			drawSkeleton(scene.modelInstance.nodes);
+			drawSkeleton(scene.getModelInstance().nodes);
 			shapeRenderer.end();
 		}
 	}

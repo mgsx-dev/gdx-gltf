@@ -119,7 +119,7 @@ public class SceneManager implements Disposable {
 	public void addScene(Scene scene, boolean appendLights){
 		renderableProviders.add(scene);
 		if(appendLights){
-			for(Entry<Node, BaseLight> e : scene.lights){
+			for(Entry<Node, BaseLight> e : scene.getLights()){
 				environment.add(e.value);
 			}
 		}
@@ -289,7 +289,7 @@ public class SceneManager implements Disposable {
 
 	public void removeScene(Scene scene) {
 		renderableProviders.removeValue(scene, true);
-		for(Entry<Node, BaseLight> e : scene.lights){
+		for(Entry<Node, BaseLight> e : scene.getLights()){
 			environment.remove(e.value);
 		}
 	}

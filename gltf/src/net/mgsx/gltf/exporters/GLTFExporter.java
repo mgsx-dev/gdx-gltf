@@ -140,19 +140,19 @@ public class GLTFExporter {
 	}
 	
 	private void exportScene(GLTFScene glScene, Scene scene){
-		new GLTFMaterialExporter(this).export(scene.modelInstance.nodes);
+		new GLTFMaterialExporter(this).export(scene.getModelInstance().nodes);
 		
-		glScene.nodes = exportNodes(glScene, scene.modelInstance.nodes);
+		glScene.nodes = exportNodes(glScene, scene.getModelInstance().nodes);
 		
 		if(config.exportCameras){
-			new GLTFCameraExporter(this).export(scene.cameras);
+			new GLTFCameraExporter(this).export(scene.getCameras());
 		}
 		if(config.exportLights){
-			new GLTFLightExporter(this).export(scene.lights);
+			new GLTFLightExporter(this).export(scene.getLights());
 		}
 		
 		new GLTFSkinExporter(this).export();
-		new GLTFAnimationExporter(this).export(scene.modelInstance.animations);
+		new GLTFAnimationExporter(this).export(scene.getModelInstance().animations);
 	}
 	
 	private void exportScene(GLTFScene glScene, SceneModel scene){

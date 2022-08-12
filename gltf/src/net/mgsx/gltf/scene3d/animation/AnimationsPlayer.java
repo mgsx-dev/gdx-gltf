@@ -23,7 +23,7 @@ public class AnimationsPlayer {
 		}
 	}
 	public void addAnimation(AnimationDesc animation){
-		AnimationControllerHack c = new AnimationControllerHack(scene.modelInstance);
+		AnimationControllerHack c = new AnimationControllerHack(scene.getModelInstance());
 		c.calculateTransforms = false;
 		c.setAnimationDesc(animation);
 		controllers.add(c);
@@ -38,8 +38,8 @@ public class AnimationsPlayer {
 	
 	public void clearAnimations(){
 		controllers.clear();
-		if(scene.animationController != null){
-			scene.animationController.setAnimation(null);
+		if(scene.getAnimationController() != null){
+			scene.getAnimationController().setAnimation(null);
 		}
 	}
 	
@@ -51,10 +51,10 @@ public class AnimationsPlayer {
 	}
 	public void playAll(boolean loop){
 		clearAnimations();
-		for(int i=0, n=scene.modelInstance.animations.size ; i<n ; i++){
-			AnimationControllerHack c = new AnimationControllerHack(scene.modelInstance);
+		for(int i=0, n=scene.getModelInstance().animations.size ; i<n ; i++){
+			AnimationControllerHack c = new AnimationControllerHack(scene.getModelInstance());
 			c.calculateTransforms = false;
-			c.setAnimation(scene.modelInstance.animations.get(i), loop ? -1 : 1);
+			c.setAnimation(scene.getModelInstance().animations.get(i), loop ? -1 : 1);
 			controllers.add(c);
 		}
 	}
@@ -68,10 +68,10 @@ public class AnimationsPlayer {
 			for(AnimationController controller : controllers){
 				controller.update(delta);
 			}
-			scene.modelInstance.calculateTransforms();
+			scene.getModelInstance().calculateTransforms();
 		}else{
-			if(scene.animationController != null){
-				scene.animationController.update(delta);
+			if(scene.getAnimationController() != null){
+				scene.getAnimationController().update(delta);
 			}
 		}
 	}
