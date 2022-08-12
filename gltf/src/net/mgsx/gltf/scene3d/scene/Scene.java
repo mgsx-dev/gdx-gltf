@@ -17,7 +17,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool;
-
 import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
 import net.mgsx.gltf.scene3d.animation.AnimationsPlayer;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
@@ -96,52 +95,52 @@ public class Scene implements RenderableProvider, Updatable {
 	}
 
 	@Override
-	public void update(Camera camera, float delta){
+	public void update(Camera camera, float delta) {
 		animations.update(delta);
 		syncCameras();
 		syncLights();
 	}
 
-	private void syncCameras(){
-		for(Entry<Node, Camera> e : cameras){
+	private void syncCameras() {
+		for (Entry<Node, Camera> e : getCameras()) {
 			Node node = e.key;
 			Camera camera = e.value;
 			transform.set(modelInstance.transform).mul(node.globalTransform);
 			camera.position.setZero().mul(transform);
-			camera.direction.set(0,0,-1).rot(transform);
+			camera.direction.set(0, 0, -1).rot(transform);
 			camera.up.set(Vector3.Y).rot(transform);
 			camera.update();
 		}
 	}
-	
-	private void syncLights(){
-		for(Entry<Node, BaseLight> e : lights){
+
+	private void syncLights() {
+		for (Entry<Node, BaseLight> e : getLights()) {
 			Node node = e.key;
 			BaseLight light = e.value;
 			transform.set(modelInstance.transform).mul(node.globalTransform);
-			if(light instanceof DirectionalLight){
-				((DirectionalLight)light).direction.set(0,0,-1).rot(transform);
-			}else if(light instanceof PointLight){
-				((PointLight)light).position.setZero().mul(transform);
-			}else if(light instanceof SpotLight){
-				((SpotLight)light).position.setZero().mul(transform);
-				((SpotLight)light).direction.set(0,0,-1).rot(transform);
+			if (light instanceof DirectionalLight) {
+				((DirectionalLight) light).direction.set(0, 0, -1).rot(transform);
+			} else if (light instanceof PointLight) {
+				((PointLight) light).position.setZero().mul(transform);
+			} else if (light instanceof SpotLight) {
+				((SpotLight) light).position.setZero().mul(transform);
+				((SpotLight) light).direction.set(0, 0, -1).rot(transform);
 			}
 		}
 	}
-	
+
 	public Camera getCamera(String name) {
-		for(Entry<Node, Camera> e : cameras){
-			if(name.equals(e.key.id)){
+		for (Entry<Node, Camera> e : getCameras()) {
+			if (name.equals(e.key.id)) {
 				return e.value;
 			}
 		}
 		return null;
 	}
-	
+
 	public BaseLight getLight(String name) {
-		for(Entry<Node, BaseLight> e : lights){
-			if(name.equals(e.key.id)){
+		for (Entry<Node, BaseLight> e : getLights()) {
+			if (name.equals(e.key.id)) {
 				return e.value;
 			}
 		}
@@ -150,8 +149,8 @@ public class Scene implements RenderableProvider, Updatable {
 
 	public int getDirectionalLightCount() {
 		int count = 0;
-		for(Entry<Node, BaseLight> entry : lights){
-			if(entry.value instanceof DirectionalLight){
+		for (Entry<Node, BaseLight> entry : getLights()) {
+			if (entry.value instanceof DirectionalLight) {
 				count++;
 			}
 		}
