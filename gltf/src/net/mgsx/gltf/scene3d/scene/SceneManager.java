@@ -219,17 +219,16 @@ public class SceneManager implements Disposable {
 	 */
 	@SuppressWarnings("deprecation")
 	public void renderShadows(){
-		DirectionalLight light = getFirstDirectionalLight();
-		if(light instanceof DirectionalShadowLight){
-			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
-			shadowLight.begin();
-			renderDepth(shadowLight.getCamera());
-			shadowLight.end();
-			
-			environment.shadowMap = shadowLight;
-		}else{
+		DirectionalShadowLight shadowLight = getFirstDirectionalShadowLight();
+		if (shadowLight == null) {
 			environment.shadowMap = null;
+			return;
 		}
+		shadowLight.begin();
+		renderDepth(shadowLight.getCamera());
+		shadowLight.end();
+
+		environment.shadowMap = shadowLight;
 	}
 	
 	/**
@@ -265,6 +264,18 @@ public class SceneManager implements Disposable {
 			for (DirectionalLight dl : dla.lights) {
 				if (dl != null) {
 					return dl;
+				}
+			}
+		}
+		return null;
+	}
+
+	public DirectionalShadowLight getFirstDirectionalShadowLight() {
+		DirectionalLightsAttribute dla = environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+		if (dla != null) {
+			for (DirectionalLight dl : dla.lights) {
+				if (dl instanceof DirectionalShadowLight) {
+					return (DirectionalShadowLight) dl;
 				}
 			}
 		}
