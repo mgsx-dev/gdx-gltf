@@ -8,6 +8,10 @@ import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.lights.PointLightEx;
+import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 
 public class LightUtils {
 
@@ -50,5 +54,18 @@ public class LightUtils {
 			}
 		}
 		return info;
+	}
+
+	public static BaseLight createLight(BaseLight from) {
+		if (from instanceof DirectionalLight) {
+			return new DirectionalLightEx().set((DirectionalLight) from);
+		}
+		if (from instanceof PointLight) {
+			return new PointLightEx().set((PointLight) from);
+		}
+		if (from instanceof SpotLight) {
+			return new SpotLightEx().set((SpotLight) from);
+		}
+		throw new GdxRuntimeException("unknown light type " + from.getClass().getName());
 	}
 }

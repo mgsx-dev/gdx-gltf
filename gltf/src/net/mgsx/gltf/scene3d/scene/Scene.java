@@ -1,8 +1,6 @@
 package net.mgsx.gltf.scene3d.scene;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -16,17 +14,15 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool;
 
 import net.mgsx.gltf.scene3d.animation.AnimationControllerHack;
 import net.mgsx.gltf.scene3d.animation.AnimationsPlayer;
-import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
-import net.mgsx.gltf.scene3d.lights.PointLightEx;
-import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 import net.mgsx.gltf.scene3d.model.ModelInstanceHack;
+import net.mgsx.gltf.scene3d.utils.CameraUtils;
+import net.mgsx.gltf.scene3d.utils.LightUtils;
 
 public class Scene implements RenderableProvider, Updatable {
 	public ModelInstance modelInstance;
@@ -51,54 +47,17 @@ public class Scene implements RenderableProvider, Updatable {
 		for(Entry<Node, Camera> entry : sceneModel.cameras){
 			Node node = modelInstance.getNode(entry.key.id, true);
 			if(node != null){
-				cameras.put(node, createCamera(entry.value));
+				cameras.put(node, CameraUtils.createCamera(entry.value));
 			}
 		}
 		for(Entry<Node, BaseLight> entry : sceneModel.lights){
 			Node node = modelInstance.getNode(entry.key.id, true);
 			if(node != null){
-				lights.put(node, createLight(entry.value));
+				lights.put(node, LightUtils.createLight(entry.value));
 			}
 		}
 		syncCameras();
 		syncLights();
-	}
-	
-	public Camera createCamera(Camera from) 
-	{
-		Camera copy;
-		if(from instanceof PerspectiveCamera){
-			PerspectiveCamera camera = new PerspectiveCamera();
-			camera.fieldOfView = ((PerspectiveCamera) from).fieldOfView;
-			copy = camera;
-		}else if(from instanceof OrthographicCamera){
-			OrthographicCamera camera = new OrthographicCamera();
-			camera.zoom = ((OrthographicCamera) from).zoom;
-			copy = camera;
-		}else{
-			throw new GdxRuntimeException("unknown camera type " + from.getClass().getName());
-		}
-		copy.position.set(from.position);
-		copy.direction.set(from.direction);
-		copy.up.set(from.up);
-		copy.near = from.near;
-		copy.far = from.far;
-		copy.viewportWidth = from.viewportWidth;
-		copy.viewportHeight = from.viewportHeight;
-		return copy;
-	}
-	
-	protected BaseLight createLight(BaseLight from) {
-		if(from instanceof DirectionalLight){
-			return new DirectionalLightEx().set((DirectionalLight)from);
-		}
-		if(from instanceof PointLight){
-			return new PointLightEx().set((PointLight)from);
-		}
-		if(from instanceof SpotLight){
-			return new SpotLightEx().set((SpotLight)from);
-		}
-		throw new GdxRuntimeException("unknown light type " + from.getClass().getName());
 	}
 	
 	/**
