@@ -134,12 +134,13 @@ public class GLTFLoaderBase implements Disposable {
 			model.scenes = scenes;
 			model.scene = scenes.get(glModel.scene);
 			model.maxBones = skinLoader.getMaxBones();
-			model.textures = textureResolver.getTextures(new Array<Texture>());
 			model.animations = animationLoader.animations;
 			// XXX don't know where the animation are ...
 			for(SceneModel scene : model.scenes){
 				scene.model.animations.addAll(animationLoader.animations);
 			}
+
+			model.textureResolver = textureResolver;
 			
 			return model;
 		}catch(RuntimeException e){

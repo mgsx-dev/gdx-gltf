@@ -37,6 +37,12 @@ public class Scene implements RenderableProvider, Updatable {
 	public final AnimationsPlayer animations;
 	
 	private static final Matrix4 transform = new Matrix4();
+	public SceneAsset sceneAsset;
+
+	public Scene(SceneAsset sceneAsset){
+		this(sceneAsset.scene);
+		this.sceneAsset = sceneAsset;
+	}
 	
 	public Scene(SceneModel sceneModel) {
 		this(new ModelInstanceHack(sceneModel.model), sceneModel);

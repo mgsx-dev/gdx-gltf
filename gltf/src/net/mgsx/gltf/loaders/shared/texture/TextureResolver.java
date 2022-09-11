@@ -1,5 +1,7 @@
 package net.mgsx.gltf.loaders.shared.texture;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -22,6 +24,36 @@ public class TextureResolver implements Disposable
 	protected final ObjectMap<Integer, Texture> texturesMipmap = new ObjectMap<Integer, Texture>();
 	protected Array<GLTFTexture> glTextures;
 	protected Array<GLTFSampler> glSamplers;
+	private static int pboHandle = 0;
+	private static final ObjectMap<String, Texture> textureCache = new ObjectMap<>();
+
+	public TextureResolver() {
+		//init PBO Buffer
+		//since the first time the download comes from the "create ()" method, then everything happens in the GL thread
+		if (pboHandle == 0) {
+			pboHandle = Gdx.gl.glGenBuffer();
+			Gdx.gl.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, pboHandle);
+			Gdx.gl.glBufferData(GL30.GL_PIXEL_UNPACK_BUFFER, 100000000, null, GL30.GL_STREAM_DRAW);
+			Gdx.gl.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, 0);
+		}
+	}
+
+	private static class CreateTextureRunnable implements Runnable{
+		private final Object waitObj;
+		private final int[] textureHandle;
+		private CreateTextureRunnable(int[] textureHandle, Object waitObj){
+			this.waitObj = waitObj;
+			this.textureHandle = textureHandle;
+		}
+
+		@Override
+		public void run() {
+			textureHandle[0] = Gdx.gl.glGenTexture();
+			synchronized (waitObj){
+				waitObj.notify();
+			}
+		}
+	}
 	
 	public void loadTextures(Array<GLTFTexture> glTextures, Array<GLTFSampler> glSamplers, ImageResolver imageResolver) {
 		this.glTextures = glTextures;
@@ -40,11 +72,35 @@ public class TextureResolver implements Disposable
 				}
 				
 				ObjectMap<Integer, Texture> textureMap = useMipMaps ? texturesMipmap : texturesSimple;
-				
-				if(!textureMap.containsKey(glTexture.source)){
-					Pixmap pixmap = imageResolver.get(glTexture.source);
-					Texture texture = new Texture(pixmap, useMipMaps);
-					textureMap.put(glTexture.source, texture);
+
+				if (!textureCache.containsKey(imageResolver.getUri(i))) {
+					final int[] textureHandle = new int[1];
+					//check if render begin
+					if (Gdx.app.getGraphics().getFrameId() > 0) {
+						//Create texture postRunnable
+						Gdx.app.postRunnable(new CreateTextureRunnable(textureHandle, this));
+						//Waiting for texture creation
+						synchronized (this) {
+							try {
+								this.wait(3000);
+							} catch (InterruptedException ex) {
+								ex.printStackTrace();
+							}
+						}
+						TexturePBO texture = new TexturePBO(textureHandle[0], pboHandle, imageResolver.get(glTexture.source), useMipMaps);
+						textureMap.put(glTexture.source, texture);
+					} else {
+						TexturePBO texture = new TexturePBO(imageResolver.get(glTexture.source), useMipMaps);
+						textureMap.put(glTexture.source, texture);
+					}
+					textureCache.put(imageResolver.getUri(i), textureMap.get(glTexture.source));
+				} else {
+					//if the texture is loaded, increase the usage counter
+					textureMap.put(glTexture.source, textureCache.get(imageResolver.getUri(i)));
+					Texture texture = textureCache.get(imageResolver.getUri(i));
+					if (texture instanceof TexturePBO){
+						((TexturePBO) texture).incrementUsesCount();
+					}
 				}
 			}
 		}
@@ -82,14 +138,44 @@ public class TextureResolver implements Disposable
 
 	@Override
 	public void dispose() {
-		for(Entry<Integer, Texture> e : texturesSimple){
-			e.value.dispose();
+		Gdx.app.postRunnable(new DisposeRunnable(texturesSimple, texturesMipmap));
+	}
+
+	private static class DisposeRunnable implements Runnable {
+		private final ObjectMap<Integer, Texture> texturesSimple;
+		private final ObjectMap<Integer, Texture> texturesMipmap;
+
+		DisposeRunnable(ObjectMap<Integer, Texture> texturesSimple, ObjectMap<Integer, Texture> texturesMipmap) {
+			this.texturesMipmap = texturesMipmap;
+			this.texturesSimple = texturesSimple;
 		}
-		texturesSimple.clear();
-		for(Entry<Integer, Texture> e : texturesMipmap){
-			e.value.dispose();
+		@Override
+		public void run() {
+			processDispose(texturesSimple);
+			processDispose(texturesMipmap);
 		}
-		texturesMipmap.clear();
+
+		private void processDispose(ObjectMap<Integer, Texture> textures) {
+			for (ObjectMap.Entry<Integer, Texture> e : textures) {
+				Texture texture = e.value;
+				if (texture instanceof TexturePBO) {
+					((TexturePBO) texture).decrementUsesCount();
+					//if the usage counter is less than "1", then we call the "dispose()" method, otherwise we decrement the counter
+					if (((TexturePBO) texture).getUsesCount() < 1) {
+						for (ObjectMap.Entry<String, Texture> e2 : textureCache.entries()) {
+							if (e2.value == e.value) {
+								textureCache.remove(e2.key);
+								break;
+							}
+						}
+						texture.dispose();
+					}
+				} else {
+					texture.dispose();
+				}
+			}
+			textures.clear();
+		}
 	}
 
 	public Array<Texture> getTextures(Array<Texture> textures) {

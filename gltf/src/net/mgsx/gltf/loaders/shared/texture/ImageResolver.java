@@ -12,6 +12,8 @@ public class ImageResolver implements Disposable {
 	private Array<Pixmap> pixmaps = new Array<Pixmap>();	
 	
 	private DataFileResolver dataFileResolver;
+
+	private final Array<String> uris = new Array<String>();
 	
 	public ImageResolver(DataFileResolver dataFileResolver) {
 		super();
@@ -24,12 +26,17 @@ public class ImageResolver implements Disposable {
 				GLTFImage glImage = glImages.get(i);
 				Pixmap pixmap = dataFileResolver.load(glImage);
 				pixmaps.add(pixmap);
+				uris.add(glImage.uri);
 			}
 		}
 	}
 	
 	public Pixmap get(int index) {
 		return pixmaps.get(index);
+	}
+
+	public String getUri(int index) {
+		return uris.get(index);
 	}
 	
 	@Override

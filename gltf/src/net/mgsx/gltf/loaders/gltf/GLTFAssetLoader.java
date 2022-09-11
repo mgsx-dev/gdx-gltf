@@ -140,18 +140,8 @@ public class GLTFAssetLoader  extends AsynchronousAssetLoader<SceneAsset, SceneA
 		
 		GLTFLoaderBase loader = new GLTFLoaderBase(textureResolver);
 		SceneAsset sceneAsset = loader.load(dataFileResolver, withData);
-		
-		// Delegates texture disposal to AssetManager.
-		Array<String> deps = manager.getDependencies(fileName);
-		if(deps != null){
-			for(String depFileName : deps){
-				Object dep = manager.get(depFileName);
-				if(dep instanceof Texture){
-					sceneAsset.textures.removeValue((Texture)dep, true);
-				}
-			}
-		}
-		
+
+		this.textureResolver.dispose();
 		this.textureResolver = null;
 		this.dataFileResolver = null;
 		return sceneAsset;

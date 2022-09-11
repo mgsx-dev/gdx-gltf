@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 import net.mgsx.gltf.data.GLTF;
+import net.mgsx.gltf.loaders.shared.texture.TextureResolver;
 
 /**
  * gdx view of an asset file : Model, Camera (as template), lights (as template), textures
@@ -20,9 +21,8 @@ public class SceneAsset implements Disposable
 
 	public Array<Animation> animations;
 	public int maxBones;
-	
-	/** Keep track of loaded texture in order to dispose them. Textures handled by AssetManager are excluded. */
-	public Array<Texture> textures;
+
+	public TextureResolver textureResolver;
 	
 	@Override
 	public void dispose() {
@@ -31,10 +31,7 @@ public class SceneAsset implements Disposable
 				scene.dispose();
 			}
 		}
-		if(textures != null){
-			for(Texture texture : textures){
-				texture.dispose();
-			}
-		}
+		if (textureResolver != null)
+			textureResolver.dispose();
 	}
 }

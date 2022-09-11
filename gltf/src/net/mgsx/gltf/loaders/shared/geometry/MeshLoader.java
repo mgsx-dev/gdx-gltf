@@ -388,8 +388,25 @@ public class MeshLoader {
 			else Gdx.app.log("GLTF", "compute normals for primitive " + id);
 			MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs);
 		}
-		
-		Mesh mesh = new Mesh(true, vertexCount, indices == null ? 0 : indices.length, attributesGroup);
+
+		Mesh mesh = null;
+
+		if (Gdx.app.getGraphics().getFrameId() > 0) {
+			postMashLoader.setValues(vertexCount, indices == null ? 0 : indices.length, attributesGroup, mesh);
+			Gdx.app.postRunnable(postMashLoader);
+			synchronized (this){
+				try {
+					this.wait(3000);
+				} catch (InterruptedException ex){
+					ex.printStackTrace();
+				}
+			}
+			mesh = postMashLoader.getMesh();
+
+		} else {
+			mesh = new Mesh(true, vertexCount, indices == null ? 0 : indices.length, attributesGroup);
+		}
+
 		meshes.add(mesh);
 		mesh.setVertices(vertices);
 		
@@ -421,6 +438,41 @@ public class MeshLoader {
 
 	public Array<? extends Mesh> getMeshes() {
 		return meshes;
+	}
+
+	private final PostMashLoader postMashLoader = new PostMashLoader(this);
+
+	private static class PostMashLoader implements Runnable{
+		private int maxVertices;
+		private int maxIndices;
+		private VertexAttributes attributesGroup;
+		private Mesh mesh;
+		private final MeshLoader meshLoader;
+
+		public PostMashLoader(MeshLoader meshLoader){
+			this.meshLoader = meshLoader;
+		}
+
+
+		void setValues(int maxVertices, int maxIndices, VertexAttributes attributesGroup, Mesh mesh){
+			this.maxVertices = maxVertices;
+			this.maxIndices = maxIndices;
+			this.attributesGroup = attributesGroup;
+			this.mesh = mesh;
+		}
+
+		@Override
+		public void run() {
+			mesh = new Mesh(true, maxVertices, maxIndices, attributesGroup);
+			synchronized (meshLoader){
+				meshLoader.notify();
+			}
+		}
+
+
+		public Mesh getMesh(){
+			return mesh;
+		}
 	}
 
 }
