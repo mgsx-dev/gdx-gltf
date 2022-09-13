@@ -26,16 +26,30 @@ public class TextureResolver implements Disposable
 	protected Array<GLTFSampler> glSamplers;
 	private static int pboHandle = 0;
 	private static final ObjectMap<String, Texture> textureCache = new ObjectMap<>();
+    private final boolean isGL30Available;
 
 	public TextureResolver() {
+        this.isGL30Available = Gdx.app.getGraphics().isGL30Available();
 		//init PBO Buffer
-		//since the first time the download comes from the "create ()" method, then everything happens in the GL thread
-		if (pboHandle == 0) {
-			pboHandle = Gdx.gl.glGenBuffer();
-			Gdx.gl.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, pboHandle);
-			Gdx.gl.glBufferData(GL30.GL_PIXEL_UNPACK_BUFFER, 100000000, null, GL30.GL_STREAM_DRAW);
-			Gdx.gl.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, 0);
+		if (pboHandle == 0 && isGL30Available) {
+			if (Gdx.graphics.getFrameId() > 0){
+				Gdx.app.postRunnable(new Runnable() {
+					@Override
+					public void run() {
+						initPBO();
+					}
+				});
+			} else {
+				initPBO();
+			}
 		}
+	}
+
+	private void initPBO(){
+		pboHandle = Gdx.gl.glGenBuffer();
+		Gdx.gl.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, pboHandle);
+		Gdx.gl.glBufferData(GL30.GL_PIXEL_UNPACK_BUFFER, 100000000, null, GL30.GL_STREAM_DRAW);
+		Gdx.gl.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 
 	private static class CreateTextureRunnable implements Runnable{
@@ -54,14 +68,14 @@ public class TextureResolver implements Disposable
 			}
 		}
 	}
-	
+
 	public void loadTextures(Array<GLTFTexture> glTextures, Array<GLTFSampler> glSamplers, ImageResolver imageResolver) {
 		this.glTextures = glTextures;
 		this.glSamplers = glSamplers;
 		if(glTextures != null){
 			for(int i=0 ; i<glTextures.size ; i++){
 				GLTFTexture glTexture = glTextures.get(i);
-				
+
 				// check if mipmap needed for this texture configuration
 				boolean useMipMaps = false;
 				if(glTexture.sampler != null){
@@ -70,13 +84,13 @@ public class TextureResolver implements Disposable
 						useMipMaps = true;
 					}
 				}
-				
+
 				ObjectMap<Integer, Texture> textureMap = useMipMaps ? texturesMipmap : texturesSimple;
 
 				if (!textureCache.containsKey(imageResolver.getUri(i))) {
 					final int[] textureHandle = new int[1];
 					//check if render begin
-					if (Gdx.app.getGraphics().getFrameId() > 0) {
+					if (Gdx.app.getGraphics().getFrameId() > 0 && isGL30Available) {
 						//Create texture postRunnable
 						Gdx.app.postRunnable(new CreateTextureRunnable(textureHandle, this));
 						//Waiting for texture creation
@@ -105,10 +119,10 @@ public class TextureResolver implements Disposable
 			}
 		}
 	}
-	
+
 	public TextureDescriptor<Texture> getTexture(GLTFTextureInfo glMap) {
 		GLTFTexture glTexture = glTextures.get(glMap.index);
-		
+
 		TextureDescriptor<Texture> textureDescriptor = new TextureDescriptor<Texture>();
 
 		boolean useMipMaps;
@@ -125,9 +139,9 @@ public class TextureResolver implements Disposable
 			textureDescriptor.vWrap = TextureWrap.Repeat;
 			useMipMaps = false;
 		}
-		
+
 		ObjectMap<Integer, Texture> textureMap = useMipMaps ? texturesMipmap : texturesSimple;
-		
+
 		Texture texture = textureMap.get(glTexture.source);
 		if(texture == null){
 			throw new GLTFRuntimeException("texture not loaded");
