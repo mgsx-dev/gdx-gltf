@@ -389,10 +389,10 @@ public class MeshLoader {
 			MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs);
 		}
 
-		Mesh mesh = null;
+		Mesh mesh;
 
 		if (Gdx.app.getGraphics().getFrameId() > 0) {
-			postMashLoader.setValues(vertexCount, indices == null ? 0 : indices.length, attributesGroup, mesh);
+			postMashLoader.setValues(vertexCount, indices == null ? 0 : indices.length, attributesGroup);
 			Gdx.app.postRunnable(postMashLoader);
 			synchronized (this){
 				try {
@@ -454,11 +454,10 @@ public class MeshLoader {
 		}
 
 
-		void setValues(int maxVertices, int maxIndices, VertexAttributes attributesGroup, Mesh mesh){
+		void setValues(int maxVertices, int maxIndices, VertexAttributes attributesGroup){
 			this.maxVertices = maxVertices;
 			this.maxIndices = maxIndices;
 			this.attributesGroup = attributesGroup;
-			this.mesh = mesh;
 		}
 
 		@Override

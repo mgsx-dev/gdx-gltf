@@ -2,7 +2,6 @@ package net.mgsx.gltf.loaders.shared.texture;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
@@ -26,12 +25,12 @@ public class TextureResolver implements Disposable
 	protected Array<GLTFSampler> glSamplers;
 	private static int pboHandle = 0;
 	private static final ObjectMap<String, Texture> textureCache = new ObjectMap<>();
-    private final boolean isGL30Available;
+    private final boolean isUseGL30;
 
 	public TextureResolver() {
-        this.isGL30Available = Gdx.app.getGraphics().isGL30Available();
+        this.isUseGL30 = Gdx.gl30 != null;
 		//init PBO Buffer
-		if (pboHandle == 0 && isGL30Available) {
+		if (pboHandle == 0 && isUseGL30) {
 			if (Gdx.graphics.getFrameId() > 0){
 				Gdx.app.postRunnable(new Runnable() {
 					@Override
@@ -90,7 +89,7 @@ public class TextureResolver implements Disposable
 				if (!textureCache.containsKey(imageResolver.getUri(i))) {
 					final int[] textureHandle = new int[1];
 					//check if render begin
-					if (Gdx.app.getGraphics().getFrameId() > 0 && isGL30Available) {
+					if (Gdx.app.getGraphics().getFrameId() > 0 && isUseGL30) {
 						//Create texture postRunnable
 						Gdx.app.postRunnable(new CreateTextureRunnable(textureHandle, this));
 						//Waiting for texture creation
