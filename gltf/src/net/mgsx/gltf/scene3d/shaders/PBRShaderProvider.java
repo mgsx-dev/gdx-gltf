@@ -28,6 +28,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 import net.mgsx.gltf.scene3d.utils.LightUtils;
 import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
+import net.mgsx.gltf.scene3d.utils.ShaderParser;
 
 public class PBRShaderProvider extends DefaultShaderProvider
 {
@@ -39,7 +40,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 
 	public static String getDefaultVertexShader () {
 		if (defaultVertexShader == null)
-			defaultVertexShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString();
+			defaultVertexShader = ShaderParser.parse(Gdx.files.classpath("net/mgsx/gltf/shaders/pbr/pbr.vs.glsl"));
 		return defaultVertexShader;
 	}
 
@@ -47,7 +48,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 
 	public static String getDefaultFragmentShader () {
 		if (defaultFragmentShader == null)
-			defaultFragmentShader = Gdx.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.fs.glsl").readString();
+			defaultFragmentShader = ShaderParser.parse(Gdx.files.classpath("net/mgsx/gltf/shaders/pbr/pbr.fs.glsl"));
 		return defaultFragmentShader;
 	}
 
