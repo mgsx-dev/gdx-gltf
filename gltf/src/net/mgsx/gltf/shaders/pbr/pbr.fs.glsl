@@ -144,6 +144,14 @@ void main() {
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #endif
 
+    // Apply ambient occlusion only to ambient light
+#ifdef occlusionTextureFlag
+    float ao = texture2D(u_OcclusionSampler, v_occlusionUV).r;
+    f_diffuse = mix(f_diffuse, f_diffuse * ao, u_OcclusionStrength);
+    f_specular = mix(f_specular, f_specular * ao, u_OcclusionStrength);
+#endif
+
+
 #if (numDirectionalLights > 0)
     // Directional lights calculation
     PBRLightContribs contrib0 = getDirectionalLightContribution(pbrSurface, u_dirLights[0]);
@@ -182,12 +190,6 @@ void main() {
 #endif // numSpotLights
 
     vec3 color = ambientColor + f_diffuse + f_specular;
-
-    // Apply optional PBR terms for additional (optional) shading
-#ifdef occlusionTextureFlag
-    float ao = texture2D(u_OcclusionSampler, v_occlusionUV).r;
-    color = mix(color, color * ao, u_OcclusionStrength);
-#endif
 
     // Add emissive
 #if defined(emissiveTextureFlag) && defined(emissiveColorFlag)
