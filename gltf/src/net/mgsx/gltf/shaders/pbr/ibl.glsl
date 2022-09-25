@@ -28,7 +28,7 @@ uniform float u_mipmapScale; // = 9.0 for resolution of 512x512
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
 #ifdef USE_IBL
-vec3 getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
+PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
 #ifdef brdfLUTTexture
@@ -60,6 +60,6 @@ vec3 getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;
     vec3 specular = specularLight * (pbrSurface.specularColor * brdf.x + brdf.y);
 
-    return diffuse + specular;
+    return PBRLightContribs(diffuse, specular);
 }
 #endif

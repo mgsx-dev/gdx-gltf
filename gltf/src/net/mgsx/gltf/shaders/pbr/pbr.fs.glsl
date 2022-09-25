@@ -123,46 +123,65 @@ void main() {
 		specularColor
     );
 
+    vec3 f_diffuse = vec3(0.0);
+    vec3 f_specular = vec3(0.0);
+
     // Calculate lighting contribution from image based lighting source (IBL)
+
 #if defined(USE_IBL) && defined(ambientLightFlag)
-    vec3 ambientColor = getIBLContribution(pbrSurface, n, reflection) * u_ambientLight;
+    PBRLightContribs contribIBL = getIBLContribution(pbrSurface, n, reflection);
+    f_diffuse += contribIBL.diffuse * u_ambientLight;
+    f_specular += contribIBL.specular * u_ambientLight;
+    vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #elif defined(USE_IBL)
-    vec3 ambientColor = getIBLContribution(pbrSurface, n, reflection);
+    PBRLightContribs contribIBL = getIBLContribution(pbrSurface, n, reflection);
+    f_diffuse += contribIBL.diffuse;
+    f_specular += contribIBL.specular;
+    vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #elif defined(ambientLightFlag)
     vec3 ambientColor = u_ambientLight;
 #else
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #endif
 
-    vec3 color = vec3(0.0);
-
 #if (numDirectionalLights > 0)
     // Directional lights calculation
+    PBRLightContribs contrib0 = getDirectionalLightContribution(pbrSurface, u_dirLights[0]);
 #ifdef shadowMapFlag
-    color += ambientColor + getDirectionalLightContribution(pbrSurface, u_dirLights[0]) * getShadow();
+    float shadows = getShadow();
+    f_diffuse += contrib0.diffuse * shadows;
+    f_specular += contrib0.specular * shadows;
 #else
-    color += ambientColor + getDirectionalLightContribution(pbrSurface, u_dirLights[0]);
+    f_diffuse += contrib0.diffuse;
+    f_specular += contrib0.specular;
 #endif
 
     for(int i=1 ; i<numDirectionalLights ; i++){
-    	color += getDirectionalLightContribution(pbrSurface, u_dirLights[i]);
+    	PBRLightContribs contrib = getDirectionalLightContribution(pbrSurface, u_dirLights[i]);
+        f_diffuse += contrib.diffuse;
+        f_specular += contrib.specular;
     }
 #endif
 
 #if (numPointLights > 0)
     // Point lights calculation
     for(int i=0 ; i<numPointLights ; i++){
-    	color += getPointLightContribution(pbrSurface, u_pointLights[i]);
+    	PBRLightContribs contrib = getPointLightContribution(pbrSurface, u_pointLights[i]);
+    	f_diffuse += contrib.diffuse;
+    	f_specular += contrib.specular;
     }
 #endif // numPointLights
 
 #if (numSpotLights > 0)
     // Spot lights calculation
     for(int i=0 ; i<numSpotLights ; i++){
-    	color += getSpotLightContribution(pbrSurface, u_spotLights[i]);
+    	PBRLightContribs contrib = getSpotLightContribution(pbrSurface, u_spotLights[i]);
+    	f_diffuse += contrib.diffuse;
+    	f_specular += contrib.specular;
     }
 #endif // numSpotLights
 
+    vec3 color = ambientColor + f_diffuse + f_specular;
 
     // Apply optional PBR terms for additional (optional) shading
 #ifdef occlusionTextureFlag

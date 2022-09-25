@@ -42,6 +42,12 @@ struct PBRLightInfo
     float VdotH;                  // cos angle between view direction and half vector
 };
 
+struct PBRLightContribs
+{
+	vec3 diffuse;
+	vec3 specular;
+};
+
 
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
@@ -87,7 +93,7 @@ float microfacetDistribution(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
 
 // Light contribution calculation independent of light type
 // l is a unit vector from surface point to light
-vec3 getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l)
+PBRLightContribs getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l, vec3 color)
 {
 	vec3 n = pbrSurface.n;
 	vec3 v = pbrSurface.v;
@@ -115,31 +121,32 @@ vec3 getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l)
 	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrSurface);
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-	return NdotL * (diffuseContrib + specContrib);
+	vec3 factor = color * NdotL;
+	return PBRLightContribs(diffuseContrib * factor, specContrib * factor);
 }
 
 #if numDirectionalLights > 0
-vec3 getDirectionalLightContribution(PBRSurfaceInfo pbrSurface, DirectionalLight light)
+PBRLightContribs getDirectionalLightContribution(PBRSurfaceInfo pbrSurface, DirectionalLight light)
 {
     vec3 l = normalize(-light.direction);  // Vector from surface point to light
-    return getLightContribution(pbrSurface, l) * light.color;
+    return getLightContribution(pbrSurface, l, light.color);
 }
 #endif
 
 #if numPointLights > 0
-vec3 getPointLightContribution(PBRSurfaceInfo pbrSurface, PointLight light)
+PBRLightContribs getPointLightContribution(PBRSurfaceInfo pbrSurface, PointLight light)
 {
 	// light direction and distance
 	vec3 d = light.position - v_position.xyz;
 	float dist2 = dot(d, d);
 	d *= inversesqrt(dist2);
 
-	return getLightContribution(pbrSurface, d) * light.color / (1.0 + dist2);
+	return getLightContribution(pbrSurface, d, light.color / (1.0 + dist2));
 }
 #endif
 
 #if numSpotLights > 0
-vec3 getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight light)
+PBRLightContribs getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight light)
 {
 	// light distance
 	vec3 d = light.position - v_position.xyz;
@@ -157,7 +164,7 @@ vec3 getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight light)
 	float angularAttenuation = saturate(cd * lightAngleScale + lightAngleOffset);
 	angularAttenuation *= angularAttenuation;
 
-	return getLightContribution(pbrSurface, d) * light.color * (angularAttenuation / (1.0 + dist2));
+	return getLightContribution(pbrSurface, d, light.color * (angularAttenuation / (1.0 + dist2)));
 }
 #endif
 
