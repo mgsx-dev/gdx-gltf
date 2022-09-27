@@ -3,9 +3,9 @@
 #include <compat.fs.glsl>
 #include <functions.glsl>
 #include <material.glsl>
+#include <env.glsl>
 #include <lights.glsl>
 #include <shadows.glsl>
-#include <env.glsl>
 #include <ibl.glsl>
 
 #ifdef unlitFlag
