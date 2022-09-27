@@ -204,6 +204,26 @@ public class PBRShader extends DefaultShader
 			}
 		}
 	};
+	
+	public final static Uniform transmissionFactorUniform = new Uniform("u_transmissionFactor");
+	public final static Setter transmissionFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute a = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.TransmissionFactor);
+			float value = a == null ? 0f : a.value;
+			shader.set(inputID, value);
+		}
+	};
+
+	public final static Uniform transmissionTextureUniform = new Uniform("u_transmissionSampler", PBRTextureAttribute.TransmissionTexture);
+	public final static Setter transmissionTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.TransmissionTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
 
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
@@ -241,6 +261,9 @@ public class PBRShader extends DefaultShader
 	private int vertexColorLayers;
 
 	public int u_emissive;
+
+	public int u_transmissionFactor;
+	public int u_transmissionTexture;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -284,6 +307,9 @@ public class PBRShader extends DefaultShader
 		u_FogEquation = register(fogEquationUniform, fogEquationSetter);
 		
 		u_emissive = register(Inputs.emissiveColor, emissiveScaledColor);
+		
+		u_transmissionFactor = register(transmissionFactorUniform, transmissionFactorSetter);
+		u_transmissionTexture = register(transmissionTextureUniform, transmissionTextureSetter);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {
@@ -334,7 +360,8 @@ public class PBRShader extends DefaultShader
 		PBRTextureAttribute.EmissiveTexture,
 		PBRTextureAttribute.NormalTexture,
 		PBRTextureAttribute.MetallicRoughnessTexture,
-		PBRTextureAttribute.OcclusionTexture
+		PBRTextureAttribute.OcclusionTexture,
+		PBRTextureAttribute.TransmissionTexture
 	};
 
 	private static long getTextureCoordinateMapMask(Attributes attributes){

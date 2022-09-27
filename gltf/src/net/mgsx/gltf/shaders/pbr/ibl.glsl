@@ -28,6 +28,44 @@ uniform float u_mipmapScale; // = 9.0 for resolution of 512x512
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
 #ifdef USE_IBL
+
+vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
+{
+    // Sample GGX LUT to get the specular component.
+
+	// TODO refactor with IBL contrib : sampleBRDF, sampleGGX, sampleLambertian
+
+#ifdef brdfLUTTexture
+    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+	vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).xy;
+#else // TODO not sure about how to compute it ...
+	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
+#endif
+
+	// TODO have an option to either sample IBL or sample FBO (with prviously opaque objects rendered)
+
+#ifdef ENV_ROTATION
+	vec3 specularDirection = u_envRotation * v;
+#else
+	vec3 specularDirection = v;
+#endif
+
+#ifdef USE_TEX_LOD
+    float lod = (pbrSurface.perceptualRoughness * u_mipmapScale);
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
+#else
+    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
+#endif
+
+
+    vec3 specularColor = pbrSurface.reflectance0 * brdf.x + pbrSurface.reflectance90 * brdf.y;
+
+    vec3 attenuatedColor = specularLight; // TODO apply from volume info
+
+    return (1.0 - specularColor) * attenuatedColor * pbrSurface.diffuseColor;
+}
+
+
 PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
@@ -60,6 +98,13 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;
     vec3 specular = specularLight * (pbrSurface.specularColor * brdf.x + brdf.y);
 
-    return PBRLightContribs(diffuse, specular);
+#ifdef transmissionFlag
+    vec3 transmission = getIBLTransmissionContribution(pbrSurface, n, -pbrSurface.v);
+#else
+    vec3 transmission = vec3(0.0);
+#endif
+
+    return PBRLightContribs(diffuse, specular, transmission);
 }
+
 #endif

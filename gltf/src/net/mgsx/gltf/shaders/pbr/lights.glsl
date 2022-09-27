@@ -46,6 +46,7 @@ struct PBRLightContribs
 {
 	vec3 diffuse;
 	vec3 specular;
+	vec3 transmission;
 };
 
 
@@ -90,6 +91,35 @@ float microfacetDistribution(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
 }
 
 
+vec3 getLightTransmission(PBRSurfaceInfo pbrSurface, vec3 l)
+{
+	vec3 n = pbrSurface.n;
+	vec3 v = pbrSurface.v;
+
+	vec3 l_mirror = normalize(l + 2.0*n*dot(-l, n));     // Mirror light reflection vector on surface
+	vec3 h = normalize(l_mirror+v);               // Half vector between both l_mirror and v
+
+	float NdotV = pbrSurface.NdotV;
+	float NdotL = clamp(dot(n, l_mirror), 0.001, 1.0);
+	float NdotH = clamp(dot(n, h), 0.0, 1.0);
+	float LdotH = clamp(dot(l_mirror, h), 0.0, 1.0);
+	float VdotH = clamp(dot(v, h), 0.0, 1.0);
+
+	PBRLightInfo pbrLight = PBRLightInfo(
+		NdotL,
+		NdotH,
+		LdotH,
+		VdotH
+	);
+
+	// Calculate the shading terms for the microfacet specular shading model
+	vec3 F = specularReflection(pbrSurface, pbrLight);
+	float G = geometricOcclusion(pbrSurface, pbrLight);
+	float D = microfacetDistribution(pbrSurface, pbrLight);
+
+	// Calculation of analytical lighting contribution
+	return (1.0 - F) * diffuse(pbrSurface) * D * G  / (4.0 * NdotL * NdotV);
+}
 
 // Light contribution calculation independent of light type
 // l is a unit vector from surface point to light
@@ -122,7 +152,18 @@ PBRLightContribs getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l, vec3 co
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
 	vec3 factor = color * NdotL;
-	return PBRLightContribs(diffuseContrib * factor, specContrib * factor);
+
+	// transmission
+#ifdef transmissionFlag
+	vec3 transmittedLight = getLightTransmission(pbrSurface, l);
+
+	// TODO apply volume attenuation
+#else
+	vec3 transmittedLight = vec3(0.0);
+#endif
+
+
+	return PBRLightContribs(diffuseContrib * factor, specContrib * factor, transmittedLight * factor);
 }
 
 #if numDirectionalLights > 0

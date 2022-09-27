@@ -22,6 +22,7 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
@@ -192,6 +193,12 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			if(renderable.material.has(PBRTextureAttribute.OcclusionTexture)){
 				prefix += "#define occlusionTextureFlag\n";
 			}
+			if(renderable.material.has(PBRFloatAttribute.TransmissionFactor)){
+				prefix += "#define transmissionFlag\n";
+			}
+			if(renderable.material.has(PBRTextureAttribute.TransmissionTexture)){
+				prefix += "#define transmissionTextureFlag\n";
+			}
 			
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
@@ -278,6 +285,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.OcclusionTexture);
 			if(attribute != null){
 				prefix += "#define v_occlusionUV v_texCoord" + attribute.uvIndex + "\n";
+				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
+			}
+		}
+		{
+			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.TransmissionTexture);
+			if(attribute != null){
+				prefix += "#define v_transmissionUV v_texCoord" + attribute.uvIndex + "\n";
 				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
 			}
 		}

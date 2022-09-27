@@ -57,6 +57,11 @@ varying MED vec2 v_texCoord1;
 #define v_metallicRoughnessUV v_texCoord0
 #endif
 
+#ifndef v_transmissionUV
+#define v_transmissionUV v_texCoord0
+#endif
+
+
 #ifdef diffuseColorFlag
 uniform vec4 u_diffuseColor;
 #endif
@@ -97,6 +102,14 @@ uniform float u_OcclusionStrength;
 
 #ifdef metallicRoughnessTextureFlag
 uniform sampler2D u_MetallicRoughnessSampler;
+#endif
+
+#ifdef transmissionTextureFlag
+uniform sampler2D u_transmissionSampler;
+#endif
+
+#ifdef transmissionFlag
+uniform float u_transmissionFactor;
 #endif
 
 uniform vec2 u_MetallicRoughnessValues;

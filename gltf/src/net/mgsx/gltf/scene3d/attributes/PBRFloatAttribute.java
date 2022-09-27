@@ -23,6 +23,9 @@ public class PBRFloatAttribute extends FloatAttribute
 	public final static String EmissiveIntensityAlias = "EmissiveIntensity";
 	public final static long EmissiveIntensity = register(EmissiveIntensityAlias);
 	
+	public final static String TransmissionFactorAlias = "TransmissionFactor";
+	public final static long TransmissionFactor = register(TransmissionFactorAlias);
+	
 	public PBRFloatAttribute(long type, float value) {
 		super(type, value);
 	}
@@ -47,5 +50,8 @@ public class PBRFloatAttribute extends FloatAttribute
 	}
 	public static Attribute createEmissiveIntensity(float value) {
 		return new PBRFloatAttribute(EmissiveIntensity, value);
+	}
+	public static Attribute createTransmissionFactor(float value) {
+		return new PBRFloatAttribute(TransmissionFactor, value);
 	}
 }

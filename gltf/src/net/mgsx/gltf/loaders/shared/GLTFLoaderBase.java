@@ -21,6 +21,7 @@ import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
+import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.scene.GLTFNode;
@@ -98,6 +99,7 @@ public class GLTFLoaderBase implements Disposable {
 					}else if(KHRTextureTransform.EXT.equals(extension)){
 					}else if(KHRLightsPunctual.EXT.equals(extension)){
 					}else if(KHRMaterialsUnlit.EXT.equals(extension)){
+					}else if(KHRMaterialsTransmission.EXT.equals(extension)){
 					}else{
 						throw new GLTFUnsupportedException("Extension " + extension + " required but not supported");
 					}

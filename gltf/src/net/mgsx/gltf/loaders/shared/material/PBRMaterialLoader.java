@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
 
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
+import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.material.GLTFMaterial;
@@ -120,6 +121,15 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 				KHRMaterialsUnlit ext = glMaterial.extensions.get(KHRMaterialsUnlit.class, KHRMaterialsUnlit.EXT);
 				if(ext != null){
 					material.set(new PBRFlagAttribute(PBRFlagAttribute.Unlit));
+				}
+			}
+			{
+				KHRMaterialsTransmission ext = glMaterial.extensions.get(KHRMaterialsTransmission.class, KHRMaterialsTransmission.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createTransmissionFactor(ext.transmissionFactor));
+					if(ext.transmissionTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.TransmissionTexture, ext.transmissionTexture));
+					}
 				}
 			}
 		}

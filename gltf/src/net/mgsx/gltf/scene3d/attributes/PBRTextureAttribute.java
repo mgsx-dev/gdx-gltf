@@ -27,9 +27,11 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String BRDFLUTTextureAlias = "brdfLUTSampler";
 	public final static long BRDFLUTTexture = register(BRDFLUTTextureAlias);
 	
+	public final static String TransmissionTextureAlias = "TransmissionTexture";
+	public final static long TransmissionTexture = register(TransmissionTextureAlias);
 	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture;
 	}
 	
 	public float rotationUV = 0f;
@@ -65,6 +67,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	public static PBRTextureAttribute createBRDFLookupTexture(Texture texture) {
 		return new PBRTextureAttribute(BRDFLUTTexture, texture);
 	}
+	public static PBRTextureAttribute createTransmissionTexture(Texture texture) {
+		return new PBRTextureAttribute(TransmissionTexture, texture);
+	}
 	
 	public static PBRTextureAttribute createBaseColorTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BaseColorTexture, region);
@@ -83,6 +88,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	}
 	public static PBRTextureAttribute createBRDFLookupTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BRDFLUTTexture, region);
+	}
+	public static PBRTextureAttribute createTransmissionTexture(TextureRegion region) {
+		return new PBRTextureAttribute(TransmissionTexture, region);
 	}
 
 	@Override

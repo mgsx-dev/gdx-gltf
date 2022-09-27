@@ -110,6 +110,15 @@ void main() {
 
     float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);
 
+#ifdef transmissionFlag
+    float transmissionFactor = u_transmissionFactor;
+#ifdef transmissionTextureFlag
+    transmissionFactor *= texture2D(u_transmissionSampler, v_transmissionUV).r;
+#endif
+#else
+    float transmissionFactor = 0.0;
+#endif
+
     PBRSurfaceInfo pbrSurface = PBRSurfaceInfo(
     	n,
 		v,
@@ -125,6 +134,7 @@ void main() {
 
     vec3 f_diffuse = vec3(0.0);
     vec3 f_specular = vec3(0.0);
+    vec3 f_transmission = vec3(0.0);
 
     // Calculate lighting contribution from image based lighting source (IBL)
 
@@ -132,11 +142,13 @@ void main() {
     PBRLightContribs contribIBL = getIBLContribution(pbrSurface, n, reflection);
     f_diffuse += contribIBL.diffuse * u_ambientLight;
     f_specular += contribIBL.specular * u_ambientLight;
+    f_transmission += contribIBL.transmission * u_ambientLight;
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #elif defined(USE_IBL)
     PBRLightContribs contribIBL = getIBLContribution(pbrSurface, n, reflection);
     f_diffuse += contribIBL.diffuse;
     f_specular += contribIBL.specular;
+    f_transmission += contribIBL.transmission;
     vec3 ambientColor = vec3(0.0, 0.0, 0.0);
 #elif defined(ambientLightFlag)
     vec3 ambientColor = u_ambientLight;
@@ -159,15 +171,18 @@ void main() {
     float shadows = getShadow();
     f_diffuse += contrib0.diffuse * shadows;
     f_specular += contrib0.specular * shadows;
+    f_transmission += contrib0.transmission * shadows; // TODO does transmission affected by shadows ?
 #else
     f_diffuse += contrib0.diffuse;
     f_specular += contrib0.specular;
+    f_transmission += contrib0.transmission;
 #endif
 
     for(int i=1 ; i<numDirectionalLights ; i++){
     	PBRLightContribs contrib = getDirectionalLightContribution(pbrSurface, u_dirLights[i]);
         f_diffuse += contrib.diffuse;
         f_specular += contrib.specular;
+        f_transmission += contrib.transmission;
     }
 #endif
 
@@ -177,6 +192,7 @@ void main() {
     	PBRLightContribs contrib = getPointLightContribution(pbrSurface, u_pointLights[i]);
     	f_diffuse += contrib.diffuse;
     	f_specular += contrib.specular;
+    	f_transmission += contrib.transmission;
     }
 #endif // numPointLights
 
@@ -186,8 +202,14 @@ void main() {
     	PBRLightContribs contrib = getSpotLightContribution(pbrSurface, u_spotLights[i]);
     	f_diffuse += contrib.diffuse;
     	f_specular += contrib.specular;
+    	f_transmission += contrib.transmission;
     }
 #endif // numSpotLights
+
+    // mix diffuse with transmission
+#ifdef transmissionFlag
+    f_diffuse = mix(f_diffuse, f_transmission, transmissionFactor);
+#endif
 
     vec3 color = ambientColor + f_diffuse + f_specular;
 
@@ -232,6 +254,11 @@ void main() {
 	#endif
 #else
 	out_FragColor.a = 1.0;
+#endif
+
+// #define DEBUG_TRANSMISSION
+#ifdef DEBUG_TRANSMISSION
+	out_FragColor.rgb = f_transmission;
 #endif
 
 }

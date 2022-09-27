@@ -535,6 +535,10 @@ public class GLTFDemoUI extends Table {
 		// occlusion
 		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.OcclusionStrength))).row();
 		addMaterialTextureSwitch("Occlusion Texture", material, PBRTextureAttribute.OcclusionTexture);
+		
+		// transmission
+		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.TransmissionFactor))).row();
+		addMaterialTextureSwitch("Transmission Texture", material, PBRTextureAttribute.TransmissionTexture);
 	}
 	
 	private void addMaterialTextureSwitch(String name, final Material material, long type){

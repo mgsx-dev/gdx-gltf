@@ -1,5 +1,12 @@
 # Changes history
 
+### next
+
+* Added `KHR_materials_transmission` extension support.
+* Added shader parser in order to split PBR shader into several files for better maintainability.
+* Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
+
+
 ### 2.1.0
 
 * Added optional environement and skybox rotation.
