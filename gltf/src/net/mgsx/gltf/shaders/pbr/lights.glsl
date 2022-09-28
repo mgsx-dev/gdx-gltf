@@ -69,11 +69,11 @@ vec3 specularReflection(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
 // where rougher material will reflect less light back to the viewer.
 // This implementation is based on [1] Equation 4, and we adopt their modifications to
 // alphaRoughness as input as originally proposed in [2].
-float geometricOcclusion(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
+float geometricOcclusion(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight, float alphaRoughness)
 {
     float NdotL = pbrLight.NdotL;
     float NdotV = pbrSurface.NdotV;
-    float r = pbrSurface.alphaRoughness;
+    float r = alphaRoughness;
 
     float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
     float attenuationV = 2.0 * NdotV / (NdotV + sqrt(r * r + (1.0 - r * r) * (NdotV * NdotV)));
@@ -83,13 +83,58 @@ float geometricOcclusion(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
 // The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
 // Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
 // Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
-float microfacetDistribution(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight)
+float microfacetDistribution(PBRSurfaceInfo pbrSurface, PBRLightInfo pbrLight, float alphaRoughness)
 {
-    float roughnessSq = pbrSurface.alphaRoughness * pbrSurface.alphaRoughness;
+    float roughnessSq = alphaRoughness * alphaRoughness;
     float f = (pbrLight.NdotH * roughnessSq - pbrLight.NdotH) * pbrLight.NdotH + 1.0;
     return roughnessSq / (M_PI * f * f);
 }
 
+#ifdef volumeFlag
+
+// Compute attenuated light as it travels through a volume.
+vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, PBRSurfaceInfo pbrSurface)
+{
+    if (u_attenuationDistance == 0.0)
+    {
+        // Attenuation distance is +∞ (which we indicate by zero), i.e. the transmitted color is not attenuated at all.
+        return radiance;
+    }
+    else
+    {
+        // Compute light attenuation using Beer's law.
+        vec3 attenuationCoefficient = -log(u_attenuationColor) / u_attenuationDistance;
+        vec3 transmittance = exp(-attenuationCoefficient * transmissionDistance); // Beer's law
+        return transmittance * radiance;
+    }
+}
+
+
+vec3 getVolumeTransmissionRay(vec3 n, vec3 v, PBRSurfaceInfo pbrSurface)
+{
+    // Direction of refracted light.
+    vec3 refractionVector = refract(-v, n, 1.0 / u_ior);
+
+    // Compute rotation-independant scaling of the model matrix.
+    vec3 modelScale;
+    modelScale.x = length(vec3(u_worldTrans[0].xyz));
+    modelScale.y = length(vec3(u_worldTrans[1].xyz));
+    modelScale.z = length(vec3(u_worldTrans[2].xyz));
+
+    // The thickness is specified in local space.
+    return normalize(refractionVector) * pbrSurface.thickness * modelScale;
+}
+
+#endif
+
+#ifdef iorFlag
+float applyIorToRoughness(float roughness)
+{
+    // Scale roughness with IOR so that an IOR of 1.0 results in no microfacet refraction and
+    // an IOR of 1.5 results in the default amount of microfacet refraction.
+    return roughness * clamp(u_ior * 2.0 - 2.0, 0.0, 1.0);
+}
+#endif
 
 vec3 getLightTransmission(PBRSurfaceInfo pbrSurface, vec3 l)
 {
@@ -112,10 +157,16 @@ vec3 getLightTransmission(PBRSurfaceInfo pbrSurface, vec3 l)
 		VdotH
 	);
 
+#ifdef iorFlag
+	float alphaRoughness = applyIorToRoughness(pbrSurface.alphaRoughness);
+#else
+	float alphaRoughness = pbrSurface.alphaRoughness;
+#endif
+
 	// Calculate the shading terms for the microfacet specular shading model
 	vec3 F = specularReflection(pbrSurface, pbrLight);
-	float G = geometricOcclusion(pbrSurface, pbrLight);
-	float D = microfacetDistribution(pbrSurface, pbrLight);
+	float G = geometricOcclusion(pbrSurface, pbrLight, alphaRoughness);
+	float D = microfacetDistribution(pbrSurface, pbrLight, alphaRoughness);
 
 	// Calculation of analytical lighting contribution
 	return (1.0 - F) * diffuse(pbrSurface) * D * G  / (4.0 * NdotL * NdotV);
@@ -144,8 +195,8 @@ PBRLightContribs getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l, vec3 co
 
 	// Calculate the shading terms for the microfacet specular shading model
 	vec3 F = specularReflection(pbrSurface, pbrLight);
-	float G = geometricOcclusion(pbrSurface, pbrLight);
-	float D = microfacetDistribution(pbrSurface, pbrLight);
+	float G = geometricOcclusion(pbrSurface, pbrLight, pbrSurface.alphaRoughness);
+	float D = microfacetDistribution(pbrSurface, pbrLight, pbrSurface.alphaRoughness);
 
 	// Calculation of analytical lighting contribution
 	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrSurface);
@@ -157,7 +208,12 @@ PBRLightContribs getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l, vec3 co
 #ifdef transmissionFlag
 	vec3 transmittedLight = getLightTransmission(pbrSurface, l);
 
-	// TODO apply volume attenuation
+#ifdef volumeFlag
+    vec3 transmissionRay = getVolumeTransmissionRay(n, v, pbrSurface);
+    transmittedLight = applyVolumeAttenuation(transmittedLight, length(transmissionRay), pbrSurface);
+#endif
+
+
 #else
 	vec3 transmittedLight = vec3(0.0);
 #endif

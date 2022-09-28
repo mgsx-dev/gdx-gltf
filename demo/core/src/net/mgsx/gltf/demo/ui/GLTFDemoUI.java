@@ -39,6 +39,7 @@ import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
@@ -539,6 +540,21 @@ public class GLTFDemoUI extends Table {
 		// transmission
 		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.TransmissionFactor))).row();
 		addMaterialTextureSwitch("Transmission Texture", material, PBRTextureAttribute.TransmissionTexture);
+		
+		// volume
+		final PBRVolumeAttribute volume = material.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+		if(volume != null){
+			materialTable.add(new FloatUI(getSkin(), volume.thicknessFactor, "Thickness"){
+				@Override
+				protected void onChange(float value) {
+					volume.thicknessFactor = value;
+				}
+			}).row();
+		}
+		addMaterialTextureSwitch("Thickness Texture", material, PBRTextureAttribute.ThicknessTexture);
+		
+		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.IOR), 1f, 3f)).row();
+	
 	}
 	
 	private void addMaterialTextureSwitch(String name, final Material material, long type){

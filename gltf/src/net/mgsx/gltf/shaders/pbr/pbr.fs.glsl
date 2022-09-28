@@ -87,7 +87,12 @@ void main() {
     baseColor *= v_color;
 #endif
     
-    vec3 f0 = vec3(0.04);
+#ifdef iorFlag
+    vec3 f0 = vec3(pow(( u_ior - 1.0) /  (u_ior + 1.0), 2.0));
+#else
+    vec3 f0 = vec3(0.04); // from ior 1.5 value
+#endif
+
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= 1.0 - metallic;
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
@@ -129,7 +134,8 @@ void main() {
 		specularEnvironmentR90,
 		alphaRoughness,
 		diffuseColor,
-		specularColor
+		specularColor,
+		getThickness()
     );
 
     vec3 f_diffuse = vec3(0.0);

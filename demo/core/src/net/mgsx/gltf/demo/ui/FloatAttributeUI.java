@@ -12,9 +12,12 @@ public class FloatAttributeUI extends Table
 	private Slider slider;
 	protected FloatAttribute attribute;
 	public FloatAttributeUI(Skin skin, final FloatAttribute attribute) {
+		this(skin, attribute, 0, 1);
+	}
+	public FloatAttributeUI(Skin skin, final FloatAttribute attribute, float min, float max) {
 		super(skin);
 		this.attribute = attribute;
-		slider = new Slider(0, 1, .01f, false, skin);
+		slider = new Slider(min, max, .01f, false, skin);
 		if(attribute != null){
 			add(FloatAttribute.getAttributeAlias(attribute.type));
 			add(slider).row();

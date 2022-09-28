@@ -26,6 +26,9 @@ public class PBRFloatAttribute extends FloatAttribute
 	public final static String TransmissionFactorAlias = "TransmissionFactor";
 	public final static long TransmissionFactor = register(TransmissionFactorAlias);
 	
+	public final static String IORAlias = "IOR";
+	public final static long IOR = register(IORAlias);
+	
 	public PBRFloatAttribute(long type, float value) {
 		super(type, value);
 	}
@@ -53,5 +56,8 @@ public class PBRFloatAttribute extends FloatAttribute
 	}
 	public static Attribute createTransmissionFactor(float value) {
 		return new PBRFloatAttribute(TransmissionFactor, value);
+	}
+	public static Attribute createIOR(float value) {
+		return new PBRFloatAttribute(IOR, value);
 	}
 }

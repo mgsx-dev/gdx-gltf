@@ -1,7 +1,5 @@
 package net.mgsx.gltf.data.extensions;
 
-import com.badlogic.gdx.graphics.Color;
-
 import net.mgsx.gltf.data.texture.GLTFTextureInfo;
 
 /**
@@ -14,6 +12,6 @@ public class KHRMaterialsSpecular {
 	
 	public float specularFactor = 1f;
 	public GLTFTextureInfo specularTexture = null;
-	public Color specularColorFactor = new Color(Color.WHITE);
+	public float [] specularColorFactor = {1, 1, 1};
 	public GLTFTextureInfo specularColorTexture = null;
 }

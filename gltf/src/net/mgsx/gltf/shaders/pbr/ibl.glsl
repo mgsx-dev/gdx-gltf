@@ -44,6 +44,13 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 
 	// TODO have an option to either sample IBL or sample FBO (with prviously opaque objects rendered)
 
+#ifdef volumeFlag
+	// Compute transmission ray in order to change view angle with IBL
+	vec3 transmissionRay = getVolumeTransmissionRay(n, v, pbrSurface);
+	vec3 refractedRayExit = v_position + transmissionRay;
+	v = normalize(refractedRayExit - u_cameraPosition.xyz);
+#endif
+
 #ifdef ENV_ROTATION
 	vec3 specularDirection = u_envRotation * v;
 #else
@@ -51,7 +58,14 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 #endif
 
 #ifdef USE_TEX_LOD
-    float lod = (pbrSurface.perceptualRoughness * u_mipmapScale);
+    // IOR has impact on roughness
+#ifdef iorFlag
+	float lod = applyIorToRoughness(pbrSurface.perceptualRoughness) * u_mipmapScale;
+#else
+	float lod = pbrSurface.perceptualRoughness * u_mipmapScale;
+#endif
+
+
     vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
 #else
     vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
@@ -60,7 +74,11 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 
     vec3 specularColor = pbrSurface.reflectance0 * brdf.x + pbrSurface.reflectance90 * brdf.y;
 
-    vec3 attenuatedColor = specularLight; // TODO apply from volume info
+    vec3 attenuatedColor = specularLight;
+
+#ifdef volumeFlag
+    attenuatedColor = applyVolumeAttenuation(attenuatedColor, length(transmissionRay), pbrSurface);
+#endif
 
     return (1.0 - specularColor) * attenuatedColor * pbrSurface.diffuseColor;
 }

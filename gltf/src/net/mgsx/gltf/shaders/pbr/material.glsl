@@ -61,6 +61,9 @@ varying MED vec2 v_texCoord1;
 #define v_transmissionUV v_texCoord0
 #endif
 
+#ifndef v_thicknessUV
+#define v_thicknessUV v_texCoord0
+#endif
 
 #ifdef diffuseColorFlag
 uniform vec4 u_diffuseColor;
@@ -112,6 +115,22 @@ uniform sampler2D u_transmissionSampler;
 uniform float u_transmissionFactor;
 #endif
 
+#ifdef volumeFlag
+uniform float u_thicknessFactor;
+uniform float u_attenuationDistance;
+uniform vec3 u_attenuationColor;
+#endif
+
+#ifdef thicknessTextureFlag
+uniform sampler2D u_thicknessSampler;
+#endif
+
+#ifdef iorFlag
+uniform float u_ior;
+#else
+#define u_ior 1.5
+#endif
+
 uniform vec2 u_MetallicRoughnessValues;
 
 // Encapsulate the various inputs used by the various functions in the shading equation
@@ -130,6 +149,8 @@ struct PBRSurfaceInfo
 	float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])
 	vec3 diffuseColor;            // color contribution from diffuse lighting
 	vec3 specularColor;           // color contribution from specular lighting
+
+	float thickness;           	  // volume thickness at surface point (used for refraction)
 };
 
 #ifndef unlitFlag
@@ -151,3 +172,16 @@ vec3 getNormal()
     return n;
 }
 #endif
+
+float getThickness()
+{
+#ifdef volumeFlag
+	float thickness = u_thicknessFactor;
+#ifdef thicknessTextureFlag
+	thickness *= texture2D(u_thicknessSampler, v_thicknessUV).g;
+#endif
+	return thickness;
+#else
+	return 0.0;
+#endif
+}

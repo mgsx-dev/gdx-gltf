@@ -1,7 +1,5 @@
 package net.mgsx.gltf.data.extensions;
 
-import com.badlogic.gdx.graphics.Color;
-
 import net.mgsx.gltf.data.texture.GLTFTextureInfo;
 
 /**
@@ -15,5 +13,5 @@ public class KHRMaterialsVolume {
 	public float thicknessFactor = 0f;
 	public GLTFTextureInfo thicknessTexture = null;
 	public Float attenuationDistance = null; // default +inf.
-	public Color attenuationColor = new Color(Color.WHITE);
+	public float [] attenuationColor = {1, 1, 1};
 }

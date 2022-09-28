@@ -23,6 +23,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
@@ -225,6 +226,52 @@ public class PBRShader extends DefaultShader
 		}
 	};
 
+	public final static Uniform iorUniform = new Uniform("u_ior");
+	public final static Setter iorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute a = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.IOR);
+			shader.set(inputID, a.value);
+		}
+	};
+
+	public final static Uniform thicknessFactorUniform = new Uniform("u_thicknessFactor");
+	public final static Setter thicknessFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRVolumeAttribute a = combinedAttributes.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+			shader.set(inputID, a.thicknessFactor);
+		}
+	};
+
+	public final static Uniform volumeDistanceUniform = new Uniform("u_attenuationDistance");
+	public final static Setter volumeDistanceSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRVolumeAttribute a = combinedAttributes.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+			shader.set(inputID, a.attenuationDistance);
+		}
+	};
+
+	public final static Uniform volumeColorUniform = new Uniform("u_attenuationColor");
+	public final static Setter volumeColorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRVolumeAttribute a = combinedAttributes.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+			shader.set(inputID, a.attenuationColor.r, a.attenuationColor.g, a.attenuationColor.b);
+		}
+	};
+
+	public final static Uniform thicknessTextureUniform = new Uniform("u_thicknessSampler", PBRTextureAttribute.ThicknessTexture);
+	public final static Setter thicknessTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.ThicknessTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
 	public final int u_metallicRoughness;
@@ -264,6 +311,14 @@ public class PBRShader extends DefaultShader
 
 	public int u_transmissionFactor;
 	public int u_transmissionTexture;
+
+	public int u_ior;
+
+	// Volume
+	public int u_thicknessTexture;
+	public int u_thicknessFactor;
+	public int u_volumeDistance;
+	public int u_volumeColor;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -310,6 +365,13 @@ public class PBRShader extends DefaultShader
 		
 		u_transmissionFactor = register(transmissionFactorUniform, transmissionFactorSetter);
 		u_transmissionTexture = register(transmissionTextureUniform, transmissionTextureSetter);
+		
+		u_ior = register(iorUniform, iorSetter);
+		
+		u_thicknessFactor = register(thicknessFactorUniform, thicknessFactorSetter);
+		u_volumeDistance = register(volumeDistanceUniform, volumeDistanceSetter);
+		u_volumeColor = register(volumeColorUniform, volumeColorSetter);
+		u_thicknessTexture = register(thicknessTextureUniform, thicknessTextureSetter);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {
@@ -361,7 +423,8 @@ public class PBRShader extends DefaultShader
 		PBRTextureAttribute.NormalTexture,
 		PBRTextureAttribute.MetallicRoughnessTexture,
 		PBRTextureAttribute.OcclusionTexture,
-		PBRTextureAttribute.TransmissionTexture
+		PBRTextureAttribute.TransmissionTexture,
+		PBRTextureAttribute.ThicknessTexture
 	};
 
 	private static long getTextureCoordinateMapMask(Attributes attributes){

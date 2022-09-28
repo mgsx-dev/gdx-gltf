@@ -16,5 +16,6 @@ uniform vec3 u_ambientLight;
 
 uniform vec4 u_cameraPosition;
 
+uniform mat4 u_worldTrans;
 
 varying vec3 v_position;

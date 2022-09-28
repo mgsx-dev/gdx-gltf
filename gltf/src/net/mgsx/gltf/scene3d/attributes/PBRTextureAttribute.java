@@ -30,8 +30,11 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String TransmissionTextureAlias = "TransmissionTexture";
 	public final static long TransmissionTexture = register(TransmissionTextureAlias);
 	
+	public final static String ThicknessTextureAlias = "ThicknessTexture";
+	public final static long ThicknessTexture = register(ThicknessTextureAlias);
+	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture;
 	}
 	
 	public float rotationUV = 0f;
@@ -70,6 +73,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	public static PBRTextureAttribute createTransmissionTexture(Texture texture) {
 		return new PBRTextureAttribute(TransmissionTexture, texture);
 	}
+	public static PBRTextureAttribute createThicknessTexture(Texture texture) {
+		return new PBRTextureAttribute(ThicknessTexture, texture);
+	}
 	
 	public static PBRTextureAttribute createBaseColorTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BaseColorTexture, region);
@@ -91,6 +97,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	}
 	public static PBRTextureAttribute createTransmissionTexture(TextureRegion region) {
 		return new PBRTextureAttribute(TransmissionTexture, region);
+	}
+	public static PBRTextureAttribute createThicknessTexture(TextureRegion region) {
+		return new PBRTextureAttribute(ThicknessTexture, region);
 	}
 
 	@Override

@@ -11,9 +11,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
 
+import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
 import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
+import net.mgsx.gltf.data.extensions.KHRMaterialsVolume;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.material.GLTFMaterial;
 import net.mgsx.gltf.data.material.GLTFpbrMetallicRoughness;
@@ -25,6 +27,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 
 public class PBRMaterialLoader extends MaterialLoaderBase {
 
@@ -130,6 +133,21 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 					if(ext.transmissionTexture != null){
 						material.set(getTexureMap(PBRTextureAttribute.TransmissionTexture, ext.transmissionTexture));
 					}
+				}
+			}
+			{
+				KHRMaterialsVolume ext = glMaterial.extensions.get(KHRMaterialsVolume.class, KHRMaterialsVolume.EXT);
+				if(ext != null){
+					material.set(new PBRVolumeAttribute(ext.thicknessFactor, ext.attenuationDistance == null ? 0f : ext.attenuationDistance, GLTFTypes.mapColor(ext.attenuationColor, Color.WHITE)));
+					if(ext.thicknessTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.ThicknessTexture, ext.thicknessTexture));
+					}
+				}
+			}
+			{
+				KHRMaterialsIOR ext = glMaterial.extensions.get(KHRMaterialsIOR.class, KHRMaterialsIOR.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createIOR(ext.ior));
 				}
 			}
 		}

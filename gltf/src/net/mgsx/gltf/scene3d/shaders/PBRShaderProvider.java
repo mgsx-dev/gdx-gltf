@@ -26,6 +26,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 import net.mgsx.gltf.scene3d.utils.LightUtils;
 import net.mgsx.gltf.scene3d.utils.LightUtils.LightsInfo;
@@ -199,6 +200,15 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			if(renderable.material.has(PBRTextureAttribute.TransmissionTexture)){
 				prefix += "#define transmissionTextureFlag\n";
 			}
+			if(renderable.material.has(PBRVolumeAttribute.Type)){
+				prefix += "#define volumeFlag\n";
+			}
+			if(renderable.material.has(PBRTextureAttribute.ThicknessTexture)){
+				prefix += "#define thicknessTextureFlag\n";
+			}
+			if(renderable.material.has(PBRFloatAttribute.IOR)){
+				prefix += "#define iorFlag\n";
+			}
 			
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
@@ -292,6 +302,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.TransmissionTexture);
 			if(attribute != null){
 				prefix += "#define v_transmissionUV v_texCoord" + attribute.uvIndex + "\n";
+				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
+			}
+		}
+		{
+			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.ThicknessTexture);
+			if(attribute != null){
+				prefix += "#define v_thicknessUV v_texCoord" + attribute.uvIndex + "\n";
 				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
 			}
 		}
