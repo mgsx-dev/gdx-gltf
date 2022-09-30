@@ -1,8 +1,3 @@
-
-#if defined(specularTextureFlag) || defined(specularColorFlag)
-#define specularFlag
-#endif
-
 #ifdef normalFlag
 #ifdef tangentFlag
 varying mat3 v_TBN;
@@ -35,10 +30,6 @@ varying MED vec2 v_texCoord1;
 
 #ifndef v_diffuseUV
 #define v_diffuseUV v_texCoord0
-#endif
-
-#ifndef v_specularUV
-#define v_specularUV v_texCoord0
 #endif
 
 #ifndef v_emissiveUV
@@ -75,14 +66,6 @@ uniform vec4 u_BaseColorFactor;
 
 #ifdef diffuseTextureFlag
 uniform sampler2D u_diffuseTexture;
-#endif
-
-#ifdef specularColorFlag
-uniform vec4 u_specularColor;
-#endif
-
-#ifdef specularTextureFlag
-uniform sampler2D u_specularTexture;
 #endif
 
 #ifdef normalTextureFlag
