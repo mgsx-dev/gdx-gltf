@@ -353,7 +353,7 @@ public class PBRShader extends DefaultShader
 			shader.set(inputID, unit);
 		}
 	};
-	public final static Uniform iridescenceThicknessTextureUniform = new Uniform("u_iridescenceThicknessSampler", PBRTextureAttribute.IridescenceTexture);
+	public final static Uniform iridescenceThicknessTextureUniform = new Uniform("u_iridescenceThicknessSampler", PBRTextureAttribute.IridescenceThicknessTexture);
 	public final static Setter iridescenceThicknessTextureSetter = new LocalSetter() {
 		@Override
 		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
