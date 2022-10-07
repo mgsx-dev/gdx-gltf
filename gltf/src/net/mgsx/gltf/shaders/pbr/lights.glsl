@@ -199,8 +199,19 @@ PBRLightContribs getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l, vec3 co
 	float D = microfacetDistribution(pbrSurface, pbrLight, pbrSurface.alphaRoughness);
 
 	// Calculation of analytical lighting contribution
+#ifdef iridescenceFlag
+    vec3 iridescenceFresnelMax = vec3(max(max(pbrSurface.iridescenceFresnel.r, pbrSurface.iridescenceFresnel.g), pbrSurface.iridescenceFresnel.b));
+    vec3 lam_F = mix(F, iridescenceFresnelMax * pbrSurface.specularWeight, pbrSurface.iridescenceFactor);
+    vec3 diffuseContrib = (1.0 - lam_F) * diffuse(pbrSurface);
+
+    vec3 ggx_F = mix(F, pbrSurface.iridescenceFresnel, pbrSurface.iridescenceFactor);
+    vec3 specContrib = ggx_F * G * D / (4.0 * NdotL * NdotV);
+
+#else
 	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrSurface);
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
+#endif
+
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
 	vec3 factor = color * NdotL;
 

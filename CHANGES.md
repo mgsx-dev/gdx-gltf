@@ -6,6 +6,7 @@
 * Added `KHR_materials_volume` extension support.
 * Added `KHR_materials_ior` extension support.
 * Added `KHR_materials_specular` extension support.
+* Added `KHR_materials_iridescence` extension support.
 * Added shader parser in order to split PBR shader into several files for better maintainability.
 * Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
 

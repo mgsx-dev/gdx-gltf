@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
 
 import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
 import net.mgsx.gltf.data.extensions.KHRMaterialsSpecular;
 import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
@@ -28,6 +29,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 
@@ -162,6 +164,18 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 					}
 					if(ext.specularColorTexture != null){
 						material.set(getTexureMap(PBRTextureAttribute.Specular, ext.specularColorTexture));
+					}
+				}
+			}
+			{
+				KHRMaterialsIridescence ext = glMaterial.extensions.get(KHRMaterialsIridescence.class, KHRMaterialsIridescence.EXT);
+				if(ext != null){
+					material.set(new PBRIridescenceAttribute(ext.iridescenceFactor, ext.iridescenceIor, ext.iridescenceThicknessMinimum, ext.iridescenceThicknessMaximum));
+					if(ext.iridescenceTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.IridescenceTexture, ext.iridescenceTexture));
+					}
+					if(ext.iridescenceThicknessTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.IridescenceThicknessTexture, ext.iridescenceThicknessTexture));
 					}
 				}
 			}

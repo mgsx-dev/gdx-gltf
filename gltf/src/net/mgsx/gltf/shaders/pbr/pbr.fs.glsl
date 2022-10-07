@@ -2,6 +2,9 @@
 
 #include <compat.fs.glsl>
 #include <functions.glsl>
+#ifdef iridescenceFlag
+#include <iridescence.glsl>
+#endif
 #include <material.glsl>
 #include <env.glsl>
 #include <lights.glsl>
@@ -161,7 +164,14 @@ void main() {
 		specularColor,
 		getThickness(),
 		specularWeight
+#ifdef iridescenceFlag
+		, 0.0, 0.0, 0.0, vec3(0.0), vec3(0.0)
+#endif
     );
+
+#ifdef iridescenceFlag
+    pbrSurface = getIridescenceInfo(pbrSurface);
+#endif
 
     vec3 f_diffuse = vec3(0.0);
     vec3 f_specular = vec3(0.0);
@@ -296,6 +306,11 @@ void main() {
 // #define DEBUG_SPECULAR_WEIGHT
 #ifdef DEBUG_SPECULAR_WEIGHT
 	out_FragColor.rgb = vec3(specularWeight);
+#endif
+
+// #define DEBUG_IRIDESCENCE
+#ifdef DEBUG_IRIDESCENCE
+	out_FragColor.rgb = pbrSurface.iridescenceFresnel;
 #endif
 
 }

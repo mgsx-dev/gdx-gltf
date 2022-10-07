@@ -36,8 +36,14 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String SpecularFactorTextureAlias = "SpecularFactorTexture";
 	public final static long SpecularFactorTexture = register(SpecularFactorTextureAlias);
 	
+	public final static String IridescenceTextureAlias = "IridescenceTexture";
+	public final static long IridescenceTexture = register(IridescenceTextureAlias);
+	
+	public final static String IridescenceThicknessTextureAlias = "IridescenceThicknessTexture";
+	public final static long IridescenceThicknessTexture = register(IridescenceThicknessTextureAlias);
+	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture | SpecularFactorTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture | SpecularFactorTexture | IridescenceTexture | IridescenceThicknessTexture;
 	}
 	
 	public float rotationUV = 0f;
@@ -82,6 +88,12 @@ public class PBRTextureAttribute extends TextureAttribute
 	public static PBRTextureAttribute createSpecularFactorTexture(Texture texture) {
 		return new PBRTextureAttribute(SpecularFactorTexture, texture);
 	}
+	public static PBRTextureAttribute createIridescenceTexture(Texture texture) {
+		return new PBRTextureAttribute(IridescenceTexture, texture);
+	}
+	public static PBRTextureAttribute createIridescenceThicknessTexture(Texture texture) {
+		return new PBRTextureAttribute(IridescenceThicknessTexture, texture);
+	}
 	
 	public static PBRTextureAttribute createBaseColorTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BaseColorTexture, region);
@@ -109,6 +121,12 @@ public class PBRTextureAttribute extends TextureAttribute
 	}
 	public static PBRTextureAttribute createSpecularFactorTexture(TextureRegion region) {
 		return new PBRTextureAttribute(SpecularFactorTexture, region);
+	}
+	public static PBRTextureAttribute createIridescenceTexture(TextureRegion region) {
+		return new PBRTextureAttribute(IridescenceTexture, region);
+	}
+	public static PBRTextureAttribute createIridescenceThicknessTexture(TextureRegion region) {
+		return new PBRTextureAttribute(IridescenceThicknessTexture, region);
 	}
 
 	@Override

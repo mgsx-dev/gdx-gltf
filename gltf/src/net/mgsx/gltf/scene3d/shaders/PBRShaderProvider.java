@@ -24,6 +24,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
@@ -233,6 +234,17 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define specularFlag\n";
 			}
 			
+			// Material Iridescence
+			if(renderable.material.has(PBRIridescenceAttribute.Type)){
+				prefix += "#define iridescenceFlag\n";
+			}
+			if(renderable.material.has(PBRTextureAttribute.IridescenceTexture)){
+				prefix += "#define iridescenceTextureFlag\n";
+			}
+			if(renderable.material.has(PBRTextureAttribute.IridescenceThicknessTexture)){
+				prefix += "#define iridescenceThicknessTextureFlag\n";
+			}
+			
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
 			if(renderable.environment != null){
@@ -346,6 +358,20 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.Specular);
 			if(attribute != null){
 				prefix += "#define v_specularColorUV v_texCoord" + attribute.uvIndex + "\n";
+				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
+			}
+		}
+		{
+			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.IridescenceTexture);
+			if(attribute != null){
+				prefix += "#define v_iridescenceUV v_texCoord" + attribute.uvIndex + "\n";
+				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
+			}
+		}
+		{
+			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.IridescenceThicknessTexture);
+			if(attribute != null){
+				prefix += "#define v_iridescenceThicknessUV v_texCoord" + attribute.uvIndex + "\n";
 				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
 			}
 		}

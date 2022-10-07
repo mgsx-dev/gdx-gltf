@@ -113,8 +113,35 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
     vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
 #endif
 
+
+#ifdef iridescenceFlag
+
+    // GGX
+    vec3 ggx_Fr = max(vec3(1.0 - pbrSurface.perceptualRoughness), pbrSurface.specularColor) - pbrSurface.specularColor;
+    vec3 ggx_k_S = mix(pbrSurface.specularColor + ggx_Fr * pow(1.0 - pbrSurface.NdotV, 5.0), pbrSurface.iridescenceFresnel, pbrSurface.iridescenceFactor);
+    vec3 ggx_FssEss = ggx_k_S * brdf.x + brdf.y;
+
+    vec3 specular = specularLight * ggx_FssEss * pbrSurface.specularWeight;
+
+    // Lambertian
+    vec3 iridescenceF0Max = vec3(max(max(pbrSurface.iridescenceF0.r, pbrSurface.iridescenceF0.g), pbrSurface.iridescenceF0.b));
+    vec3 mixedF0 = mix(pbrSurface.specularColor, iridescenceF0Max, pbrSurface.iridescenceFactor);
+
+    vec3 lam_Fr = max(vec3(1.0 - pbrSurface.perceptualRoughness), mixedF0) - mixedF0;
+    vec3 lam_k_S = mixedF0 + lam_Fr * pow(1.0 - pbrSurface.NdotV, 5.0);
+    vec3 lam_FssEss = pbrSurface.specularWeight * lam_k_S * brdf.x + brdf.y;
+
+    float Ems = (1.0 - (brdf.x + brdf.y));
+    vec3 F_avg = pbrSurface.specularWeight * (mixedF0 + (1.0 - mixedF0) / 21.0);
+    vec3 FmsEms = Ems * lam_FssEss * F_avg / (1.0 - F_avg * Ems);
+    vec3 k_D = pbrSurface.diffuseColor * (1.0 - lam_FssEss + FmsEms);
+
+    vec3 diffuse = (FmsEms + k_D) * diffuseLight;
+
+#else
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;
     vec3 specular = specularLight * (pbrSurface.specularColor * brdf.x + brdf.y) * pbrSurface.specularWeight;
+#endif
 
 #ifdef transmissionFlag
     vec3 transmission = getIBLTransmissionContribution(pbrSurface, n, -pbrSurface.v);

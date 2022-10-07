@@ -21,6 +21,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
@@ -310,6 +311,58 @@ public class PBRShader extends DefaultShader
 			shader.set(inputID, unit);
 		}
 	};
+	
+	public final static Uniform iridescenceFactorUniform = new Uniform("u_iridescenceFactor");
+	public final static Setter iridescenceFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.factor);
+		}
+	};
+	public final static Uniform iridescenceIORUniform = new Uniform("u_iridescenceIOR");
+	public final static Setter iridescenceIORSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.ior);
+		}
+	};
+	public final static Uniform iridescenceThicknessMinUniform = new Uniform("u_iridescenceThicknessMin");
+	public final static Setter iridescenceThicknessMinSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.thicknessMin);
+		}
+	};
+	public final static Uniform iridescenceThicknessMaxUniform = new Uniform("u_iridescenceThicknessMax");
+	public final static Setter iridescenceThicknessMaxSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.thicknessMax);
+		}
+	};
+	public final static Uniform iridescenceTextureUniform = new Uniform("u_iridescenceSampler", PBRTextureAttribute.IridescenceTexture);
+	public final static Setter iridescenceTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.IridescenceTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+	public final static Uniform iridescenceThicknessTextureUniform = new Uniform("u_iridescenceThicknessSampler", PBRTextureAttribute.IridescenceTexture);
+	public final static Setter iridescenceThicknessTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.IridescenceThicknessTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
 
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
@@ -364,6 +417,14 @@ public class PBRShader extends DefaultShader
 	public int u_specularColorFactor;
 	public int u_specularFactorTexture;
 	public int u_specularColorTexture;
+
+	// Iridescence
+	public int u_iridescenceFactor;
+	public int u_iridescenceIOR;
+	public int u_iridescenceThicknessMin;
+	public int u_iridescenceThicknessMax;
+	public int u_iridescenceTexture;
+	public int u_iridescenceThicknessTexture;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -423,6 +484,14 @@ public class PBRShader extends DefaultShader
 		u_specularColorFactor = register(specularColorFactorUniform, specularColorFactorSetter);
 		u_specularFactorTexture = register(specularFactorTextureUniform, specularFactorTextureSetter);
 		u_specularColorTexture = register(specularColorTextureUniform, specularColorTextureSetter);
+		
+		// iridescence
+		u_iridescenceFactor = register(iridescenceFactorUniform, iridescenceFactorSetter);
+		u_iridescenceIOR = register(iridescenceIORUniform, iridescenceIORSetter);
+		u_iridescenceThicknessMin = register(iridescenceThicknessMinUniform, iridescenceThicknessMinSetter);
+		u_iridescenceThicknessMax = register(iridescenceThicknessMaxUniform, iridescenceThicknessMaxSetter);
+		u_iridescenceTexture = register(iridescenceTextureUniform, iridescenceTextureSetter);
+		u_iridescenceThicknessTexture = register(iridescenceThicknessTextureUniform, iridescenceThicknessTextureSetter);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {
@@ -475,7 +544,9 @@ public class PBRShader extends DefaultShader
 		PBRTextureAttribute.MetallicRoughnessTexture,
 		PBRTextureAttribute.OcclusionTexture,
 		PBRTextureAttribute.TransmissionTexture,
-		PBRTextureAttribute.ThicknessTexture
+		PBRTextureAttribute.ThicknessTexture,
+		PBRTextureAttribute.IridescenceTexture,
+		PBRTextureAttribute.IridescenceThicknessTexture
 	};
 
 	private static long getTextureCoordinateMapMask(Attributes attributes){

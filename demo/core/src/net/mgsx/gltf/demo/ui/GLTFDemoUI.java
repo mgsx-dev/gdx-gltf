@@ -39,6 +39,7 @@ import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
@@ -561,6 +562,17 @@ public class GLTFDemoUI extends Table {
 		addMaterialTextureSwitch("Specular Factor Texture", material, PBRTextureAttribute.SpecularFactorTexture);
 		materialTable.add(new HDRColorAttributeUI(getSkin(), material.get(PBRHDRColorAttribute.class, PBRHDRColorAttribute.Specular), 100f)).row();
 		addMaterialTextureSwitch("Specular Color Texture", material, PBRTextureAttribute.Specular);
+		
+		// Iridescence
+		final PBRIridescenceAttribute iridescence = material.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+		if(iridescence != null){
+			materialTable.add(new FloatUI(getSkin(), iridescence.factor, "Iridescence"){
+				@Override
+				protected void onChange(float value) {
+					iridescence.factor = value;
+				}
+			}).row();
+		}
 	}
 	
 	private void addMaterialTextureSwitch(String name, final Material material, long type){

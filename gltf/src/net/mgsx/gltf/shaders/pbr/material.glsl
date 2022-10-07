@@ -64,6 +64,14 @@ varying MED vec2 v_texCoord1;
 #define v_specularColorUV v_texCoord0
 #endif
 
+#ifndef v_iridescenceUV
+#define v_iridescenceUV v_texCoord0
+#endif
+
+#ifndef v_iridescenceThicknessUV
+#define v_iridescenceThicknessUV v_texCoord0
+#endif
+
 #ifdef diffuseColorFlag
 uniform vec4 u_diffuseColor;
 #endif
@@ -140,6 +148,20 @@ uniform sampler2D u_specularFactorSampler;
 uniform sampler2D u_specularColorSampler;
 #endif
 
+#ifdef iridescenceFlag
+uniform float u_iridescenceFactor;
+uniform float u_iridescenceIOR;
+uniform float u_iridescenceThicknessMin;
+uniform float u_iridescenceThicknessMax;
+#endif
+
+#ifdef iridescenceTextureFlag
+uniform sampler2D u_iridescenceSampler;
+#endif
+
+#ifdef iridescenceThicknessTextureFlag
+uniform sampler2D u_iridescenceThicknessSampler;
+#endif
 
 uniform vec2 u_MetallicRoughnessValues;
 
@@ -163,6 +185,14 @@ struct PBRSurfaceInfo
 	float thickness;           	  // volume thickness at surface point (used for refraction)
 
 	float specularWeight;		  // Amount of specular for the material (default is 1.0)
+
+#ifdef iridescenceFlag
+	float iridescenceFactor;
+	float iridescenceIOR;
+	float iridescenceThickness;
+	vec3 iridescenceFresnel;
+	vec3 iridescenceF0;
+#endif
 };
 
 #ifndef unlitFlag
@@ -197,3 +227,34 @@ float getThickness()
 	return 0.0;
 #endif
 }
+
+#ifdef iridescenceFlag
+PBRSurfaceInfo getIridescenceInfo(PBRSurfaceInfo info){
+	info.iridescenceFactor = u_iridescenceFactor;
+	info.iridescenceIOR = u_iridescenceIOR;
+	info.iridescenceThickness = u_iridescenceThicknessMax;
+
+#ifdef iridescenceTextureFlag
+	info.iridescenceFactor *= texture2D(u_iridescenceSampler, v_iridescenceUV).r;
+#endif
+
+#ifdef iridescenceTextureFlag
+	float thicknessFactor = texture2D(u_iridescenceThicknessSampler, v_iridescenceThicknessUV).g;
+	info.iridescenceThickness = mix(u_iridescenceThicknessMin, u_iridescenceThicknessMax, thicknessFactor);
+#endif
+
+    info.iridescenceFresnel = info.specularColor;
+    info.iridescenceF0 = info.specularColor;
+
+    if (info.iridescenceThickness == 0.0) {
+    	info.iridescenceFactor = 0.0;
+    }
+
+    if (info.iridescenceFactor > 0.0) {
+    	info.iridescenceFresnel = evalIridescence(1.0, info.iridescenceIOR, info.NdotV, info.iridescenceThickness, info.specularColor);
+    	info.iridescenceF0 = Schlick_to_F0(info.iridescenceFresnel, info.NdotV);
+    }
+
+	return info;
+}
+#endif
