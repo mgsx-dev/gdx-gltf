@@ -93,9 +93,33 @@ void main() {
     vec3 f0 = vec3(0.04); // from ior 1.5 value
 #endif
 
+    // Specular
+#ifdef specularFlag
+    float specularFactor = u_specularFactor;
+#ifdef specularFactorTextureFlag
+    specularFactor *= texture2D(u_specularFactorSampler, v_specularFactorUV).a;
+#endif
+#ifdef specularColorFlag
+    vec3 specularColorFactor = u_specularColorFactor;
+#else
+    vec3 specularColorFactor = vec3(1.0);
+#endif
+#ifdef specularTextureFlag
+    specularColorFactor *= SRGBtoLINEAR(texture2D(u_specularColorSampler, v_specularColorUV)).rgb;
+#endif
+    // Compute specular
+    vec3 dielectricSpecularF0 = min(f0 * specularColorFactor, vec3(1.0));
+    f0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
+    vec3 specularColor = f0;
+    float specularWeight = specularFactor;
+    vec3 diffuseColor = mix(baseColor.rgb, vec3(0), metallic);
+#else
+    float specularWeight = 1.0;
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= 1.0 - metallic;
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+#endif
+
 
     // Compute reflectance.
     float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);
@@ -135,7 +159,8 @@ void main() {
 		alphaRoughness,
 		diffuseColor,
 		specularColor,
-		getThickness()
+		getThickness(),
+		specularWeight
     );
 
     vec3 f_diffuse = vec3(0.0);
@@ -265,6 +290,12 @@ void main() {
 // #define DEBUG_TRANSMISSION
 #ifdef DEBUG_TRANSMISSION
 	out_FragColor.rgb = f_transmission;
+#endif
+
+
+// #define DEBUG_SPECULAR_WEIGHT
+#ifdef DEBUG_SPECULAR_WEIGHT
+	out_FragColor.rgb = vec3(specularWeight);
 #endif
 
 }

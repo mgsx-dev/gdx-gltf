@@ -38,6 +38,7 @@ import net.mgsx.gltf.demo.model.IBLStudio;
 import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
@@ -554,7 +555,12 @@ public class GLTFDemoUI extends Table {
 		addMaterialTextureSwitch("Thickness Texture", material, PBRTextureAttribute.ThicknessTexture);
 		
 		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.IOR), 1f, 3f)).row();
-	
+
+		// Specular
+		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.SpecularFactor), 0, 1)).row();
+		addMaterialTextureSwitch("Specular Factor Texture", material, PBRTextureAttribute.SpecularFactorTexture);
+		materialTable.add(new HDRColorAttributeUI(getSkin(), material.get(PBRHDRColorAttribute.class, PBRHDRColorAttribute.Specular), 100f)).row();
+		addMaterialTextureSwitch("Specular Color Texture", material, PBRTextureAttribute.Specular);
 	}
 	
 	private void addMaterialTextureSwitch(String name, final Material material, long type){

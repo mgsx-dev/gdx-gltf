@@ -23,6 +23,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
@@ -210,6 +211,28 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define iorFlag\n";
 			}
 			
+			// Material specular
+			boolean hasSpecular = false;
+			if(renderable.material.has(PBRFloatAttribute.SpecularFactor)){
+				prefix += "#define specularFactorFlag\n";
+				hasSpecular = true;
+			}
+			if(renderable.material.has(PBRHDRColorAttribute.Specular)){
+				hasSpecular = true;
+				prefix += "#define specularColorFlag\n";
+			}
+			if(renderable.material.has(PBRTextureAttribute.SpecularFactorTexture)){
+				prefix += "#define specularFactorTextureFlag\n";
+				hasSpecular = true;
+			}
+			if(renderable.material.has(PBRTextureAttribute.Specular)){
+				// prefix already injected: specularTextureFlag
+				hasSpecular = true;
+			}
+			if(hasSpecular){
+				prefix += "#define specularFlag\n";
+			}
+			
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
 			if(renderable.environment != null){
@@ -309,6 +332,20 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.ThicknessTexture);
 			if(attribute != null){
 				prefix += "#define v_thicknessUV v_texCoord" + attribute.uvIndex + "\n";
+				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
+			}
+		}
+		{
+			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.SpecularFactorTexture);
+			if(attribute != null){
+				prefix += "#define v_specularFactorUV v_texCoord" + attribute.uvIndex + "\n";
+				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
+			}
+		}
+		{
+			TextureAttribute attribute = renderable.material.get(TextureAttribute.class, PBRTextureAttribute.Specular);
+			if(attribute != null){
+				prefix += "#define v_specularColorUV v_texCoord" + attribute.uvIndex + "\n";
 				maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
 			}
 		}

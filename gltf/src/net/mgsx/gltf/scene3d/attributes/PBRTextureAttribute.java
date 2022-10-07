@@ -33,8 +33,11 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String ThicknessTextureAlias = "ThicknessTexture";
 	public final static long ThicknessTexture = register(ThicknessTextureAlias);
 	
+	public final static String SpecularFactorTextureAlias = "SpecularFactorTexture";
+	public final static long SpecularFactorTexture = register(SpecularFactorTextureAlias);
+	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture | SpecularFactorTexture;
 	}
 	
 	public float rotationUV = 0f;
@@ -76,6 +79,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	public static PBRTextureAttribute createThicknessTexture(Texture texture) {
 		return new PBRTextureAttribute(ThicknessTexture, texture);
 	}
+	public static PBRTextureAttribute createSpecularFactorTexture(Texture texture) {
+		return new PBRTextureAttribute(SpecularFactorTexture, texture);
+	}
 	
 	public static PBRTextureAttribute createBaseColorTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BaseColorTexture, region);
@@ -100,6 +106,9 @@ public class PBRTextureAttribute extends TextureAttribute
 	}
 	public static PBRTextureAttribute createThicknessTexture(TextureRegion region) {
 		return new PBRTextureAttribute(ThicknessTexture, region);
+	}
+	public static PBRTextureAttribute createSpecularFactorTexture(TextureRegion region) {
+		return new PBRTextureAttribute(SpecularFactorTexture, region);
 	}
 
 	@Override

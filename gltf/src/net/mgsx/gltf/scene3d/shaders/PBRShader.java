@@ -20,6 +20,7 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
@@ -272,6 +273,44 @@ public class PBRShader extends DefaultShader
 		}
 	};
 
+	public final static Uniform specularFactorUniform = new Uniform("u_specularFactor");
+	public final static Setter specularFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute a = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.SpecularFactor);
+			shader.set(inputID, a.value);
+		}
+	};
+	
+	public final static Uniform specularColorFactorUniform = new Uniform("u_specularColorFactor");
+	public final static Setter specularColorFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRHDRColorAttribute a = combinedAttributes.get(PBRHDRColorAttribute.class, PBRHDRColorAttribute.Specular);
+			shader.set(inputID, a.r, a.g, a.b);
+		}
+	};
+	
+	public final static Uniform specularFactorTextureUniform = new Uniform("u_specularFactorSampler", PBRTextureAttribute.SpecularFactorTexture);
+	public final static Setter specularFactorTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.SpecularFactorTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
+	public final static Uniform specularColorTextureUniform = new Uniform("u_specularColorSampler", PBRTextureAttribute.Specular);
+	public final static Setter specularColorTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.Specular))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
 	public final int u_metallicRoughness;
@@ -319,6 +358,12 @@ public class PBRShader extends DefaultShader
 	public int u_thicknessFactor;
 	public int u_volumeDistance;
 	public int u_volumeColor;
+
+	// Specular
+	public int u_specularFactor;
+	public int u_specularColorFactor;
+	public int u_specularFactorTexture;
+	public int u_specularColorTexture;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -372,6 +417,12 @@ public class PBRShader extends DefaultShader
 		u_volumeDistance = register(volumeDistanceUniform, volumeDistanceSetter);
 		u_volumeColor = register(volumeColorUniform, volumeColorSetter);
 		u_thicknessTexture = register(thicknessTextureUniform, thicknessTextureSetter);
+		
+		// specular
+		u_specularFactor = register(specularFactorUniform, specularFactorSetter);
+		u_specularColorFactor = register(specularColorFactorUniform, specularColorFactorSetter);
+		u_specularFactorTexture = register(specularFactorTextureUniform, specularFactorTextureSetter);
+		u_specularColorTexture = register(specularColorTextureUniform, specularColorTextureSetter);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {

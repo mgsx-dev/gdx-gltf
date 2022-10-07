@@ -194,7 +194,7 @@ PBRLightContribs getLightContribution(PBRSurfaceInfo pbrSurface, vec3 l, vec3 co
 	);
 
 	// Calculate the shading terms for the microfacet specular shading model
-	vec3 F = specularReflection(pbrSurface, pbrLight);
+	vec3 F = specularReflection(pbrSurface, pbrLight) * pbrSurface.specularWeight;
 	float G = geometricOcclusion(pbrSurface, pbrLight, pbrSurface.alphaRoughness);
 	float D = microfacetDistribution(pbrSurface, pbrLight, pbrSurface.alphaRoughness);
 

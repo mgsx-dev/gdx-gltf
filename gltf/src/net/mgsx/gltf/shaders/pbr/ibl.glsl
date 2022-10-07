@@ -114,7 +114,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
 #endif
 
     vec3 diffuse = diffuseLight * pbrSurface.diffuseColor;
-    vec3 specular = specularLight * (pbrSurface.specularColor * brdf.x + brdf.y);
+    vec3 specular = specularLight * (pbrSurface.specularColor * brdf.x + brdf.y) * pbrSurface.specularWeight;
 
 #ifdef transmissionFlag
     vec3 transmission = getIBLTransmissionContribution(pbrSurface, n, -pbrSurface.v);

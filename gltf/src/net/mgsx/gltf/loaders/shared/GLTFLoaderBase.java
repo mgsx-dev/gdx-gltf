@@ -22,6 +22,7 @@ import net.mgsx.gltf.data.extensions.KHRLightsPunctual;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
+import net.mgsx.gltf.data.extensions.KHRMaterialsSpecular;
 import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
 import net.mgsx.gltf.data.extensions.KHRMaterialsVolume;
@@ -104,6 +105,7 @@ public class GLTFLoaderBase implements Disposable {
 					}else if(KHRMaterialsTransmission.EXT.equals(extension)){
 					}else if(KHRMaterialsVolume.EXT.equals(extension)){
 					}else if(KHRMaterialsIOR.EXT.equals(extension)){
+					}else if(KHRMaterialsSpecular.EXT.equals(extension)){
 					}else{
 						throw new GLTFUnsupportedException("Extension " + extension + " required but not supported");
 					}

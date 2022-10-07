@@ -29,6 +29,9 @@ public class PBRFloatAttribute extends FloatAttribute
 	public final static String IORAlias = "IOR";
 	public final static long IOR = register(IORAlias);
 	
+	public final static String SpecularFactorAlias = "SpecularFactor";
+	public final static long SpecularFactor = register(SpecularFactorAlias);
+	
 	public PBRFloatAttribute(long type, float value) {
 		super(type, value);
 	}
@@ -59,5 +62,8 @@ public class PBRFloatAttribute extends FloatAttribute
 	}
 	public static Attribute createIOR(float value) {
 		return new PBRFloatAttribute(IOR, value);
+	}
+	public static Attribute createSpecularFactor(float value) {
+		return new PBRFloatAttribute(SpecularFactor, value);
 	}
 }

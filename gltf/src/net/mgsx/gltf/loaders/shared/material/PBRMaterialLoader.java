@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.MathUtils;
 
 import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
+import net.mgsx.gltf.data.extensions.KHRMaterialsSpecular;
 import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
 import net.mgsx.gltf.data.extensions.KHRMaterialsVolume;
@@ -26,6 +27,7 @@ import net.mgsx.gltf.loaders.shared.texture.TextureResolver;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 
@@ -148,6 +150,19 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 				KHRMaterialsIOR ext = glMaterial.extensions.get(KHRMaterialsIOR.class, KHRMaterialsIOR.EXT);
 				if(ext != null){
 					material.set(PBRFloatAttribute.createIOR(ext.ior));
+				}
+			}
+			{
+				KHRMaterialsSpecular ext = glMaterial.extensions.get(KHRMaterialsSpecular.class, KHRMaterialsSpecular.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createSpecularFactor(ext.specularFactor));
+					material.set(new PBRHDRColorAttribute(PBRHDRColorAttribute.Specular, ext.specularColorFactor[0], ext.specularColorFactor[1], ext.specularColorFactor[2]));
+					if(ext.specularTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.SpecularFactorTexture, ext.specularTexture));
+					}
+					if(ext.specularColorTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.Specular, ext.specularColorTexture));
+					}
 				}
 			}
 		}

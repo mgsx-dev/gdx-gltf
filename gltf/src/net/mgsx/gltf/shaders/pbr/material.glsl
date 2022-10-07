@@ -56,6 +56,14 @@ varying MED vec2 v_texCoord1;
 #define v_thicknessUV v_texCoord0
 #endif
 
+#ifndef v_specularFactorUV
+#define v_specularFactorUV v_texCoord0
+#endif
+
+#ifndef v_specularColorUV
+#define v_specularColorUV v_texCoord0
+#endif
+
 #ifdef diffuseColorFlag
 uniform vec4 u_diffuseColor;
 #endif
@@ -114,6 +122,25 @@ uniform float u_ior;
 #define u_ior 1.5
 #endif
 
+#ifdef specularFactorFlag
+uniform float u_specularFactor;
+#else
+#define u_specularFactor 1.0
+#endif
+
+#ifdef specularColorFlag
+uniform vec3 u_specularColorFactor;
+#endif
+
+#ifdef specularFactorTextureFlag
+uniform sampler2D u_specularFactorSampler;
+#endif
+
+#ifdef specularTextureFlag
+uniform sampler2D u_specularColorSampler;
+#endif
+
+
 uniform vec2 u_MetallicRoughnessValues;
 
 // Encapsulate the various inputs used by the various functions in the shading equation
@@ -134,6 +161,8 @@ struct PBRSurfaceInfo
 	vec3 specularColor;           // color contribution from specular lighting
 
 	float thickness;           	  // volume thickness at surface point (used for refraction)
+
+	float specularWeight;		  // Amount of specular for the material (default is 1.0)
 };
 
 #ifndef unlitFlag
