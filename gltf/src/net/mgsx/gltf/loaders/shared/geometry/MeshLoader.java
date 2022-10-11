@@ -382,6 +382,11 @@ public class MeshLoader {
 
 	private void generateParts(Node node, Array<NodePart> parts, Material material, String id, float[] vertices, int vertexCount, short[] indices, VertexAttributes attributesGroup, int glPrimitiveType, boolean computeNormals, boolean computeTangents, VertexAttribute normalMapUVs) {
 
+		// skip empty meshes
+		if(vertices.length == 0 || (indices != null && indices.length == 0)){
+			return;
+		}
+		
 		if(computeNormals || computeTangents){
 			if(computeNormals && computeTangents) Gdx.app.log("GLTF", "compute normals and tangents for primitive " + id);
 			else if(computeTangents) Gdx.app.log("GLTF", "compute tangents for primitive " + id);
