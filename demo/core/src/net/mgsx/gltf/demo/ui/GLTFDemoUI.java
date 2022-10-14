@@ -90,6 +90,7 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<SRGB> skyboxSRGB;
 	public BooleanUI skyboxGammaCorrection;
 	public FloatUI envRotation;
+	public BooleanUI transmissionPassEnabled;
 	public Vector4UI fogColor;
 	public Vector3UI fogEquation;
 
@@ -134,6 +135,8 @@ public class GLTFDemoUI extends Table {
 	public final Slider uiScaleSlider;
 
 	public final Slider emissiveSlider;
+
+	public final SelectBox<SRGB> transmissionSRGB;
 
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
@@ -272,6 +275,14 @@ public class GLTFDemoUI extends Table {
 		
 		shaderOptions.optTable.add("Rotation");
 		shaderOptions.optTable.add(envRotation = new FloatUI(skin, 0)).row();
+	
+		shaderOptions.optTable.add("Transmission Pass");
+		shaderOptions.optTable.add(transmissionPassEnabled = new BooleanUI(skin, true)).row();
+
+		shaderOptions.optTable.add("Transmission SRGB");
+		shaderOptions.optTable.add(transmissionSRGB = new SelectBox<SRGB>(skin)).row();
+		transmissionSRGB.setItems(SRGB.values());
+		transmissionSRGB.setSelected(SRGB.ACCURATE);
 
 		// Outlines
 		root.add();
@@ -546,7 +557,7 @@ public class GLTFDemoUI extends Table {
 		// volume
 		final PBRVolumeAttribute volume = material.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
 		if(volume != null){
-			materialTable.add(new FloatUI(getSkin(), volume.thicknessFactor, "Thickness"){
+			materialTable.add(new FloatUI(getSkin(), volume.thicknessFactor, "Thickness", 0, 10){
 				@Override
 				protected void onChange(float value) {
 					volume.thicknessFactor = value;

@@ -363,6 +363,38 @@ public class PBRShader extends DefaultShader
 		}
 	};
 
+	public final static Uniform transmissionSourceTextureUniform = new Uniform("u_transmissionSourceSampler", PBRTextureAttribute.TransmissionSourceTexture);
+	public final static Setter transmissionSourceTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.TransmissionSourceTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+	public final static Uniform transmissionSourceMipmapUniform = new Uniform("u_transmissionSourceMipmapScale");
+	public final static Setter transmissionSourceMipmapSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			TextureAttribute a = combinedAttributes.get(PBRTextureAttribute.class, PBRTextureAttribute.TransmissionSourceTexture);
+			float mipmapFactor;
+			if(a != null){
+				mipmapFactor = (float)(Math.log(a.textureDescription.texture.getWidth()) / Math.log(2.0));
+			}else{
+				mipmapFactor = 1;
+			}
+			shader.set(inputID, mipmapFactor);
+		}
+	};
+
+	
+	public final static Uniform projViewTransUniform = new Uniform("u_projViewTrans");
+	public final static Setter projViewTransSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			shader.set(inputID, shader.camera.combined);
+		}
+	};
 
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
@@ -425,6 +457,9 @@ public class PBRShader extends DefaultShader
 	public int u_iridescenceThicknessMax;
 	public int u_iridescenceTexture;
 	public int u_iridescenceThicknessTexture;
+
+	public int u_transmissionSourceTexture;
+	public int u_transmissionSourceMipmap;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -478,6 +513,10 @@ public class PBRShader extends DefaultShader
 		u_volumeDistance = register(volumeDistanceUniform, volumeDistanceSetter);
 		u_volumeColor = register(volumeColorUniform, volumeColorSetter);
 		u_thicknessTexture = register(thicknessTextureUniform, thicknessTextureSetter);
+
+		u_transmissionSourceTexture = register(transmissionSourceTextureUniform, transmissionSourceTextureSetter);
+		u_transmissionSourceMipmap = register(transmissionSourceMipmapUniform, transmissionSourceMipmapSetter);
+		
 		
 		// specular
 		u_specularFactor = register(specularFactorUniform, specularFactorSetter);

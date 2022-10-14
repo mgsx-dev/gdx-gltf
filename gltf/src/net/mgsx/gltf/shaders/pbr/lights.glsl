@@ -127,14 +127,12 @@ vec3 getVolumeTransmissionRay(vec3 n, vec3 v, PBRSurfaceInfo pbrSurface)
 
 #endif
 
-#ifdef iorFlag
 float applyIorToRoughness(float roughness)
 {
     // Scale roughness with IOR so that an IOR of 1.0 results in no microfacet refraction and
     // an IOR of 1.5 results in the default amount of microfacet refraction.
     return roughness * clamp(u_ior * 2.0 - 2.0, 0.0, 1.0);
 }
-#endif
 
 vec3 getLightTransmission(PBRSurfaceInfo pbrSurface, vec3 l)
 {

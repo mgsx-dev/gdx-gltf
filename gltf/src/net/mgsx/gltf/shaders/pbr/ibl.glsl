@@ -29,6 +29,55 @@ uniform float u_mipmapScale; // = 9.0 for resolution of 512x512
 // See our README.md on Environment Maps [3] for additional discussion.
 #ifdef USE_IBL
 
+#ifdef transmissionSourceFlag
+
+
+vec3 getTransmissionSample(vec2 fragCoord, float roughness)
+{
+    float framebufferLod = u_transmissionSourceMipmapScale * applyIorToRoughness(roughness);
+    vec3 transmittedLight = tsSRGBtoLINEAR(textureLodEXT(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
+    return transmittedLight;
+}
+
+
+vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
+{
+#ifdef brdfLUTTexture
+    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+	vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).xy;
+#else // TODO not sure about how to compute it ...
+	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
+#endif
+
+
+#ifdef volumeFlag
+	// Compute transmission ray in order to change view angle with IBL
+	vec3 transmissionRay = getVolumeTransmissionRay(n, -v, pbrSurface);
+	vec3 refractedRayExit = v_position + transmissionRay;
+#else
+	vec3 refractedRayExit = v_position;
+#endif
+
+    // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
+    vec4 ndcPos = u_projViewTrans * vec4(refractedRayExit, 1.0);
+    vec2 refractionCoords = ndcPos.xy / ndcPos.w;
+    refractionCoords += 1.0;
+    refractionCoords /= 2.0;
+
+    // Sample framebuffer to get pixel the refracted ray hits.
+    vec3 transmittedLight = getTransmissionSample(refractionCoords, pbrSurface.perceptualRoughness);
+
+#ifdef volumeFlag
+    transmittedLight = applyVolumeAttenuation(transmittedLight, length(transmissionRay), pbrSurface);
+#endif
+
+    vec3 specularColor = pbrSurface.reflectance0 * brdf.x + pbrSurface.reflectance90 * brdf.y;
+
+    return (1.0 - specularColor) * transmittedLight * pbrSurface.diffuseColor;
+}
+
+#else
+
 vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 {
     // Sample GGX LUT to get the specular component.
@@ -36,13 +85,11 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 	// TODO refactor with IBL contrib : sampleBRDF, sampleGGX, sampleLambertian
 
 #ifdef brdfLUTTexture
-    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
 	vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).xy;
 #else // TODO not sure about how to compute it ...
 	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
 #endif
-
-	// TODO have an option to either sample IBL or sample FBO (with prviously opaque objects rendered)
 
 #ifdef volumeFlag
 	// Compute transmission ray in order to change view angle with IBL
@@ -82,6 +129,8 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 
     return (1.0 - specularColor) * attenuatedColor * pbrSurface.diffuseColor;
 }
+
+#endif
 
 
 PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)

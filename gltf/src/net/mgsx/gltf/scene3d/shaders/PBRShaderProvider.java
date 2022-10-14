@@ -162,6 +162,12 @@ public class PBRShaderProvider extends DefaultShaderProvider
 		if(config.manualGammaCorrection){
 			prefix += "#define GAMMA_CORRECTION " + config.gamma + "\n";
 		}
+		if(config.transmissionSRGB != SRGB.NONE){
+			prefix += "#define TS_MANUAL_SRGB\n";
+			if(config.transmissionSRGB == SRGB.FAST){
+				prefix += "#define TS_SRGB_FAST_APPROXIMATION\n";
+			}
+		}
 		return prefix;
 	}
 	
@@ -210,6 +216,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			}
 			if(renderable.material.has(PBRFloatAttribute.IOR)){
 				prefix += "#define iorFlag\n";
+			}
+			if(renderable.environment.has(PBRTextureAttribute.TransmissionSourceTexture)){
+				prefix += "#define transmissionSourceFlag\n";
 			}
 			
 			// Material specular

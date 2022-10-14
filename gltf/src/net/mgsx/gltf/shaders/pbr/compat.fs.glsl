@@ -3,12 +3,14 @@
 
 #ifdef GLSL3
 #define textureCubeLodEXT textureLod
+#define textureLodEXT textureLod
 #else
 #ifdef USE_TEXTURE_LOD_EXT
 #extension GL_EXT_shader_texture_lod: enable
 #else
 // Note : "textureCubeLod" is used for compatibility but should be "textureLod" for GLSL #version 130 (OpenGL 3.0+)
 #define textureCubeLodEXT textureCubeLod
+#define textureLodEXT textureLod
 #endif
 #endif
 

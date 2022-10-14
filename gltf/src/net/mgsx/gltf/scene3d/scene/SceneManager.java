@@ -43,6 +43,7 @@ public class SceneManager implements Disposable {
 	private ModelBatch batch;
 	private ModelBatch depthBatch;
 	private SceneSkybox skyBox;
+	private TransmissionSource transmissionSource;
 	
 	/** Shouldn't be null. */
 	public Environment environment = new Environment();
@@ -110,6 +111,13 @@ public class SceneManager implements Disposable {
 	public void setDepthShaderProvider(DepthShaderProvider depthShaderProvider) {
 		depthBatch.dispose();
 		depthBatch = new ModelBatch(depthShaderProvider);
+	}
+	
+	public void setTransmissionSource(TransmissionSource transmissionSource) {
+		if(this.transmissionSource != transmissionSource){
+			if(this.transmissionSource != null) this.transmissionSource.dispose();
+			this.transmissionSource = transmissionSource;
+		}
 	}
 	
 	public void addScene(Scene scene){
@@ -208,11 +216,25 @@ public class SceneManager implements Disposable {
 	public void render(){
 		if(camera == null) return;
 		
+		PBRCommon.enableSeamlessCubemaps();
+		
 		renderShadows();
+		
+		renderTransmission();
 		
 		renderColors();
 	}
 	
+	public void renderTransmission() {
+		if(transmissionSource != null){
+			transmissionSource.begin(camera);
+			transmissionSource.render(renderableProviders, environment);
+			if(skyBox != null) transmissionSource.render(skyBox);
+			transmissionSource.end();
+			computedEnvironement.set(transmissionSource.attribute);
+		}
+	}
+
 	/**
 	 * Render shadows only to interal frame buffers.
 	 * (useful when you're using your own frame buffer to render scenes)
@@ -230,6 +252,7 @@ public class SceneManager implements Disposable {
 		}else{
 			environment.shadowMap = null;
 		}
+		computedEnvironement.shadowMap = environment.shadowMap;
 	}
 	
 	/**
@@ -251,8 +274,6 @@ public class SceneManager implements Disposable {
 	 * (useful when you're using your own frame buffer to render scenes)
 	 */
 	public void renderColors(){
-		PBRCommon.enableSeamlessCubemaps();
-		computedEnvironement.shadowMap = environment.shadowMap;
 		batch.begin(camera);
 		batch.render(renderableProviders, computedEnvironement);
 		if(skyBox != null) batch.render(skyBox);
@@ -318,5 +339,6 @@ public class SceneManager implements Disposable {
 	public void dispose() {
 		batch.dispose();
 		depthBatch.dispose();
+		if(transmissionSource != null) transmissionSource.dispose();
 	}
 }

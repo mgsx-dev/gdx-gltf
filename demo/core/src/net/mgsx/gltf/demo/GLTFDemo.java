@@ -70,6 +70,7 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
+import net.mgsx.gltf.scene3d.scene.TransmissionSource;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
@@ -437,7 +438,18 @@ public class GLTFDemo extends ApplicationAdapter
 				sceneManager.setEnvironmentRotation(ui.envRotation.getValue() * 360);
 			}
 		});
-		
+		ui.transmissionPassEnabled.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateShaders();
+			}
+		});
+		ui.transmissionSRGB.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateShaders();
+			}
+		});
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -617,9 +629,10 @@ public class GLTFDemo extends ApplicationAdapter
 		if(rootModel != null){
 			if(!shadersValid){
 				shadersValid = true;
-				sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
+				ShaderProvider colorShader = createShaderProvider(shaderMode, rootModel.maxBones);
+				sceneManager.setShaderProvider(colorShader);
 				sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
-				
+				sceneManager.setTransmissionSource(ui.transmissionPassEnabled.isOn() ? new TransmissionSource(colorShader) : null);
 			}
 		}
 		if(!outlineShaderValid){
@@ -674,6 +687,7 @@ public class GLTFDemo extends ApplicationAdapter
 				PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
+				config.transmissionSRGB = ui.transmissionSRGB.getSelected();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
