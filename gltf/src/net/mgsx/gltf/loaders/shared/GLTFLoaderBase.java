@@ -1,5 +1,6 @@
 package net.mgsx.gltf.loaders.shared;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
@@ -49,6 +50,21 @@ public class GLTFLoaderBase implements Disposable {
 
 	public static final String TAG = "GLTF";
 	
+	public final static ObjectSet<String> supportedExtensions = new ObjectSet<String>();;
+	static{
+		supportedExtensions.addAll(
+			KHRMaterialsPBRSpecularGlossiness.EXT,
+			KHRTextureTransform.EXT,
+			KHRLightsPunctual.EXT,
+			KHRMaterialsUnlit.EXT,
+			KHRMaterialsTransmission.EXT,
+			KHRMaterialsVolume.EXT,
+			KHRMaterialsIOR.EXT,
+			KHRMaterialsSpecular.EXT,
+			KHRMaterialsIridescence.EXT
+		);
+	}
+	
 	private static final ObjectSet<Material> materialSet = new ObjectSet<Material>();
 	private static final ObjectSet<MeshPart> meshPartSet = new ObjectSet<MeshPart>();
 	private static final ObjectSet<Mesh> meshSet = new ObjectSet<Mesh>();
@@ -96,20 +112,19 @@ public class GLTFLoaderBase implements Disposable {
 			
 			glModel = dataFileResolver.getRoot();
 			
-			// prerequists
+			// prerequists (mandatory)
 			if(glModel.extensionsRequired != null){
 				for(String extension : glModel.extensionsRequired){
-					if(KHRMaterialsPBRSpecularGlossiness.EXT.equals(extension)){
-					}else if(KHRTextureTransform.EXT.equals(extension)){
-					}else if(KHRLightsPunctual.EXT.equals(extension)){
-					}else if(KHRMaterialsUnlit.EXT.equals(extension)){
-					}else if(KHRMaterialsTransmission.EXT.equals(extension)){
-					}else if(KHRMaterialsVolume.EXT.equals(extension)){
-					}else if(KHRMaterialsIOR.EXT.equals(extension)){
-					}else if(KHRMaterialsSpecular.EXT.equals(extension)){
-					}else if(KHRMaterialsIridescence.EXT.equals(extension)){
-					}else{
+					if(!supportedExtensions.contains(extension)){
 						throw new GLTFUnsupportedException("Extension " + extension + " required but not supported");
+					}
+				}
+			}
+			// prerequists (optional)
+			if(glModel.extensionsUsed != null){
+				for(String extension : glModel.extensionsUsed){
+					if(!supportedExtensions.contains(extension)){
+						Gdx.app.error(TAG, "Extension " + extension + " used but not supported");
 					}
 				}
 			}
