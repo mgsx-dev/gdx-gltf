@@ -59,6 +59,7 @@ import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.loaders.shared.SceneAssetLoaderParameters;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
@@ -747,14 +748,16 @@ public class GLTFDemo extends ApplicationAdapter
 		lastFileName = glFile.path();
 		
 		if(USE_ASSET_MANAGER){
-			assetManager.load(lastFileName, SceneAsset.class);
+			SceneAssetLoaderParameters params = new SceneAssetLoaderParameters();
+			params.withData = true;
+			assetManager.load(lastFileName, SceneAsset.class, params);
 			assetManager.finishLoading();
 			rootModel = assetManager.get(lastFileName, SceneAsset.class);
 		}else{
 			if(glFile.extension().equalsIgnoreCase("glb")){
-				rootModel = new GLBLoader().load(glFile);
+				rootModel = new GLBLoader().load(glFile, true);
 			}else if(glFile.extension().equalsIgnoreCase("gltf")){
-				rootModel = new GLTFLoader().load(glFile);
+				rootModel = new GLTFLoader().load(glFile, true);
 			}
 		}
 		
