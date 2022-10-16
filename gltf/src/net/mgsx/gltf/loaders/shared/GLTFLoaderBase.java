@@ -21,6 +21,7 @@ import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight;
+import net.mgsx.gltf.data.extensions.KHRMaterialsEmissiveStrength;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
@@ -61,7 +62,8 @@ public class GLTFLoaderBase implements Disposable {
 			KHRMaterialsVolume.EXT,
 			KHRMaterialsIOR.EXT,
 			KHRMaterialsSpecular.EXT,
-			KHRMaterialsIridescence.EXT
+			KHRMaterialsIridescence.EXT,
+			KHRMaterialsEmissiveStrength.EXT
 		);
 	}
 	

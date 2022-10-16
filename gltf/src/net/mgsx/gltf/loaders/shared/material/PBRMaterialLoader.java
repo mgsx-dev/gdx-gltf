@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
 
+import net.mgsx.gltf.data.extensions.KHRMaterialsEmissiveStrength;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
@@ -177,6 +178,12 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 					if(ext.iridescenceThicknessTexture != null){
 						material.set(getTexureMap(PBRTextureAttribute.IridescenceThicknessTexture, ext.iridescenceThicknessTexture));
 					}
+				}
+			}
+			{
+				KHRMaterialsEmissiveStrength ext = glMaterial.extensions.get(KHRMaterialsEmissiveStrength.class, KHRMaterialsEmissiveStrength.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createEmissiveIntensity(ext.emissiveStrength));
 				}
 			}
 		}
