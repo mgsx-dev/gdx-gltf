@@ -14,21 +14,7 @@
 #ifdef unlitFlag
 
 void main() {
-#ifdef baseColorFactorFlag
-	vec4 baseColorFactor = u_BaseColorFactor;
-#else
-	vec4 baseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
-#endif
-
-#ifdef diffuseTextureFlag
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
-#else
-    vec4 baseColor = baseColorFactor;
-#endif
-
-#ifdef colorFlag
-    baseColor *= v_color;
-#endif
+	vec4 baseColor = getBaseColor();
     
     vec3 color = baseColor.rgb;
 
@@ -73,22 +59,7 @@ void main() {
     // convert to material roughness by squaring the perceptual roughness [2].
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
-    // The albedo may be defined from a base texture or a flat color
-#ifdef baseColorFactorFlag
-	vec4 baseColorFactor = u_BaseColorFactor;
-#else
-	vec4 baseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
-#endif
-
-#ifdef diffuseTextureFlag
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
-#else
-    vec4 baseColor = baseColorFactor;
-#endif
-
-#ifdef colorFlag
-    baseColor *= v_color;
-#endif
+    vec4 baseColor = getBaseColor();
     
 #ifdef iorFlag
     vec3 f0 = vec3(pow(( u_ior - 1.0) /  (u_ior + 1.0), 2.0));

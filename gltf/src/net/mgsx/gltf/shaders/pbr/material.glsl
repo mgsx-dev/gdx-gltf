@@ -195,6 +195,27 @@ struct PBRSurfaceInfo
 #endif
 };
 
+vec4 getBaseColor()
+{
+    // The albedo may be defined from a base texture or a flat color
+#ifdef baseColorFactorFlag
+	vec4 baseColorFactor = u_BaseColorFactor;
+#else
+	vec4 baseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
+#endif
+
+#ifdef diffuseTextureFlag
+    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
+#else
+    vec4 baseColor = baseColorFactor;
+#endif
+
+#ifdef colorFlag
+    baseColor *= v_color;
+#endif
+    return baseColor;
+}
+
 #ifndef unlitFlag
 // Find the normal for this fragment, pulling either from a predefined normal map
 // or from the interpolated mesh normal and tangent attributes.
