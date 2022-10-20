@@ -14,7 +14,18 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 
+import net.mgsx.gltf.data.GLTFExtensions;
+import net.mgsx.gltf.data.extensions.KHRMaterialsEmissiveStrength;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
+import net.mgsx.gltf.data.extensions.KHRMaterialsSpecular;
+import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
+import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
+import net.mgsx.gltf.data.extensions.KHRMaterialsVolume;
 import net.mgsx.gltf.data.material.GLTFMaterial;
 import net.mgsx.gltf.data.material.GLTFpbrMetallicRoughness;
 import net.mgsx.gltf.data.texture.GLTFImage;
@@ -24,8 +35,12 @@ import net.mgsx.gltf.data.texture.GLTFSampler;
 import net.mgsx.gltf.data.texture.GLTFTexture;
 import net.mgsx.gltf.data.texture.GLTFTextureInfo;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 
 class GLTFMaterialExporter {
 	private final GLTFExporter base;
@@ -96,6 +111,66 @@ class GLTFMaterialExporter {
 			else if(a.type == PBRTextureAttribute.OcclusionTexture){
 				m.occlusionTexture = occlusionTexture((PBRTextureAttribute)a, material);
 			}
+			// Extensions
+			// Unlit
+			else if(a.type == PBRFlagAttribute.Unlit){
+				ext(m, KHRMaterialsUnlit.class, KHRMaterialsUnlit.EXT);
+			}
+			// Transmission
+			else if(a.type == PBRFloatAttribute.TransmissionFactor){
+				extTransmission(m).transmissionFactor = ((PBRFloatAttribute)a).value;
+			}
+			else if(a.type == PBRTextureAttribute.TransmissionTexture){
+				extTransmission(m).transmissionTexture = texture((PBRTextureAttribute)a);
+			}
+			// Volume
+			else if(a.type == PBRVolumeAttribute.Type){
+				KHRMaterialsVolume ext = extVolume(m);
+				PBRVolumeAttribute v = (PBRVolumeAttribute)a;
+				ext.thicknessFactor = v.thicknessFactor;
+				ext.attenuationDistance = v.attenuationDistance > 0 ? v.attenuationDistance : null;
+				ext.attenuationColor = rgb(v.attenuationColor);
+			}
+			else if(a.type == PBRTextureAttribute.ThicknessTexture){
+				extVolume(m).thicknessTexture = texture((PBRTextureAttribute)a);
+			}
+			// IOR
+			else if(a.type == PBRFloatAttribute.IOR){
+				extIOR(m).ior = ((PBRFloatAttribute)a).value;
+			}
+			// Specular
+			else if(a.type == PBRFloatAttribute.SpecularFactor){
+				extSpecular(m).specularFactor = ((PBRFloatAttribute)a).value;
+			}
+			else if(a.type == PBRHDRColorAttribute.Specular){
+				PBRHDRColorAttribute v = (PBRHDRColorAttribute)a;
+				extSpecular(m).specularColorFactor = new float[]{v.r, v.g, v.b};
+			}
+			else if(a.type == PBRTextureAttribute.SpecularFactorTexture){
+				extSpecular(m).specularTexture = texture((PBRTextureAttribute)a);
+			}
+			else if(a.type == PBRTextureAttribute.Specular){
+				extSpecular(m).specularColorTexture = texture((TextureAttribute)a);
+			}
+			// Iridescence
+			else if(a.type == PBRIridescenceAttribute.Type){
+				PBRIridescenceAttribute v = (PBRIridescenceAttribute)a;
+				KHRMaterialsIridescence ext = extIridescence(m);
+				ext.iridescenceFactor = v.factor;
+				ext.iridescenceIor = v.ior;
+				ext.iridescenceThicknessMinimum = v.thicknessMin;
+				ext.iridescenceThicknessMaximum = v.thicknessMax;
+			}
+			else if(a.type == PBRTextureAttribute.IridescenceTexture){
+				extIridescence(m).iridescenceTexture = texture((PBRTextureAttribute)a);
+			}
+			else if(a.type == PBRTextureAttribute.IridescenceThicknessTexture){
+				extIridescence(m).iridescenceThicknessTexture = texture((PBRTextureAttribute)a);
+			}
+			// Emissive strength
+			else if(a.type == PBRFloatAttribute.EmissiveIntensity){
+				extEmissive(m).emissiveStrength = ((PBRFloatAttribute)a).value;
+			}
 		}
 		if(blending){
 			if(m.alphaCutoff != null){
@@ -104,6 +179,51 @@ class GLTFMaterialExporter {
 				m.alphaMode = "BLEND";
 			}
 		}
+	}
+
+	private float[] rgb(Color color) {
+		return new float[]{color.r, color.g, color.b};
+	}
+
+	private KHRMaterialsTransmission extTransmission(GLTFMaterial m) {
+		return ext(m, KHRMaterialsTransmission.class, KHRMaterialsTransmission.EXT);
+	}
+
+	private KHRMaterialsIOR extIOR(GLTFMaterial m) {
+		return ext(m, KHRMaterialsIOR.class, KHRMaterialsIOR.EXT);
+	}
+	
+	private KHRMaterialsEmissiveStrength extEmissive(GLTFMaterial m) {
+		return ext(m, KHRMaterialsEmissiveStrength.class, KHRMaterialsEmissiveStrength.EXT);
+	}
+
+	private KHRMaterialsSpecular extSpecular(GLTFMaterial m) {
+		return ext(m, KHRMaterialsSpecular.class, KHRMaterialsSpecular.EXT);
+	}
+	
+	private KHRMaterialsIridescence extIridescence(GLTFMaterial m) {
+		return ext(m, KHRMaterialsIridescence.class, KHRMaterialsIridescence.EXT);
+	}
+
+	private KHRMaterialsVolume extVolume(GLTFMaterial m) {
+		return ext(m, KHRMaterialsVolume.class, KHRMaterialsVolume.EXT);
+	}
+	
+	private <T> T ext(GLTFMaterial m, Class<T> type, String ext){
+		if(m.extensions == null){
+			m.extensions = new GLTFExtensions();
+		}
+		T e = m.extensions.get(type, ext);
+		if(e == null){
+			base.useExtension(ext, false);
+			try {
+				e = ClassReflection.newInstance(type);
+			} catch (ReflectionException error) {
+				throw new GdxRuntimeException(error);
+			}
+			m.extensions.set(ext, e);
+		}
+		return e;
 	}
 
 	private Boolean defaultNull(boolean defValue, boolean value) {
@@ -175,6 +295,7 @@ class GLTFMaterialExporter {
 	}
 
 	private Integer map(TextureWrap wrap) {
+		if(wrap == null) return null;
 		switch (wrap) {
 		case ClampToEdge: return 33071;
 		case MirroredRepeat:return 33648;
@@ -184,6 +305,7 @@ class GLTFMaterialExporter {
 	}
 
 	private Integer mapMag(TextureFilter filter) {
+		if(filter == null) return null;
 		switch (filter) {
 		default:
 		case Linear: return null;
@@ -191,6 +313,7 @@ class GLTFMaterialExporter {
 		}
 	}
 	private Integer mapMin(TextureFilter filter) {
+		if(filter == null) return null;
 		switch (filter) {
 		default:
 		case Linear: return null;
