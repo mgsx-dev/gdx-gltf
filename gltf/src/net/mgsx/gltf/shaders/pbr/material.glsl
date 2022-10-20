@@ -12,9 +12,9 @@ varying vec4 v_color;
 #endif
 
 #ifdef blendedFlag
-varying float v_opacity;
+uniform float u_opacity;
 #ifdef alphaTestFlag
-varying float v_alphaTest;
+uniform float u_alphaTest;
 #endif //alphaTestFlag
 #endif //blendedFlag
 

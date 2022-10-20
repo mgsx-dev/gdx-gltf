@@ -41,9 +41,9 @@ void main() {
 
 	// Blending and Alpha Test
 #ifdef blendedFlag
-	out_FragColor.a = baseColor.a * v_opacity;
+	out_FragColor.a = baseColor.a * u_opacity;
 #ifdef alphaTestFlag
-	if (out_FragColor.a <= v_alphaTest)
+	if (out_FragColor.a <= u_alphaTest)
 		discard;
 #endif
 #else
@@ -288,9 +288,9 @@ void main() {
 
     // Blending and Alpha Test
 #ifdef blendedFlag
-	out_FragColor.a = baseColor.a * v_opacity;
+	out_FragColor.a = baseColor.a * u_opacity;
 	#ifdef alphaTestFlag
-		if (out_FragColor.a <= v_alphaTest)
+		if (out_FragColor.a <= u_alphaTest)
 			discard;
 	#endif
 #else

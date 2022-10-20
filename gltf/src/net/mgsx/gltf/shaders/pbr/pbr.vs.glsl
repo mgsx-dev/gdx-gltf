@@ -199,16 +199,6 @@ uniform mat4 u_bones[numBones];
 #endif //numBones
 #endif
 
-#ifdef blendedFlag
-uniform float u_opacity;
-varying float v_opacity;
-
-#ifdef alphaTestFlag
-uniform float u_alphaTest;
-varying float v_alphaTest;
-#endif //alphaTestFlag
-#endif // blendedFlag
-
 #ifdef shadowMapFlag
 uniform mat4 u_shadowMapProjViewTrans;
 varying vec3 v_shadowMapUv;
@@ -228,13 +218,6 @@ void main() {
 		v_color = a_color;
 	#endif // colorFlag
 		
-	#ifdef blendedFlag
-		v_opacity = u_opacity;
-		#ifdef alphaTestFlag
-			v_alphaTest = u_alphaTest;
-		#endif //alphaTestFlag
-	#endif // blendedFlag
-	
 	#ifdef skinningFlag
 		mat4 skinning = mat4(0.0);
 		#ifdef boneWeight0Flag
