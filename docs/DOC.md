@@ -7,10 +7,11 @@
 
 ### Rendering to frame buffer
 
-Sometimes you want ot render scenes to a FBO (Frame buffer). You can do it but you have to take some cautions: SceneManager is using FBOs internally to render shadows. So, instead of calling sceneManager.render(), you have to do something like this:
+Sometimes you want ot render scenes to a FBO (Frame buffer). You can do it but you have to take some cautions: SceneManager is using FBOs internally to render shadows and transmission. So, instead of calling sceneManager.render(), you have to do something like this:
 
 ```java
 sceneManager.renderShadows();
+sceneManager.renderTransmission();
 		
 fbo.begin();
 ...
@@ -115,9 +116,17 @@ This range can be used for light frustum culling
 Default libgdx lights doesn't have this information, you can cast loaded lights from your GLTF files
 by casting them to PointLightEx or SpotLightEx to retrieve the range field.
 
-### Displacement maps
+### Refraction
 
-TODO implements Displacement map with/without tesslation shader..
+When materials have transmission, these models produce refraction effects, which is the way to render some materials like glass. For such effect, opaque objects needs to be pre-rendered first before rendering the final pass.
+
+By default, SceneManager doesn't perform any pre-rendering. In this case, only IBL image will be sampled which is cheaper but produce some good enough results.
+
+If you want better results, that is, seeing deformed objects through these materials, you have to enable it explicitly like this : 
+
+`sceneManager.setTransmissionSource(new TransmissionSource(shaderProvider));`
+
+You usually give the same shader provider for both TransmissionSource and normal rendering.
 
 ## Animations
 
@@ -152,6 +161,8 @@ There are several way to extends PBR shaders :
 * by subclassing both PBRShaderProvider and PBRShader
 
 Note that PBRDepthShader can be customized as well in the same way.
+
+Also note that PBR shader is split into several files so you'll have to copy all of them and load them using ShaderParser
 
 ### Vertex colors
 

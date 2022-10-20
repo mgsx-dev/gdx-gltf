@@ -19,6 +19,13 @@ import com.badlogic.gdx.utils.FlushablePool;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 
+/**
+ * Transmission source renders non-transmitting material objects into a framebuffer.
+ * The frame buffer can be used for the final rendering pass for high quality refraction effects.
+ * 
+ * @author mgsx
+ *
+ */
 public class TransmissionSource implements Disposable {
 
 	private ModelBatch batch;
@@ -26,6 +33,7 @@ public class TransmissionSource implements Disposable {
 	private int width;
 	private int height;
 	
+	/** attribute to be added to the environment in the final render pass. */
 	public final PBRTextureAttribute attribute = new PBRTextureAttribute(PBRTextureAttribute.TransmissionSourceTexture);
 	
 	private Array<Renderable> allRenderables = new Array<Renderable>();
@@ -58,6 +66,12 @@ public class TransmissionSource implements Disposable {
 		return new FrameBuffer(Format.RGBA8888, width, height, true);
 	}
 	
+	/**
+	 * Set transmission source frame buffer size (usually the same as the final render resolution).
+	 * 
+	 * @param width when set to zero, default back buffer width will be used.
+	 * @param height when set to zero, default back buffer height will be used.
+	 */
 	public void setSize(int width, int height){
 		this.width = width;
 		this.height = height;

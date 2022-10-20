@@ -3,6 +3,16 @@ package net.mgsx.gltf.scene3d.utils;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+/**
+ * ShaderParser allows to recursively load shader code split into several files.
+ * 
+ * It brings support for file inclusion like: <pre>#include&lt;part.glsl&gt;</pre>
+ * 
+ * Given paths are relative to the file declaring the include statement.
+ * 
+ * @author mgsx
+ *
+ */
 public class ShaderParser {
 	private final static String includeBefore = "#include <";
 	private final static String includeAfter = ">";

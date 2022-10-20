@@ -113,6 +113,11 @@ public class SceneManager implements Disposable {
 		depthBatch = new ModelBatch(depthShaderProvider);
 	}
 	
+	/**
+	 * Enable/disable opaque objects pre-rendering for transmission (refraction effect).
+	 * 
+	 * @param transmissionSource set null to disable pre-rendering.
+	 */
 	public void setTransmissionSource(TransmissionSource transmissionSource) {
 		if(this.transmissionSource != transmissionSource){
 			if(this.transmissionSource != null) this.transmissionSource.dispose();
