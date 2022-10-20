@@ -1,6 +1,6 @@
 # Changes history
 
-### next
+### 2.2.0
 
 * Added `KHR_materials_transmission` extension support.
 * Added `KHR_materials_volume` extension support.
