@@ -1,6 +1,7 @@
 package net.mgsx.gltf.scene3d.attributes;
 
 import com.badlogic.gdx.graphics.g3d.Attribute;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
 public class FogAttribute  extends Attribute
@@ -35,7 +36,12 @@ public class FogAttribute  extends Attribute
 
 	@Override
 	public int compareTo (Attribute o) {
-		return (int)(type - o.type);
+		if(type != o.type) return type < o.type ? -1 : 1;
+		FogAttribute other = (FogAttribute)o;
+		if(!MathUtils.isEqual(value.x, other.value.x)) return value.x < other.value.x ? -1 : 1;
+		if(!MathUtils.isEqual(value.y, other.value.y)) return value.y < other.value.y ? -1 : 1;
+		if(!MathUtils.isEqual(value.z, other.value.z)) return value.z < other.value.z ? -1 : 1;
+		return 0;
 	}
 
 }

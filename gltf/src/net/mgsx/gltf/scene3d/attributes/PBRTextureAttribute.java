@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
+import com.badlogic.gdx.math.MathUtils;
 
 public class PBRTextureAttribute extends TextureAttribute
 {
@@ -138,5 +139,16 @@ public class PBRTextureAttribute extends TextureAttribute
 	@Override
 	public Attribute copy() {
 		return new PBRTextureAttribute(this);
+	}
+	
+	@Override
+	public int compareTo(Attribute o) {
+		int r = super.compareTo(o);
+		if(r != 0) return r;
+		if(o instanceof PBRTextureAttribute){
+			PBRTextureAttribute other = (PBRTextureAttribute)o;
+			if(!MathUtils.isEqual(rotationUV, other.rotationUV)) return rotationUV < other.rotationUV ? -1 : 1;
+		}
+		return 0;
 	}
 }

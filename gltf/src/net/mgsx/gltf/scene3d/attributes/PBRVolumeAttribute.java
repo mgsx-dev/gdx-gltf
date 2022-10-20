@@ -2,6 +2,7 @@ package net.mgsx.gltf.scene3d.attributes;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Attribute;
+import com.badlogic.gdx.math.MathUtils;
 
 public class PBRVolumeAttribute extends Attribute
 {
@@ -26,7 +27,12 @@ public class PBRVolumeAttribute extends Attribute
 
 	@Override
 	public int compareTo(Attribute o) {
-		return (int)(type - o.type);
+		if(type != o.type) return type < o.type ? -1 : 1;
+		PBRVolumeAttribute other = (PBRVolumeAttribute)o;
+		if(!MathUtils.isEqual(thicknessFactor, other.thicknessFactor)) return thicknessFactor < other.thicknessFactor ? -1 : 1;
+		if(!MathUtils.isEqual(attenuationDistance, other.attenuationDistance)) return attenuationDistance < other.attenuationDistance ? -1 : 1;
+		return attenuationColor.toIntBits() - other.attenuationColor.toIntBits();
+
 	}
 
 	@Override

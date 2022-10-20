@@ -1,6 +1,7 @@
 package net.mgsx.gltf.scene3d.attributes;
 
 import com.badlogic.gdx.graphics.g3d.Attribute;
+import com.badlogic.gdx.math.MathUtils;
 
 public class PBRIridescenceAttribute extends Attribute
 {
@@ -23,7 +24,13 @@ public class PBRIridescenceAttribute extends Attribute
 
 	@Override
 	public int compareTo(Attribute o) {
-		return (int)(type - o.type);
+		if(type != o.type) return type < o.type ? -1 : 1;
+		PBRIridescenceAttribute other = (PBRIridescenceAttribute)o;
+		if(!MathUtils.isEqual(factor, other.factor)) return factor < other.factor ? -1 : 1;
+		if(!MathUtils.isEqual(ior, other.ior)) return ior < other.ior ? -1 : 1;
+		if(!MathUtils.isEqual(thicknessMin, other.thicknessMin)) return thicknessMin < other.thicknessMin ? -1 : 1;
+		if(!MathUtils.isEqual(thicknessMax, other.thicknessMax)) return thicknessMax < other.thicknessMax ? -1 : 1;
+		return 0;
 	}
 
 	@Override
