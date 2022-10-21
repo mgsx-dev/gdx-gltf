@@ -29,6 +29,16 @@ uniform float u_mipmapScale; // = 9.0 for resolution of 512x512
 // See our README.md on Environment Maps [3] for additional discussion.
 #ifdef USE_IBL
 
+vec2 sampleBRDF(PBRSurfaceInfo pbrSurface)
+{
+#ifdef brdfLUTTexture
+    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+	return texture2D(u_brdfLUT, brdfSamplePoint).xy;
+#else // TODO not sure about how to compute it ...
+	return vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
+#endif
+}
+
 #ifdef transmissionSourceFlag
 
 
@@ -40,16 +50,8 @@ vec3 getTransmissionSample(vec2 fragCoord, float roughness)
 }
 
 
-vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
+vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v, vec2 brdf)
 {
-#ifdef brdfLUTTexture
-    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
-	vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).xy;
-#else // TODO not sure about how to compute it ...
-	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
-#endif
-
-
 #ifdef volumeFlag
 	// Compute transmission ray in order to change view angle with IBL
 	vec3 transmissionRay = getVolumeTransmissionRay(n, -v, pbrSurface);
@@ -78,19 +80,8 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 
 #else
 
-vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
+vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v, vec2 brdf)
 {
-    // Sample GGX LUT to get the specular component.
-
-	// TODO refactor with IBL contrib : sampleBRDF, sampleGGX, sampleLambertian
-
-#ifdef brdfLUTTexture
-    vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
-	vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).xy;
-#else // TODO not sure about how to compute it ...
-	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
-#endif
-
 #ifdef volumeFlag
 	// Compute transmission ray in order to change view angle with IBL
 	vec3 transmissionRay = getVolumeTransmissionRay(n, v, pbrSurface);
@@ -135,12 +126,7 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v)
 
 PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 reflection)
 {
-    // retrieve a scale and bias to F0. See [1], Figure 3
-#ifdef brdfLUTTexture
-	vec2 brdf = texture2D(u_brdfLUT, vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness)).xy;
-#else // TODO not sure about how to compute it ...
-	vec2 brdf = vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
-#endif
+	vec2 brdf = sampleBRDF(pbrSurface);
 
 #ifdef ENV_ROTATION
 	vec3 diffuseDirection = u_envRotation * n;
@@ -193,7 +179,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
 #endif
 
 #ifdef transmissionFlag
-    vec3 transmission = getIBLTransmissionContribution(pbrSurface, n, -pbrSurface.v);
+    vec3 transmission = getIBLTransmissionContribution(pbrSurface, n, -pbrSurface.v, brdf);
 #else
     vec3 transmission = vec3(0.0);
 #endif
