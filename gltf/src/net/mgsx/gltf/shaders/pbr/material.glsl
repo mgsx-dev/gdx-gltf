@@ -236,6 +236,19 @@ vec3 getNormal()
 }
 #endif
 
+float getTransmissionFactor()
+{
+#ifdef transmissionFlag
+    float transmissionFactor = u_transmissionFactor;
+#ifdef transmissionTextureFlag
+    transmissionFactor *= texture2D(u_transmissionSampler, v_transmissionUV).r;
+#endif
+    return transmissionFactor;
+#else
+    return 0.0;
+#endif
+}
+
 float getThickness()
 {
 #ifdef volumeFlag

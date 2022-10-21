@@ -113,15 +113,6 @@ void main() {
 
     float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);
 
-#ifdef transmissionFlag
-    float transmissionFactor = u_transmissionFactor;
-#ifdef transmissionTextureFlag
-    transmissionFactor *= texture2D(u_transmissionSampler, v_transmissionUV).r;
-#endif
-#else
-    float transmissionFactor = 0.0;
-#endif
-
     PBRSurfaceInfo pbrSurface = PBRSurfaceInfo(
     	n,
 		v,
@@ -220,7 +211,7 @@ void main() {
 
     // mix diffuse with transmission
 #ifdef transmissionFlag
-    f_diffuse = mix(f_diffuse, f_transmission, transmissionFactor);
+    f_diffuse = mix(f_diffuse, f_transmission, getTransmissionFactor());
 #endif
 
     vec3 color = ambientColor + f_diffuse + f_specular;
