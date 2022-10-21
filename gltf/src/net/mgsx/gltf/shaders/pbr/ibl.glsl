@@ -45,7 +45,7 @@ vec2 sampleBRDF(PBRSurfaceInfo pbrSurface)
 vec3 getTransmissionSample(vec2 fragCoord, float roughness)
 {
     float framebufferLod = u_transmissionSourceMipmapScale * applyIorToRoughness(roughness);
-    vec3 transmittedLight = tsSRGBtoLINEAR(textureLodEXT(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
+    vec3 transmittedLight = tsSRGBtoLINEAR(texture2DLodEXT(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
     return transmittedLight;
 }
 
