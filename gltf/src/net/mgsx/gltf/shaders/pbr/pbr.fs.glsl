@@ -259,22 +259,6 @@ void main() {
 	out_FragColor.a = 1.0;
 #endif
 
-// #define DEBUG_TRANSMISSION
-#ifdef DEBUG_TRANSMISSION
-	out_FragColor.rgb = f_transmission;
-#endif
-
-
-// #define DEBUG_SPECULAR_WEIGHT
-#ifdef DEBUG_SPECULAR_WEIGHT
-	out_FragColor.rgb = vec3(specularWeight);
-#endif
-
-// #define DEBUG_IRIDESCENCE
-#ifdef DEBUG_IRIDESCENCE
-	out_FragColor.rgb = pbrSurface.iridescenceFresnel;
-#endif
-
 }
 
 #endif
