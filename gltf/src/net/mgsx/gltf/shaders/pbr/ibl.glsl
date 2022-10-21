@@ -84,7 +84,7 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v, v
 {
 #ifdef volumeFlag
 	// Compute transmission ray in order to change view angle with IBL
-	vec3 transmissionRay = getVolumeTransmissionRay(n, v, pbrSurface);
+	vec3 transmissionRay = getVolumeTransmissionRay(n, -v, pbrSurface);
 	vec3 refractedRayExit = v_position + transmissionRay;
 	v = normalize(refractedRayExit - u_cameraPosition.xyz);
 #endif
