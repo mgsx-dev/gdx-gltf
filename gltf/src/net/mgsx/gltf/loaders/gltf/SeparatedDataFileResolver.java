@@ -1,11 +1,13 @@
 package net.mgsx.gltf.loaders.gltf;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Base64Coder;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ObjectMap;
 
@@ -49,13 +51,39 @@ public class SeparatedDataFileResolver implements DataFileResolver
 					byte [] data = Base64Coder.decode(body);
 					buffer.put(data);
 				}else{
-					FileHandle file = path.child(glBuffer.uri);
+					FileHandle file = path.child(decodePath(glBuffer.uri));
 					buffer.put(file.readBytes());
 				}
 				bufferMap.put(i, buffer);
 			}
 		}
 		return bufferMap;
+	}
+
+	private String decodePath(String uri) {
+		byte [] bytes = new byte[uri.length()];
+		int pos = 0;
+		for(int i=0 ; i<uri.length() ; i++){
+			char c = uri.charAt(i);
+			if(c == '%'){
+				int code = Integer.parseInt(uri.substring(i+1, i+3), 16);
+				bytes[pos++] = (byte)code;
+				i += 2;
+			}else{
+				bytes[pos++] = (byte)c;
+			}
+		}
+		try {
+			return new String(bytes, 0, pos, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new GdxRuntimeException(e);
+		}
+		// TODO following code is cleaner but not emulated by libgdx GWT backend.
+//		try {
+//			return URLDecoder.decode(uri, "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			throw new GdxRuntimeException(e);
+//		}
 	}
 
 	@Override
@@ -90,13 +118,13 @@ public class SeparatedDataFileResolver implements DataFileResolver
 			byte [] data = Base64Coder.decode(body);
 			return PixmapBinaryLoaderHack.load(data, 0, data.length);
 		}else{
-			return new Pixmap(path.child(glImage.uri));
+			return new Pixmap(path.child(decodePath(glImage.uri)));
 		}
 	}
 
 	public FileHandle getImageFile(GLTFImage glImage) {
 		if(glImage.uri != null && !glImage.uri.startsWith("data:")){
-			return path.child(glImage.uri);
+			return path.child(decodePath(glImage.uri));
 		}
 		return null;
 	}
