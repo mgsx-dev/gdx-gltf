@@ -47,6 +47,7 @@ public class GLTFLoaderBase implements Disposable {
 	private static final ObjectSet<Material> materialSet = new ObjectSet<Material>();
 	private static final ObjectSet<MeshPart> meshPartSet = new ObjectSet<MeshPart>();
 	private static final ObjectSet<Mesh> meshSet = new ObjectSet<Mesh>();
+	private final ObjectSet<Mesh> loadedMeshes = new ObjectSet<Mesh>();
 	
 	private final Array<Camera> cameras = new Array<Camera>();
 	private final Array<BaseLight> lights = new Array<BaseLight>();
@@ -141,6 +142,9 @@ public class GLTFLoaderBase implements Disposable {
 				scene.model.animations.addAll(animationLoader.animations);
 			}
 			
+			copy(loadedMeshes, model.meshes = new Array<Mesh>());
+			loadedMeshes.clear();
+			
 			return model;
 		}catch(RuntimeException e){
 			dispose();
@@ -170,6 +174,10 @@ public class GLTFLoaderBase implements Disposable {
 		for(SceneModel scene : scenes){
 			scene.dispose();
 		}
+		for(Mesh mesh : loadedMeshes){
+			mesh.dispose();
+		}
+		loadedMeshes.clear();
 	}
 
 	private void loadScenes() {
@@ -212,6 +220,8 @@ public class GLTFLoaderBase implements Disposable {
 
 		// collect data references to store in model
 		collectData(sceneModel.model, sceneModel.model.nodes);
+		
+		loadedMeshes.addAll(meshSet);
 		
 		copy(meshSet, sceneModel.model.meshes);
 		copy(meshPartSet, sceneModel.model.meshParts);
