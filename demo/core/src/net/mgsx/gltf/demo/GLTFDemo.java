@@ -718,14 +718,14 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		clearScene();		
 		if(rootModel != null){
-			rootModel.dispose();
-			rootModel = null;
-			if(lastFileName != null){
-				if(USE_ASSET_MANAGER){
+			if(USE_ASSET_MANAGER){
+				if(lastFileName != null){
 					assetManager.unload(lastFileName);
 				}
-				lastFileName = null;
+			}else{
+				rootModel.dispose();
 			}
+			rootModel = null;
 		}
 		
 		Gdx.app.log(TAG, "loading " + glFile.name());
