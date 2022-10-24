@@ -97,9 +97,11 @@ class MeshSpliter {
 					}else{
 						reindex.put(oindex, tindex);
 						maxIndex = tindex;
+						lastGroup.add(tindex);
 					}
+				}else{
+					lastGroup.add(tindex);
 				}
-				lastGroup.add(tindex);
 			}
 			
 			for(com.badlogic.gdx.utils.IntIntMap.Entry entry : reindex){
