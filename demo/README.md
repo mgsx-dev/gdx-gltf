@@ -97,8 +97,8 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | TextureEncodingTest		| Color space
 | TextureLinearInterpolationTest	| Color space 	| X | Requires sRGB GPU conversion (GLES3)
 | TextureSettingsTest		| Texture Settings
-| TextureTransformMultiTest	| Texture Transform EXT | X | UV 1 Failed
-| TextureTransformTest		| Texture Transform EXT	|
+| TextureTransformMultiTest	| Texture Transform EXT
+| TextureTransformTest		| Texture Transform EXT
 | ToyCar					| Multiple
 | TransmissionRoughnessTest | Refraction
 | TransmissionTest			| Refraction
