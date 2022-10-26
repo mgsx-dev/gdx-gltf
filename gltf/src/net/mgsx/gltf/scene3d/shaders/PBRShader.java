@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
@@ -31,8 +30,6 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class PBRShader extends DefaultShader
 {
-	private static final Vector2 v2 = new Vector2();
-	
 	public final static Uniform baseColorTextureUniform = new Uniform("u_diffuseTexture", PBRTextureAttribute.BaseColorTexture);
 	public final static Setter baseColorTextureSetter = new LocalSetter() {
 		@Override
@@ -91,7 +88,7 @@ public class PBRShader extends DefaultShader
 			PBRFloatAttribute roughnessAttribute = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.Roughness);
 			float metallic = metallicAttribute == null ? 1f : metallicAttribute.value;
 			float roughness = roughnessAttribute == null ? 1f : roughnessAttribute.value;
-			shader.set(inputID, v2.set(metallic, roughness));
+			shader.set(inputID, metallic, roughness);
 		}
 	};
 
@@ -396,7 +393,7 @@ public class PBRShader extends DefaultShader
 		}
 	};
 
-	private static final PBRTextureAttribute transformTexture [] = {null, null};
+	private final PBRTextureAttribute transformTexture [] = {null, null};
 
 	public final int u_metallicRoughness;
 	public final int u_occlusionStrength; 
@@ -461,7 +458,7 @@ public class PBRShader extends DefaultShader
 	public int u_transmissionSourceTexture;
 	public int u_transmissionSourceMipmap;
 	
-	private static final Matrix3 textureTransform = new Matrix3();
+	private final Matrix3 textureTransform = new Matrix3();
 	
 	public PBRShader(Renderable renderable, Config config, String prefix) {
 		super(renderable, config, prefix);

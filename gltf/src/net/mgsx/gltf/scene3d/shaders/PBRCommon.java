@@ -12,19 +12,17 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class PBRCommon {
 	public static final int MAX_MORPH_TARGETS = 8;
 	
-	private static final IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
-	
-	public static int getCapability(int pname){
-		intBuffer.clear();
-		Gdx.gl.glGetIntegerv(pname, intBuffer);
-		return intBuffer.get();
+	private static final int MAX_VERTEX_ATTRIBS;
+	static{
+		IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
+		Gdx.gl.glGetIntegerv(GL20.GL_MAX_VERTEX_ATTRIBS, intBuffer);
+		MAX_VERTEX_ATTRIBS = intBuffer.get();
 	}
 	
 	public static void checkVertexAttributes(Renderable renderable){
 		final int numVertexAttributes = renderable.meshPart.mesh.getVertexAttributes().size();
-		final int maxVertexAttribs = getCapability(GL20.GL_MAX_VERTEX_ATTRIBS);
-		if(numVertexAttributes > maxVertexAttribs){
-			throw new GdxRuntimeException("too many vertex attributes : " + numVertexAttributes + " > " + maxVertexAttribs);
+		if(numVertexAttributes > MAX_VERTEX_ATTRIBS){
+			throw new GdxRuntimeException("too many vertex attributes : " + numVertexAttributes + " > " + MAX_VERTEX_ATTRIBS);
 		}
 	}
 	
