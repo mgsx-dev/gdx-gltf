@@ -140,9 +140,9 @@ public class MeshLoader {
 						if(accessor.componentType == GLTFTypes.C_FLOAT){
 							bonesWeights.set(unit, dataResolver.readBufferFloat(accessorId));
 						}else if(accessor.componentType == GLTFTypes.C_USHORT){ 
-							throw new GLTFUnsupportedException("unsigned short weight attribute not supported");
+							bonesWeights.set(unit, dataResolver.readBufferUShortAsFloat(accessorId));
 						}else if(accessor.componentType == GLTFTypes.C_UBYTE){ 
-							throw new GLTFUnsupportedException("unsigned byte weight attribute not supported");
+							bonesWeights.set(unit, dataResolver.readBufferUByteAsFloat(accessorId));
 						}else{
 							throw new GLTFIllegalException("illegal weight attribute type: " + accessor.componentType);
 						}

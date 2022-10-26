@@ -57,6 +57,24 @@ public class DataResolver {
 		}
 		return data;
 	}
+	
+	public float[] readBufferUShortAsFloat(int accessorID) {
+		int[] intBuffer = readBufferUShort(accessorID);
+		float[] floatBuffer = new float[intBuffer.length];
+		for (int i = 0; i < intBuffer.length; i++) {
+			floatBuffer[i] = intBuffer[i] / 65535f;
+		}
+		return floatBuffer;
+	}
+
+	public float[] readBufferUByteAsFloat(int accessorID) {
+		int[] intBuffer = readBufferUByte(accessorID);
+		float[] floatBuffer = new float[intBuffer.length];
+		for (int i = 0; i < intBuffer.length; i++) {
+			floatBuffer[i] = intBuffer[i] / 255f;
+		}
+		return floatBuffer;
+	}
 
 	public FloatBuffer getBufferFloat(int accessorID) {
 		return getBufferFloat(glModel.accessors.get(accessorID));

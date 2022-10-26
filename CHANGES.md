@@ -11,6 +11,7 @@
 * Added optional TransmissionSource renderer to SceneManager for scene refraction effect.
 * Added shader parser in order to split PBR shader into several files for better maintainability.
 * Added HDR/RGBE subformat support
+* Added USHORT and UBYTE support for bone weights
 * Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
 
 ### 2.1.0
