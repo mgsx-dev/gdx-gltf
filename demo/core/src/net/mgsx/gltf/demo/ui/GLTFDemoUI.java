@@ -274,7 +274,7 @@ public class GLTFDemoUI extends Table {
 		shaderOptions.optTable.add(skyboxGammaCorrection = new BooleanUI(skin, false)).row();
 		
 		shaderOptions.optTable.add("Rotation");
-		shaderOptions.optTable.add(envRotation = new FloatUI(skin, 0)).row();
+		shaderOptions.optTable.add(envRotation = new FloatUI(skin, 0.5f)).row();
 	
 		shaderOptions.optTable.add("Transmission Pass");
 		shaderOptions.optTable.add(transmissionPassEnabled = new BooleanUI(skin, true)).row();

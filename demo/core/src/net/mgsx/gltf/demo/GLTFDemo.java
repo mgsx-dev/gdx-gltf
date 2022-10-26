@@ -197,13 +197,13 @@ public class GLTFDemo extends ApplicationAdapter
 					"textures/" + alternateMaps + "/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
 		}else{
 			diffuseCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-					"textures/diffuse/diffuse_", "_0.jpg", EnvironmentUtil.FACE_NAMES_NEG_POS);
+					"textures/diffuse/diffuse_", ".png", EnvironmentUtil.FACE_NAMES_NEG_POS);
 			
 			environmentCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-					"textures/environment/environment_", "_0.png", EnvironmentUtil.FACE_NAMES_NEG_POS);
+					"textures/environment/environment_", ".png", EnvironmentUtil.FACE_NAMES_NEG_POS);
 			
 			specularCubemap = EnvironmentUtil.createCubemap(new InternalFileHandleResolver(), 
-					"textures/specular/specular_", "_", ".jpg", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
+					"textures/specular/specular_", "_", ".png", 10, EnvironmentUtil.FACE_NAMES_NEG_POS);
 		}
 	}
 	
@@ -242,6 +242,9 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0f));
 		
 		sceneManager.setAmbientLight(1f);
+		
+		sceneManager.setEnvironmentRotation(180);
+		
 		if(ui != null) ui.ambiantSlider.setValue(1f);
 	}
 	
@@ -823,7 +826,7 @@ public class GLTFDemo extends ApplicationAdapter
 	
 	private void resetDefaultLight() {
 		// light direction based on environnement map SUN
-		defaultLight.direction.set(-.5f,-.5f,-.7f).nor();
+		defaultLight.direction.set(.5f,-.5f,-.7f).nor();
 		defaultLight.color.set(Color.WHITE);
 		if(defaultLight instanceof DirectionalLightEx){
 			DirectionalLightEx light = (DirectionalLightEx)defaultLight;
