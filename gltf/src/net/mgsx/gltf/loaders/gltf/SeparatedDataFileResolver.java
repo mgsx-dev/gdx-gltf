@@ -61,16 +61,17 @@ public class SeparatedDataFileResolver implements DataFileResolver
 	}
 
 	private String decodePath(String uri) {
-		byte [] bytes = new byte[uri.length()];
+		byte [] src = uri.getBytes();
+		byte [] bytes = new byte[src.length];
 		int pos = 0;
-		for(int i=0 ; i<uri.length() ; i++){
-			char c = uri.charAt(i);
+		for(int i=0 ; i<src.length ; i++){
+			byte c = src[i];
 			if(c == '%'){
 				int code = Integer.parseInt(uri.substring(i+1, i+3), 16);
 				bytes[pos++] = (byte)code;
 				i += 2;
 			}else{
-				bytes[pos++] = (byte)c;
+				bytes[pos++] = c;
 			}
 		}
 		try {
