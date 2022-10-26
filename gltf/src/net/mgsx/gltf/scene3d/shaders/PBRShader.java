@@ -20,9 +20,12 @@ import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
@@ -204,6 +207,194 @@ public class PBRShader extends DefaultShader
 			}
 		}
 	};
+	
+	public final static Uniform transmissionFactorUniform = new Uniform("u_transmissionFactor");
+	public final static Setter transmissionFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute a = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.TransmissionFactor);
+			float value = a == null ? 0f : a.value;
+			shader.set(inputID, value);
+		}
+	};
+
+	public final static Uniform transmissionTextureUniform = new Uniform("u_transmissionSampler", PBRTextureAttribute.TransmissionTexture);
+	public final static Setter transmissionTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.TransmissionTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
+	public final static Uniform iorUniform = new Uniform("u_ior");
+	public final static Setter iorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute a = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.IOR);
+			shader.set(inputID, a.value);
+		}
+	};
+
+	public final static Uniform thicknessFactorUniform = new Uniform("u_thicknessFactor");
+	public final static Setter thicknessFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRVolumeAttribute a = combinedAttributes.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+			shader.set(inputID, a.thicknessFactor);
+		}
+	};
+
+	public final static Uniform volumeDistanceUniform = new Uniform("u_attenuationDistance");
+	public final static Setter volumeDistanceSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRVolumeAttribute a = combinedAttributes.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+			shader.set(inputID, a.attenuationDistance);
+		}
+	};
+
+	public final static Uniform volumeColorUniform = new Uniform("u_attenuationColor");
+	public final static Setter volumeColorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRVolumeAttribute a = combinedAttributes.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+			shader.set(inputID, a.attenuationColor.r, a.attenuationColor.g, a.attenuationColor.b);
+		}
+	};
+
+	public final static Uniform thicknessTextureUniform = new Uniform("u_thicknessSampler", PBRTextureAttribute.ThicknessTexture);
+	public final static Setter thicknessTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.ThicknessTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
+	public final static Uniform specularFactorUniform = new Uniform("u_specularFactor");
+	public final static Setter specularFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRFloatAttribute a = combinedAttributes.get(PBRFloatAttribute.class, PBRFloatAttribute.SpecularFactor);
+			shader.set(inputID, a.value);
+		}
+	};
+	
+	public final static Uniform specularColorFactorUniform = new Uniform("u_specularColorFactor");
+	public final static Setter specularColorFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRHDRColorAttribute a = combinedAttributes.get(PBRHDRColorAttribute.class, PBRHDRColorAttribute.Specular);
+			shader.set(inputID, a.r, a.g, a.b);
+		}
+	};
+	
+	public final static Uniform specularFactorTextureUniform = new Uniform("u_specularFactorSampler", PBRTextureAttribute.SpecularFactorTexture);
+	public final static Setter specularFactorTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.SpecularFactorTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
+	public final static Uniform specularColorTextureUniform = new Uniform("u_specularColorSampler", PBRTextureAttribute.Specular);
+	public final static Setter specularColorTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.Specular))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+	
+	public final static Uniform iridescenceFactorUniform = new Uniform("u_iridescenceFactor");
+	public final static Setter iridescenceFactorSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.factor);
+		}
+	};
+	public final static Uniform iridescenceIORUniform = new Uniform("u_iridescenceIOR");
+	public final static Setter iridescenceIORSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.ior);
+		}
+	};
+	public final static Uniform iridescenceThicknessMinUniform = new Uniform("u_iridescenceThicknessMin");
+	public final static Setter iridescenceThicknessMinSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.thicknessMin);
+		}
+	};
+	public final static Uniform iridescenceThicknessMaxUniform = new Uniform("u_iridescenceThicknessMax");
+	public final static Setter iridescenceThicknessMaxSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			PBRIridescenceAttribute a = combinedAttributes.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+			shader.set(inputID, a.thicknessMax);
+		}
+	};
+	public final static Uniform iridescenceTextureUniform = new Uniform("u_iridescenceSampler", PBRTextureAttribute.IridescenceTexture);
+	public final static Setter iridescenceTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.IridescenceTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+	public final static Uniform iridescenceThicknessTextureUniform = new Uniform("u_iridescenceThicknessSampler", PBRTextureAttribute.IridescenceThicknessTexture);
+	public final static Setter iridescenceThicknessTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.IridescenceThicknessTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+
+	public final static Uniform transmissionSourceTextureUniform = new Uniform("u_transmissionSourceSampler", PBRTextureAttribute.TransmissionSourceTexture);
+	public final static Setter transmissionSourceTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((TextureAttribute)(combinedAttributes
+				.get(PBRTextureAttribute.TransmissionSourceTexture))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+	public final static Uniform transmissionSourceMipmapUniform = new Uniform("u_transmissionSourceMipmapScale");
+	public final static Setter transmissionSourceMipmapSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			TextureAttribute a = combinedAttributes.get(PBRTextureAttribute.class, PBRTextureAttribute.TransmissionSourceTexture);
+			float mipmapFactor;
+			if(a != null){
+				mipmapFactor = (float)(Math.log(a.textureDescription.texture.getWidth()) / Math.log(2.0));
+			}else{
+				mipmapFactor = 1;
+			}
+			shader.set(inputID, mipmapFactor);
+		}
+	};
+
+	
+	public final static Uniform projViewTransUniform = new Uniform("u_projViewTrans");
+	public final static Setter projViewTransSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			shader.set(inputID, shader.camera.combined);
+		}
+	};
 
 	private static final PBRTextureAttribute transformTexture [] = {null, null};
 
@@ -241,6 +432,34 @@ public class PBRShader extends DefaultShader
 	private int vertexColorLayers;
 
 	public int u_emissive;
+
+	public int u_transmissionFactor;
+	public int u_transmissionTexture;
+
+	public int u_ior;
+
+	// Volume
+	public int u_thicknessTexture;
+	public int u_thicknessFactor;
+	public int u_volumeDistance;
+	public int u_volumeColor;
+
+	// Specular
+	public int u_specularFactor;
+	public int u_specularColorFactor;
+	public int u_specularFactorTexture;
+	public int u_specularColorTexture;
+
+	// Iridescence
+	public int u_iridescenceFactor;
+	public int u_iridescenceIOR;
+	public int u_iridescenceThicknessMin;
+	public int u_iridescenceThicknessMax;
+	public int u_iridescenceTexture;
+	public int u_iridescenceThicknessTexture;
+
+	public int u_transmissionSourceTexture;
+	public int u_transmissionSourceMipmap;
 	
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -284,6 +503,34 @@ public class PBRShader extends DefaultShader
 		u_FogEquation = register(fogEquationUniform, fogEquationSetter);
 		
 		u_emissive = register(Inputs.emissiveColor, emissiveScaledColor);
+		
+		u_transmissionFactor = register(transmissionFactorUniform, transmissionFactorSetter);
+		u_transmissionTexture = register(transmissionTextureUniform, transmissionTextureSetter);
+		
+		u_ior = register(iorUniform, iorSetter);
+		
+		u_thicknessFactor = register(thicknessFactorUniform, thicknessFactorSetter);
+		u_volumeDistance = register(volumeDistanceUniform, volumeDistanceSetter);
+		u_volumeColor = register(volumeColorUniform, volumeColorSetter);
+		u_thicknessTexture = register(thicknessTextureUniform, thicknessTextureSetter);
+
+		u_transmissionSourceTexture = register(transmissionSourceTextureUniform, transmissionSourceTextureSetter);
+		u_transmissionSourceMipmap = register(transmissionSourceMipmapUniform, transmissionSourceMipmapSetter);
+		
+		
+		// specular
+		u_specularFactor = register(specularFactorUniform, specularFactorSetter);
+		u_specularColorFactor = register(specularColorFactorUniform, specularColorFactorSetter);
+		u_specularFactorTexture = register(specularFactorTextureUniform, specularFactorTextureSetter);
+		u_specularColorTexture = register(specularColorTextureUniform, specularColorTextureSetter);
+		
+		// iridescence
+		u_iridescenceFactor = register(iridescenceFactorUniform, iridescenceFactorSetter);
+		u_iridescenceIOR = register(iridescenceIORUniform, iridescenceIORSetter);
+		u_iridescenceThicknessMin = register(iridescenceThicknessMinUniform, iridescenceThicknessMinSetter);
+		u_iridescenceThicknessMax = register(iridescenceThicknessMaxUniform, iridescenceThicknessMaxSetter);
+		u_iridescenceTexture = register(iridescenceTextureUniform, iridescenceTextureSetter);
+		u_iridescenceThicknessTexture = register(iridescenceThicknessTextureUniform, iridescenceThicknessTextureSetter);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {
@@ -334,7 +581,11 @@ public class PBRShader extends DefaultShader
 		PBRTextureAttribute.EmissiveTexture,
 		PBRTextureAttribute.NormalTexture,
 		PBRTextureAttribute.MetallicRoughnessTexture,
-		PBRTextureAttribute.OcclusionTexture
+		PBRTextureAttribute.OcclusionTexture,
+		PBRTextureAttribute.TransmissionTexture,
+		PBRTextureAttribute.ThicknessTexture,
+		PBRTextureAttribute.IridescenceTexture,
+		PBRTextureAttribute.IridescenceThicknessTexture
 	};
 
 	private static long getTextureCoordinateMapMask(Attributes attributes){

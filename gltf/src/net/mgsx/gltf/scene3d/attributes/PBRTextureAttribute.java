@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
+import com.badlogic.gdx.math.MathUtils;
 
 public class PBRTextureAttribute extends TextureAttribute
 {
@@ -27,13 +28,33 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String BRDFLUTTextureAlias = "brdfLUTSampler";
 	public final static long BRDFLUTTexture = register(BRDFLUTTextureAlias);
 	
+	public final static String TransmissionTextureAlias = "TransmissionTexture";
+	public final static long TransmissionTexture = register(TransmissionTextureAlias);
+	
+	public final static String ThicknessTextureAlias = "ThicknessTexture";
+	public final static long ThicknessTexture = register(ThicknessTextureAlias);
+	
+	public final static String SpecularFactorTextureAlias = "SpecularFactorTexture";
+	public final static long SpecularFactorTexture = register(SpecularFactorTextureAlias);
+	
+	public final static String IridescenceTextureAlias = "IridescenceTexture";
+	public final static long IridescenceTexture = register(IridescenceTextureAlias);
+	
+	public final static String IridescenceThicknessTextureAlias = "IridescenceThicknessTexture";
+	public final static long IridescenceThicknessTexture = register(IridescenceThicknessTextureAlias);
+	
+	public final static String TransmissionSourceTextureAlias = "TransmissionSourceTexture";
+	public final static long TransmissionSourceTexture = register(TransmissionSourceTextureAlias);
 	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture | SpecularFactorTexture | IridescenceTexture | IridescenceThicknessTexture | TransmissionSourceTexture;
 	}
 	
 	public float rotationUV = 0f;
 	
+	public PBRTextureAttribute(long type) {
+		super(type);
+	}
 	public PBRTextureAttribute(long type, TextureDescriptor<Texture> textureDescription) {
 		super(type, textureDescription);
 	}
@@ -65,6 +86,21 @@ public class PBRTextureAttribute extends TextureAttribute
 	public static PBRTextureAttribute createBRDFLookupTexture(Texture texture) {
 		return new PBRTextureAttribute(BRDFLUTTexture, texture);
 	}
+	public static PBRTextureAttribute createTransmissionTexture(Texture texture) {
+		return new PBRTextureAttribute(TransmissionTexture, texture);
+	}
+	public static PBRTextureAttribute createThicknessTexture(Texture texture) {
+		return new PBRTextureAttribute(ThicknessTexture, texture);
+	}
+	public static PBRTextureAttribute createSpecularFactorTexture(Texture texture) {
+		return new PBRTextureAttribute(SpecularFactorTexture, texture);
+	}
+	public static PBRTextureAttribute createIridescenceTexture(Texture texture) {
+		return new PBRTextureAttribute(IridescenceTexture, texture);
+	}
+	public static PBRTextureAttribute createIridescenceThicknessTexture(Texture texture) {
+		return new PBRTextureAttribute(IridescenceThicknessTexture, texture);
+	}
 	
 	public static PBRTextureAttribute createBaseColorTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BaseColorTexture, region);
@@ -84,9 +120,35 @@ public class PBRTextureAttribute extends TextureAttribute
 	public static PBRTextureAttribute createBRDFLookupTexture(TextureRegion region) {
 		return new PBRTextureAttribute(BRDFLUTTexture, region);
 	}
+	public static PBRTextureAttribute createTransmissionTexture(TextureRegion region) {
+		return new PBRTextureAttribute(TransmissionTexture, region);
+	}
+	public static PBRTextureAttribute createThicknessTexture(TextureRegion region) {
+		return new PBRTextureAttribute(ThicknessTexture, region);
+	}
+	public static PBRTextureAttribute createSpecularFactorTexture(TextureRegion region) {
+		return new PBRTextureAttribute(SpecularFactorTexture, region);
+	}
+	public static PBRTextureAttribute createIridescenceTexture(TextureRegion region) {
+		return new PBRTextureAttribute(IridescenceTexture, region);
+	}
+	public static PBRTextureAttribute createIridescenceThicknessTexture(TextureRegion region) {
+		return new PBRTextureAttribute(IridescenceThicknessTexture, region);
+	}
 
 	@Override
 	public Attribute copy() {
 		return new PBRTextureAttribute(this);
+	}
+	
+	@Override
+	public int compareTo(Attribute o) {
+		int r = super.compareTo(o);
+		if(r != 0) return r;
+		if(o instanceof PBRTextureAttribute){
+			PBRTextureAttribute other = (PBRTextureAttribute)o;
+			if(!MathUtils.isEqual(rotationUV, other.rotationUV)) return rotationUV < other.rotationUV ? -1 : 1;
+		}
+		return 0;
 	}
 }

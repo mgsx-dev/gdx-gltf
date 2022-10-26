@@ -1,5 +1,18 @@
 # Changes history
 
+### 2.2.0
+
+* Added `KHR_materials_transmission` extension support.
+* Added `KHR_materials_volume` extension support.
+* Added `KHR_materials_ior` extension support.
+* Added `KHR_materials_specular` extension support.
+* Added `KHR_materials_iridescence` extension support.
+* Added `KHR_materials_emissive_strength` extension support.
+* Added optional TransmissionSource renderer to SceneManager for scene refraction effect.
+* Added shader parser in order to split PBR shader into several files for better maintainability.
+* Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
+
+
 ### 2.1.0
 
 * Added optional environement and skybox rotation.

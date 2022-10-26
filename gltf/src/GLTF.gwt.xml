@@ -5,8 +5,18 @@
 	
 	<extend-configuration-property name="gdx.reflect.include" value="net.mgsx.gltf.data" />
 	
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/gdx-pbr.vs.glsl" />
-	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/gdx-pbr.fs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/compat.fs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/compat.vs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/env.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/functions.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/ibl.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/iridescence.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/lights.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/material.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/pbr.fs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/pbr.vs.glsl" />
+	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/pbr/shadows.glsl" />
+	
 	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/depth.vs.glsl" />
 	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/depth.fs.glsl" />
 	<extend-configuration-property name="gdx.files.classpath" value="net/mgsx/gltf/shaders/skybox.vs.glsl" />

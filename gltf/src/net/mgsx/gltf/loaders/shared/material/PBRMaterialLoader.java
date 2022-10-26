@@ -11,8 +11,14 @@ import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
 
+import net.mgsx.gltf.data.extensions.KHRMaterialsEmissiveStrength;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
+import net.mgsx.gltf.data.extensions.KHRMaterialsSpecular;
+import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
+import net.mgsx.gltf.data.extensions.KHRMaterialsVolume;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.material.GLTFMaterial;
 import net.mgsx.gltf.data.material.GLTFpbrMetallicRoughness;
@@ -23,7 +29,10 @@ import net.mgsx.gltf.loaders.shared.texture.TextureResolver;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 
 public class PBRMaterialLoader extends MaterialLoaderBase {
 
@@ -120,6 +129,61 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 				KHRMaterialsUnlit ext = glMaterial.extensions.get(KHRMaterialsUnlit.class, KHRMaterialsUnlit.EXT);
 				if(ext != null){
 					material.set(new PBRFlagAttribute(PBRFlagAttribute.Unlit));
+				}
+			}
+			{
+				KHRMaterialsTransmission ext = glMaterial.extensions.get(KHRMaterialsTransmission.class, KHRMaterialsTransmission.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createTransmissionFactor(ext.transmissionFactor));
+					if(ext.transmissionTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.TransmissionTexture, ext.transmissionTexture));
+					}
+				}
+			}
+			{
+				KHRMaterialsVolume ext = glMaterial.extensions.get(KHRMaterialsVolume.class, KHRMaterialsVolume.EXT);
+				if(ext != null){
+					material.set(new PBRVolumeAttribute(ext.thicknessFactor, ext.attenuationDistance == null ? 0f : ext.attenuationDistance, GLTFTypes.mapColor(ext.attenuationColor, Color.WHITE)));
+					if(ext.thicknessTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.ThicknessTexture, ext.thicknessTexture));
+					}
+				}
+			}
+			{
+				KHRMaterialsIOR ext = glMaterial.extensions.get(KHRMaterialsIOR.class, KHRMaterialsIOR.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createIOR(ext.ior));
+				}
+			}
+			{
+				KHRMaterialsSpecular ext = glMaterial.extensions.get(KHRMaterialsSpecular.class, KHRMaterialsSpecular.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createSpecularFactor(ext.specularFactor));
+					material.set(new PBRHDRColorAttribute(PBRHDRColorAttribute.Specular, ext.specularColorFactor[0], ext.specularColorFactor[1], ext.specularColorFactor[2]));
+					if(ext.specularTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.SpecularFactorTexture, ext.specularTexture));
+					}
+					if(ext.specularColorTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.Specular, ext.specularColorTexture));
+					}
+				}
+			}
+			{
+				KHRMaterialsIridescence ext = glMaterial.extensions.get(KHRMaterialsIridescence.class, KHRMaterialsIridescence.EXT);
+				if(ext != null){
+					material.set(new PBRIridescenceAttribute(ext.iridescenceFactor, ext.iridescenceIor, ext.iridescenceThicknessMinimum, ext.iridescenceThicknessMaximum));
+					if(ext.iridescenceTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.IridescenceTexture, ext.iridescenceTexture));
+					}
+					if(ext.iridescenceThicknessTexture != null){
+						material.set(getTexureMap(PBRTextureAttribute.IridescenceThicknessTexture, ext.iridescenceThicknessTexture));
+					}
+				}
+			}
+			{
+				KHRMaterialsEmissiveStrength ext = glMaterial.extensions.get(KHRMaterialsEmissiveStrength.class, KHRMaterialsEmissiveStrength.EXT);
+				if(ext != null){
+					material.set(PBRFloatAttribute.createEmissiveIntensity(ext.emissiveStrength));
 				}
 			}
 		}

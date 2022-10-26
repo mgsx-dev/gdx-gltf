@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 
+import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.scene3d.animation.NodeAnimationHack;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
@@ -28,6 +29,7 @@ public class GLTFInspector {
 	public void inspect(SceneAsset asset){
 		allLights.clear();
 		allCameras.clear();
+		if(asset.data != null) logData(asset);
 		if(asset.scenes.size > 0) logScenes(asset);
 		if(asset.animations.size > 0) logAnimations(asset);
 		if(asset.textures.size > 0) logTexures(asset);
@@ -35,6 +37,14 @@ public class GLTFInspector {
 		if(allCameras.size > 0) logCameras(allCameras);
 	}
 	
+	private void logData(SceneAsset asset) {
+		if(asset.data.extensionsUsed != null){
+			for(String ext : asset.data.extensionsUsed){
+				log("Extension", ext, GLTFLoaderBase.supportedExtensions.contains(ext) ? " (supported)" : " (not supported)");
+			}
+		}
+	}
+
 	private void logCameras(Array<Camera> cameras) {
 		int nPerspective = 0;
 		int nOrtho = 0;

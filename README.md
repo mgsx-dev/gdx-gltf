@@ -50,10 +50,11 @@ Games made with this library:
 
 Implementation based on official [glTF 2.0 Specification](https://github.com/KhronosGroup/glTF/tree/master/specification/2.0)
 
-Shaders inspired by glTF-WebGL-PBR demo :
+Shaders inspired by glTF-WebGL-PBR and glTF-Sample-Viewer :
 
 * https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/glTF-WebGL-PBR-final/shaders/pbr-vert.glsl
 * https://github.com/KhronosGroup/glTF-WebGL-PBR/blob/glTF-WebGL-PBR-final/shaders/pbr-frag.glsl
+* https://github.com/KhronosGroup/glTF-Sample-Viewer/tree/master/source/Renderer/shaders
 
 
 GLTF extensions implemented:
@@ -61,6 +62,12 @@ GLTF extensions implemented:
 * [KHR_texture_transform](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_texture_transform)
 * [KHR_lights_punctual](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual)
 * [KHR_materials_unlit](https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_unlit)
+* [KHR_materials_transmission](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_transmission)
+* [KHR_materials_volume](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume)
+* [KHR_materials_ior](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_ior)
+* [KHR_materials_specular](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_specular)
+* [KHR_materials_iridescence](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_iridescence)
+* [KHRMaterialsEmissiveStrength](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength)
 
 # Getting started
 

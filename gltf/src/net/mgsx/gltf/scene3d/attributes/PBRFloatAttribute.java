@@ -23,6 +23,15 @@ public class PBRFloatAttribute extends FloatAttribute
 	public final static String EmissiveIntensityAlias = "EmissiveIntensity";
 	public final static long EmissiveIntensity = register(EmissiveIntensityAlias);
 	
+	public final static String TransmissionFactorAlias = "TransmissionFactor";
+	public final static long TransmissionFactor = register(TransmissionFactorAlias);
+	
+	public final static String IORAlias = "IOR";
+	public final static long IOR = register(IORAlias);
+	
+	public final static String SpecularFactorAlias = "SpecularFactor";
+	public final static long SpecularFactor = register(SpecularFactorAlias);
+	
 	public PBRFloatAttribute(long type, float value) {
 		super(type, value);
 	}
@@ -47,5 +56,14 @@ public class PBRFloatAttribute extends FloatAttribute
 	}
 	public static Attribute createEmissiveIntensity(float value) {
 		return new PBRFloatAttribute(EmissiveIntensity, value);
+	}
+	public static Attribute createTransmissionFactor(float value) {
+		return new PBRFloatAttribute(TransmissionFactor, value);
+	}
+	public static Attribute createIOR(float value) {
+		return new PBRFloatAttribute(IOR, value);
+	}
+	public static Attribute createSpecularFactor(float value) {
+		return new PBRFloatAttribute(SpecularFactor, value);
 	}
 }

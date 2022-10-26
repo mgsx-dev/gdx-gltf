@@ -31,18 +31,7 @@ class GLTFLightExporter {
 	}
 
 	public void export(ObjectMap<Node, BaseLight> lights) {
-		if(base.root.extensionsUsed == null){
-			base.root.extensionsUsed = new Array<String>();
-		}
-		if(!base.root.extensionsUsed.contains(KHRLightsPunctual.EXT, false)){
-			base.root.extensionsUsed.add(KHRLightsPunctual.EXT);
-		}
-		if(base.root.extensionsRequired == null){
-			base.root.extensionsRequired = new Array<String>();
-		}
-		if(!base.root.extensionsRequired.contains(KHRLightsPunctual.EXT, false)){
-			base.root.extensionsRequired.add(KHRLightsPunctual.EXT);
-		}
+		base.useExtension(KHRLightsPunctual.EXT, true);
 		
 		for(Entry<Node, BaseLight> entry : lights){
 			int nodeID = base.nodeMapping.indexOf(entry.key, true);

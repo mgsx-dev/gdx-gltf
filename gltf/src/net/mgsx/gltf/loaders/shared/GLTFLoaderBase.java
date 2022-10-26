@@ -1,5 +1,6 @@
 package net.mgsx.gltf.loaders.shared;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Texture;
@@ -20,8 +21,14 @@ import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.camera.GLTFCamera;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual;
 import net.mgsx.gltf.data.extensions.KHRLightsPunctual.GLTFLight;
+import net.mgsx.gltf.data.extensions.KHRMaterialsEmissiveStrength;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
+import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
 import net.mgsx.gltf.data.extensions.KHRMaterialsPBRSpecularGlossiness;
+import net.mgsx.gltf.data.extensions.KHRMaterialsSpecular;
+import net.mgsx.gltf.data.extensions.KHRMaterialsTransmission;
 import net.mgsx.gltf.data.extensions.KHRMaterialsUnlit;
+import net.mgsx.gltf.data.extensions.KHRMaterialsVolume;
 import net.mgsx.gltf.data.extensions.KHRTextureTransform;
 import net.mgsx.gltf.data.scene.GLTFNode;
 import net.mgsx.gltf.data.scene.GLTFScene;
@@ -43,6 +50,22 @@ import net.mgsx.gltf.scene3d.scene.SceneModel;
 public class GLTFLoaderBase implements Disposable {
 
 	public static final String TAG = "GLTF";
+	
+	public final static ObjectSet<String> supportedExtensions = new ObjectSet<String>();;
+	static{
+		supportedExtensions.addAll(
+			KHRMaterialsPBRSpecularGlossiness.EXT,
+			KHRTextureTransform.EXT,
+			KHRLightsPunctual.EXT,
+			KHRMaterialsUnlit.EXT,
+			KHRMaterialsTransmission.EXT,
+			KHRMaterialsVolume.EXT,
+			KHRMaterialsIOR.EXT,
+			KHRMaterialsSpecular.EXT,
+			KHRMaterialsIridescence.EXT,
+			KHRMaterialsEmissiveStrength.EXT
+		);
+	}
 	
 	private static final ObjectSet<Material> materialSet = new ObjectSet<Material>();
 	private static final ObjectSet<MeshPart> meshPartSet = new ObjectSet<MeshPart>();
@@ -92,15 +115,19 @@ public class GLTFLoaderBase implements Disposable {
 			
 			glModel = dataFileResolver.getRoot();
 			
-			// prerequists
+			// prerequists (mandatory)
 			if(glModel.extensionsRequired != null){
 				for(String extension : glModel.extensionsRequired){
-					if(KHRMaterialsPBRSpecularGlossiness.EXT.equals(extension)){
-					}else if(KHRTextureTransform.EXT.equals(extension)){
-					}else if(KHRLightsPunctual.EXT.equals(extension)){
-					}else if(KHRMaterialsUnlit.EXT.equals(extension)){
-					}else{
+					if(!supportedExtensions.contains(extension)){
 						throw new GLTFUnsupportedException("Extension " + extension + " required but not supported");
+					}
+				}
+			}
+			// prerequists (optional)
+			if(glModel.extensionsUsed != null){
+				for(String extension : glModel.extensionsUsed){
+					if(!supportedExtensions.contains(extension)){
+						Gdx.app.error(TAG, "Extension " + extension + " used but not supported");
 					}
 				}
 			}

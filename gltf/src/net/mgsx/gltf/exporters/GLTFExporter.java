@@ -303,4 +303,20 @@ public class GLTFExporter {
 		root.meshes.add(data);
 		return data;
 	}
+	void useExtension(String ext, boolean required) {
+		if(root.extensionsUsed == null){
+			root.extensionsUsed = new Array<String>();
+		}
+		if(!root.extensionsUsed.contains(ext, false)){
+			root.extensionsUsed.add(ext);
+		}
+		if(required){
+			if(root.extensionsRequired == null){
+				root.extensionsRequired = new Array<String>();
+			}
+			if(!root.extensionsRequired.contains(ext, false)){
+				root.extensionsRequired.add(ext);
+			}
+		}
+	}
 }

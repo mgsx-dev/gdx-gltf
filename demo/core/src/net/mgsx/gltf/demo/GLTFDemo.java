@@ -59,6 +59,7 @@ import net.mgsx.gltf.loaders.glb.GLBAssetLoader;
 import net.mgsx.gltf.loaders.glb.GLBLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.loaders.shared.SceneAssetLoaderParameters;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
@@ -70,6 +71,7 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneModel;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
+import net.mgsx.gltf.scene3d.scene.TransmissionSource;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.EnvironmentUtil;
@@ -437,7 +439,18 @@ public class GLTFDemo extends ApplicationAdapter
 				sceneManager.setEnvironmentRotation(ui.envRotation.getValue() * 360);
 			}
 		});
-		
+		ui.transmissionPassEnabled.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateShaders();
+			}
+		});
+		ui.transmissionSRGB.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateShaders();
+			}
+		});
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -617,9 +630,10 @@ public class GLTFDemo extends ApplicationAdapter
 		if(rootModel != null){
 			if(!shadersValid){
 				shadersValid = true;
-				sceneManager.setShaderProvider(createShaderProvider(shaderMode, rootModel.maxBones));
+				ShaderProvider colorShader = createShaderProvider(shaderMode, rootModel.maxBones);
+				sceneManager.setShaderProvider(colorShader);
 				sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
-				
+				sceneManager.setTransmissionSource(ui.transmissionPassEnabled.isOn() ? new TransmissionSource(colorShader) : null);
 			}
 		}
 		if(!outlineShaderValid){
@@ -674,6 +688,7 @@ public class GLTFDemo extends ApplicationAdapter
 				PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
+				config.transmissionSRGB = ui.transmissionSRGB.getSelected();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
@@ -733,14 +748,16 @@ public class GLTFDemo extends ApplicationAdapter
 		lastFileName = glFile.path();
 		
 		if(USE_ASSET_MANAGER){
-			assetManager.load(lastFileName, SceneAsset.class);
+			SceneAssetLoaderParameters params = new SceneAssetLoaderParameters();
+			params.withData = true;
+			assetManager.load(lastFileName, SceneAsset.class, params);
 			assetManager.finishLoading();
 			rootModel = assetManager.get(lastFileName, SceneAsset.class);
 		}else{
 			if(glFile.extension().equalsIgnoreCase("glb")){
-				rootModel = new GLBLoader().load(glFile);
+				rootModel = new GLBLoader().load(glFile, true);
 			}else if(glFile.extension().equalsIgnoreCase("gltf")){
-				rootModel = new GLTFLoader().load(glFile);
+				rootModel = new GLTFLoader().load(glFile, true);
 			}
 		}
 		

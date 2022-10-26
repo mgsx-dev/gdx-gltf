@@ -22,13 +22,15 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 
 | **Model**                 | **Features** |--- **Errors** ---| **Comment** |
 |---------------------------|:------------:|:-----------------|-------------|
-| 2CylinderEngine			| ?						|  | 
+| 2CylinderEngine			| 
+| ABeautifulGame			| Refraction
 | AlphaBlendModeTest		| Blending
 | AnimatedCube				| Animation
 | AnimatedMorphCube			| Morph Targets
 | AnimatedMorphSphere		| Morph Targets
 | AnimatedTriangle			| Animation
-| AntiqueCamera				| PBR					| ~ | texture files format not supported (work by re-export with GIMP) |
+| AntiqueCamera				| PBR
+| AttenuationTest			| Refraction
 | Avocado					| PBR
 | BarramundiFish			| PBR
 | BoomBox					| PBR
@@ -39,41 +41,72 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | BoxTextured				|
 | BoxTexturedNonPowerOfTwo	| NPT
 | BoxVertexColors			| Vertex Color
+| Box With Spaces			| Char. encoding		| X | File not found (requires %20 decoding)
 | BrainStem					| Animation
 | Buggy						| PBR
 | Cameras					| Camera
 | CesiumMan					| Skinning
 | CesiumMilkTruck			| PBR
+| ClearCoatTest				| Clear coat EXT		| ~ | Not supported
 | Corset					| PBR
 | Cube						|
 | DamagedHelmet				| PBR
+| DragonAttenuation			| Refraction
 | Duck						| PBR
+| EmissiveStrengthTest		| Emissive EXT
+| EnvironmentTest			| IBL EXT				| ~ | Not supported
 | FlightHelmet				| PBR
+| Fox						| Skinning
 | GearboxAssy				| PBR
+| GlamVelvetSofa			| Sheen	EXT				| ~ | Not supported
+| InterpolationTest			| Animations
+| IridescenceDielectricSpheres  | Iridescence
+| IridescenceLamp				| Iridescence
+| IridescenceMetallicSpheres	| Iridescence
+| IridescenceSuzanne			| Iridescence
+| IridescentDishWithOlives		| Iridescence
 | Lantern					| PBR
+| LightsPunctualLamp		| Lights
+| MaterialsVariantsShoe		| Variants EXT			| ~ | Not supported
 | MetalRoughSpheres			| Metallic Roughness
-| Monster					| Skinning
+| MetalRoughSpheresNoTextures	| Metallic Roughness
 | MorphPrimitivesTest		| Morph Targets
+| MorphStressTest			| Morph Targets			| X | too many vertex attributes : 20 > 16 (hardware dependent)
+| MosquitoInAmber			| Refraction
 | MultiUVTest				| Multi UV
 | NormalTangentMirrorTest	| Tangent Space
 | NormalTangentTest			| Tangent Space
 | OrientationTest			|
 | ReciprocatingSaw			| PBR
+| RecursiveSkeletons		| Skinning				| X | Visually broken
 | RiggedFigure				| Skinning
 | RiggedSimple				| Skinning
-| SciFiHelmet				| PBR					| X | Too many vertices (more than 64k) |
+| SciFiHelmet				| PBR
+| SheenChair				| Sheen	EXT				| ~ | Not supported
+| SheenCloth				| Sheen	EXT				| ~ | Not supported
 | SimpleMeshes				|
 | SimpleMorph				| Morph Targets
+| SimpleSkin				| Skinning
 | SimpleSparseAccessor		| Sparse Accessor
 | SpecGlossVsMetalRough		| Specular Gloss EXT
+| SpecularTest				| Specular EXT
 | Sponza					| PBR
+| StainedGlassLamp			| Refraction
 | Suzanne					| PBR
 | TextureCoordinateTest		| UV
+| TextureEncodingTest		| Color space
+| TextureLinearInterpolationTest	| Color space 	| X | Requires sRGB GPU conversion (GLES3)
 | TextureSettingsTest		| Texture Settings
+| TextureTransformMultiTest	| Texture Transform EXT | X | UV 1 Failed
 | TextureTransformTest		| Texture Transform EXT	|
+| ToyCar					| Multiple
+| TransmissionRoughnessTest | Refraction
+| TransmissionTest			| Refraction
 | Triangle					| Basic
 | TriangleWithoutIndices	| Without Indices
 | TwoSidedPlane				| Culling
+| Unicode Test				| Char. encoding
+| UnlitTest					| Unlit EXT
 | VC						| Camera Animation
 | VertexColorTest			| Vertex Color
 | WaterBottle				| PBR

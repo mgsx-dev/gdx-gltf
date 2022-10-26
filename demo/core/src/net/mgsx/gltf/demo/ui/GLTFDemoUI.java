@@ -38,7 +38,10 @@ import net.mgsx.gltf.demo.model.IBLStudio;
 import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRIridescenceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
+import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
@@ -87,6 +90,7 @@ public class GLTFDemoUI extends Table {
 	public SelectBox<SRGB> skyboxSRGB;
 	public BooleanUI skyboxGammaCorrection;
 	public FloatUI envRotation;
+	public BooleanUI transmissionPassEnabled;
 	public Vector4UI fogColor;
 	public Vector3UI fogEquation;
 
@@ -131,6 +135,8 @@ public class GLTFDemoUI extends Table {
 	public final Slider uiScaleSlider;
 
 	public final Slider emissiveSlider;
+
+	public final SelectBox<SRGB> transmissionSRGB;
 
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
@@ -269,6 +275,14 @@ public class GLTFDemoUI extends Table {
 		
 		shaderOptions.optTable.add("Rotation");
 		shaderOptions.optTable.add(envRotation = new FloatUI(skin, 0)).row();
+	
+		shaderOptions.optTable.add("Transmission Pass");
+		shaderOptions.optTable.add(transmissionPassEnabled = new BooleanUI(skin, true)).row();
+
+		shaderOptions.optTable.add("Transmission SRGB");
+		shaderOptions.optTable.add(transmissionSRGB = new SelectBox<SRGB>(skin)).row();
+		transmissionSRGB.setItems(SRGB.values());
+		transmissionSRGB.setSelected(SRGB.ACCURATE);
 
 		// Outlines
 		root.add();
@@ -535,6 +549,41 @@ public class GLTFDemoUI extends Table {
 		// occlusion
 		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.OcclusionStrength))).row();
 		addMaterialTextureSwitch("Occlusion Texture", material, PBRTextureAttribute.OcclusionTexture);
+		
+		// transmission
+		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.TransmissionFactor))).row();
+		addMaterialTextureSwitch("Transmission Texture", material, PBRTextureAttribute.TransmissionTexture);
+		
+		// volume
+		final PBRVolumeAttribute volume = material.get(PBRVolumeAttribute.class, PBRVolumeAttribute.Type);
+		if(volume != null){
+			materialTable.add(new FloatUI(getSkin(), volume.thicknessFactor, "Thickness", 0, 10){
+				@Override
+				protected void onChange(float value) {
+					volume.thicknessFactor = value;
+				}
+			}).row();
+		}
+		addMaterialTextureSwitch("Thickness Texture", material, PBRTextureAttribute.ThicknessTexture);
+		
+		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.IOR), 1f, 3f)).row();
+
+		// Specular
+		materialTable.add(new FloatAttributeUI(getSkin(), material.get(PBRFloatAttribute.class, PBRFloatAttribute.SpecularFactor), 0, 1)).row();
+		addMaterialTextureSwitch("Specular Factor Texture", material, PBRTextureAttribute.SpecularFactorTexture);
+		materialTable.add(new HDRColorAttributeUI(getSkin(), material.get(PBRHDRColorAttribute.class, PBRHDRColorAttribute.Specular), 100f)).row();
+		addMaterialTextureSwitch("Specular Color Texture", material, PBRTextureAttribute.Specular);
+		
+		// Iridescence
+		final PBRIridescenceAttribute iridescence = material.get(PBRIridescenceAttribute.class, PBRIridescenceAttribute.Type);
+		if(iridescence != null){
+			materialTable.add(new FloatUI(getSkin(), iridescence.factor, "Iridescence"){
+				@Override
+				protected void onChange(float value) {
+					iridescence.factor = value;
+				}
+			}).row();
+		}
 	}
 	
 	private void addMaterialTextureSwitch(String name, final Material material, long type){
