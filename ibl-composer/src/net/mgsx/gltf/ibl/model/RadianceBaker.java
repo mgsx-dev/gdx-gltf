@@ -48,7 +48,7 @@ public class RadianceBaker implements Disposable {
 	}
 	
 	public Cubemap createRadiance(Cubemap cubemap, int baseSize){
-		int mipMapLevels = GLUtils.sizeToPOT(baseSize);
+		int mipMapLevels = GLUtils.sizeToPOT(baseSize) + 1;
 		Pixmap[] maps = new Pixmap[mipMapLevels * 6];
 		int index = 0;
 		cubemap.bind();
@@ -76,7 +76,7 @@ public class RadianceBaker implements Disposable {
 	}
 	
 	public Array<Pixmap> createPixmaps(Cubemap cubemap, int baseSize){
-		int mipMapLevels = GLUtils.sizeToPOT(baseSize);
+		int mipMapLevels = GLUtils.sizeToPOT(baseSize) + 1;
 		Pixmap[] maps = new Pixmap[mipMapLevels * 6];
 		int index = 0;
 		cubemap.bind();
