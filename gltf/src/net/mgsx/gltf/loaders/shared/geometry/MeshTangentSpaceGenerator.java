@@ -159,13 +159,13 @@ public class MeshTangentSpaceGenerator {
 			float cz = vertices[vIndexC * stride + posOffset+2];
 			
 			float au = vertices[vIndexA * stride + texCoordOffset];
-			float av = vertices[vIndexA * stride + texCoordOffset+1];
+			float av = 1 - vertices[vIndexA * stride + texCoordOffset+1];
 			
 			float bu = vertices[vIndexB * stride + texCoordOffset];
-			float bv = vertices[vIndexB * stride + texCoordOffset+1];
+			float bv = 1 - vertices[vIndexB * stride + texCoordOffset+1];
 			
 			float cu = vertices[vIndexC * stride + texCoordOffset];
-			float cv = vertices[vIndexC * stride + texCoordOffset+1];
+			float cv = 1 - vertices[vIndexC * stride + texCoordOffset+1];
 			
 			float dx1 = bx - ax;
 			float dx2 = cx - ax;
