@@ -149,7 +149,7 @@ public class RGBE {
                 throw new IOException("Unexpected EOF reading line after magic token");
             }
         }
-        if((valid & VALID_PROGRAMTYPE) == 0 || !programType.equals("RADIANCE")){
+        if((valid & VALID_PROGRAMTYPE) == 0 || (!programType.equals("RADIANCE") && !programType.equals("RGBE"))){
         	throw new IOException("not an HDR file");
         }
 

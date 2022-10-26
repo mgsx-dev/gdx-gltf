@@ -10,8 +10,8 @@
 * Added `KHR_materials_emissive_strength` extension support.
 * Added optional TransmissionSource renderer to SceneManager for scene refraction effect.
 * Added shader parser in order to split PBR shader into several files for better maintainability.
+* Added HDR/RGBE subformat support
 * Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
-
 
 ### 2.1.0
 
