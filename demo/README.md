@@ -41,7 +41,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | BoxTextured				|
 | BoxTexturedNonPowerOfTwo	| NPT
 | BoxVertexColors			| Vertex Color
-| Box With Spaces			| Char. encoding		| X | File not found (requires %20 decoding)
+| Box With Spaces			| Char. encoding
 | BrainStem					| Animation
 | Buggy						| PBR
 | Cameras					| Camera
