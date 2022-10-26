@@ -46,8 +46,12 @@ public class PBRTextureAttribute extends TextureAttribute
 	public final static String TransmissionSourceTextureAlias = "TransmissionSourceTexture";
 	public final static long TransmissionSourceTexture = register(TransmissionSourceTextureAlias);
 	
+	public final static String SpecularColorTextureAlias = "SpecularColorTexture";
+	public final static long SpecularColorTexture = register(SpecularColorTextureAlias);
+	
+	
 	static{
-		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture | SpecularFactorTexture | IridescenceTexture | IridescenceThicknessTexture | TransmissionSourceTexture;
+		Mask |= MetallicRoughnessTexture | OcclusionTexture | BaseColorTexture | NormalTexture | EmissiveTexture | BRDFLUTTexture | TransmissionTexture | ThicknessTexture | SpecularFactorTexture | IridescenceTexture | IridescenceThicknessTexture | TransmissionSourceTexture | SpecularColorTexture;
 	}
 	
 	public float rotationUV = 0f;

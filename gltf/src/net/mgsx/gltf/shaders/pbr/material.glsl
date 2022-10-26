@@ -144,7 +144,7 @@ uniform vec3 u_specularColorFactor;
 uniform sampler2D u_specularFactorSampler;
 #endif
 
-#ifdef specularTextureFlag
+#ifdef specularColorTextureFlag
 uniform sampler2D u_specularColorSampler;
 #endif
 

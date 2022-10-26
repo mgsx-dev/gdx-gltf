@@ -164,7 +164,7 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 						material.set(getTexureMap(PBRTextureAttribute.SpecularFactorTexture, ext.specularTexture));
 					}
 					if(ext.specularColorTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.Specular, ext.specularColorTexture));
+						material.set(getTexureMap(PBRTextureAttribute.SpecularColorTexture, ext.specularColorTexture));
 					}
 				}
 			}

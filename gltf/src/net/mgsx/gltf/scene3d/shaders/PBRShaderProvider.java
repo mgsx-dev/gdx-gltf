@@ -235,8 +235,8 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define specularFactorTextureFlag\n";
 				hasSpecular = true;
 			}
-			if(renderable.material.has(PBRTextureAttribute.Specular)){
-				// prefix already injected: specularTextureFlag
+			if(renderable.material.has(PBRTextureAttribute.SpecularColorTexture)){
+				prefix += "#define specularColorTextureFlag\n";
 				hasSpecular = true;
 			}
 			if(hasSpecular){
