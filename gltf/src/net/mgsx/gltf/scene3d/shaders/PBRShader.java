@@ -652,7 +652,7 @@ public class PBRShader extends DefaultShader
 			if(transformTexture[1] != null){
 				PBRTextureAttribute attribute = transformTexture[1];
 				textureTransform.setToTranslation(attribute.offsetU, attribute.offsetV);
-				textureTransform.rotateRad(attribute.rotationUV);
+				textureTransform.rotateRad(-attribute.rotationUV);
 				textureTransform.scale(attribute.scaleU, attribute.scaleV);
 			}else{
 				textureTransform.idt();
