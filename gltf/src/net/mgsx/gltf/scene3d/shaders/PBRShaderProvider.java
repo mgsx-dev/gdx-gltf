@@ -217,9 +217,6 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			if(renderable.material.has(PBRFloatAttribute.IOR)){
 				prefix += "#define iorFlag\n";
 			}
-			if(renderable.environment.has(PBRTextureAttribute.TransmissionSourceTexture)){
-				prefix += "#define transmissionSourceFlag\n";
-			}
 			
 			// Material specular
 			boolean hasSpecular = false;
@@ -257,6 +254,9 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
 			if(renderable.environment != null){
+				if(renderable.environment.has(PBRTextureAttribute.TransmissionSourceTexture)){
+					prefix += "#define transmissionSourceFlag\n";
+				}
 				if(renderable.environment.has(PBRCubemapAttribute.SpecularEnv)){
 					prefix += "#define diffuseSpecularEnvSeparateFlag\n";
 					specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.SpecularEnv);
