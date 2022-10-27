@@ -35,3 +35,10 @@ out vec4 out_FragColor;
 #else
 #define out_FragColor gl_FragColor
 #endif
+
+// force unlitFlag when there is no lighting
+#ifndef lightingFlag
+#ifndef unlitFlag
+#define unlitFlag
+#endif
+#endif

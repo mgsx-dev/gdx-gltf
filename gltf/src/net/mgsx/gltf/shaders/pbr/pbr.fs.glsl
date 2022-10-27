@@ -7,9 +7,13 @@
 #endif
 #include <material.glsl>
 #include <env.glsl>
+#ifndef unlitFlag
 #include <lights.glsl>
 #include <shadows.glsl>
+#endif
+#ifdef USE_IBL
 #include <ibl.glsl>
+#endif
 
 #ifdef unlitFlag
 

@@ -3,8 +3,6 @@ uniform mat3 u_envRotation;
 #endif
 
 
-
-#ifdef USE_IBL
 uniform samplerCube u_DiffuseEnvSampler;
 
 #ifdef diffuseSpecularEnvSeparateFlag
@@ -21,13 +19,10 @@ uniform sampler2D u_brdfLUT;
 uniform float u_mipmapScale; // = 9.0 for resolution of 512x512
 #endif
 
-#endif
-
 
 // Calculation of the lighting contribution from an optional Image Based Light source.
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
-#ifdef USE_IBL
 
 vec2 sampleBRDF(PBRSurfaceInfo pbrSurface)
 {
@@ -190,5 +185,3 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
 
     return PBRLightContribs(diffuse, specular, transmission);
 }
-
-#endif

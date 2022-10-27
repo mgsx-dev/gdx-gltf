@@ -1,6 +1,4 @@
 
-
-#ifdef lightingFlag
 #if numDirectionalLights > 0
 struct DirectionalLight
 {
@@ -31,7 +29,6 @@ struct SpotLight
 };
 uniform SpotLight u_spotLights[numSpotLights];
 #endif // numSpotLights
-#endif
 
 
 struct PBRLightInfo
