@@ -78,7 +78,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | NormalTangentTest			| Tangent Space
 | OrientationTest			|
 | ReciprocatingSaw			| PBR
-| RecursiveSkeletons		| Skinning				| X | Visually broken
+| RecursiveSkeletons		| Skinning
 | RiggedFigure				| Skinning
 | RiggedSimple				| Skinning
 | SciFiHelmet				| PBR

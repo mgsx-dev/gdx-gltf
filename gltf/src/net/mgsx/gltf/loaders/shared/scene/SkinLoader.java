@@ -47,7 +47,16 @@ public class SkinLoader {
 		joints.addAll(glSkin.joints);
 		
 		if(ibms.size > 0){
-			for(NodePart nodePart : node.parts){
+			for(int i=0 ; i<node.parts.size ; i++){
+				NodePart nodePart = node.parts.get(i);
+				if(nodePart.bones != null){
+					// special case when the same mesh is used by several skins.
+					// in this case, we need to clone the node part
+					NodePart newNodPart = new NodePart();
+					newNodPart.material = nodePart.material;
+					newNodPart.meshPart = nodePart.meshPart;
+					node.parts.set(i, nodePart = newNodPart);
+				}
 				nodePart.bones = new Matrix4[ibms.size];
 				nodePart.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
 				for(int n=0 ; n<joints.size ; n++){
