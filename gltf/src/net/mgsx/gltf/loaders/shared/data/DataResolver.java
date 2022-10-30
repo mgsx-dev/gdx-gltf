@@ -27,9 +27,25 @@ public class DataResolver {
 
 	public float[] readBufferFloat(int accessorID) {
 		GLTFAccessor accessor = glModel.accessors.get(accessorID);
-		FloatBuffer floatBuffer = getBufferFloat(accessorID);
-		float [] data = new float[GLTFTypes.accessorSize(accessor) / 4];
-		floatBuffer.get(data);
+		GLTFBufferView bufferView = glModel.bufferViews.get(accessor.bufferView);
+		ByteBuffer bytes = dataFileResolver.getBuffer(bufferView.buffer);
+		bytes.position(bufferView.byteOffset + accessor.byteOffset);
+		float [] data = new float[GLTFTypes.accessorSize(accessor)/4];
+		
+		int nbFloatsPerVertex = GLTFTypes.accessorTypeSize(accessor);
+		int nbBytesToSkip = 0;
+		if(bufferView.byteStride != null) nbBytesToSkip = bufferView.byteStride - nbFloatsPerVertex * 4;
+		if(nbBytesToSkip == 0){
+			bytes.asFloatBuffer().get(data);
+		}else{
+			for(int i=0 ; i<accessor.count ; i++){
+				for(int j=0 ; j<nbFloatsPerVertex ; j++){
+					data[i*nbFloatsPerVertex+j] = bytes.getFloat();
+				}
+				// skip remaining bytes
+				bytes.position(bytes.position() + nbBytesToSkip);
+			}
+		}
 		return data;
 	}
 	
