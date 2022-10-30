@@ -289,7 +289,7 @@ public class GLTFLoaderBase implements Disposable {
 				Matrix4 matrix = new Matrix4(glNode.matrix);
 				matrix.getTranslation(node.translation);
 				matrix.getScale(node.scale);
-				matrix.getRotation(node.rotation);
+				matrix.getRotation(node.rotation, true);
 			}else{
 				if(glNode.translation != null){
 					GLTFTypes.map(node.translation, glNode.translation);
