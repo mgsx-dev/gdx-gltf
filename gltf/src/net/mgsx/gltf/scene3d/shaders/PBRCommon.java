@@ -12,9 +12,24 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class PBRCommon {
 	public static final int MAX_MORPH_TARGETS = 8;
 	
-	private static final IntBuffer intBuffer = BufferUtils.newIntBuffer(16);
+	/** ClassX: thread-safety support
+	 * 
+	 * @author dar */
+	static class IntBufferLocal extends ThreadLocal<IntBuffer> {
+		/*
+		 * @see java.lang.ThreadLocal#initialValue()
+		 */
+		@Override
+		protected IntBuffer initialValue() {
+			return BufferUtils.newIntBuffer(16);
+		}
+	}
+
+	// ClassX: thread-safety support
+	private static final IntBufferLocal localBuffer = new IntBufferLocal();
 	
 	public static int getCapability(int pname){
+		final IntBuffer intBuffer = localBuffer.get();
 		intBuffer.clear();
 		Gdx.gl.glGetIntegerv(pname, intBuffer);
 		return intBuffer.get();

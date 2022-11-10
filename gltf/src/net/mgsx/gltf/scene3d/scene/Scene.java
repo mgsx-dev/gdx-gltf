@@ -36,7 +36,7 @@ public class Scene implements RenderableProvider, Updatable {
 	public final ObjectMap<Node, Camera> cameras = new ObjectMap<Node, Camera>();
 	public final AnimationsPlayer animations;
 	
-	private static final Matrix4 transform = new Matrix4();
+	private final Matrix4 transform = new Matrix4();
 	
 	public Scene(SceneModel sceneModel) {
 		this(new ModelInstanceHack(sceneModel.model), sceneModel);

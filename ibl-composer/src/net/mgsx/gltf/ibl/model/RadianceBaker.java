@@ -24,7 +24,7 @@ import net.mgsx.gltf.scene3d.utils.FacedMultiCubemapData;
 
 public class RadianceBaker implements Disposable {
 	
-	private static final Matrix4 matrix = new Matrix4();
+	private final Matrix4 matrix = new Matrix4();
 	
 	private ShaderProgram randianceShader;
 	private Mesh boxMesh;

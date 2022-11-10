@@ -67,9 +67,9 @@ public class GLTFLoaderBase implements Disposable {
 		);
 	}
 	
-	private static final ObjectSet<Material> materialSet = new ObjectSet<Material>();
-	private static final ObjectSet<MeshPart> meshPartSet = new ObjectSet<MeshPart>();
-	private static final ObjectSet<Mesh> meshSet = new ObjectSet<Mesh>();
+	private final ObjectSet<Material> materialSet = new ObjectSet<Material>();
+	private final ObjectSet<MeshPart> meshPartSet = new ObjectSet<MeshPart>();
+	private final ObjectSet<Mesh> meshSet = new ObjectSet<Mesh>();
 	private final ObjectSet<Mesh> loadedMeshes = new ObjectSet<Mesh>();
 	
 	private final Array<Camera> cameras = new Array<Camera>();
@@ -272,7 +272,7 @@ public class GLTFLoaderBase implements Disposable {
 		}
 	}
 	
-	private static <T> void copy(ObjectSet<T> src, Array<T> dst){
+	private <T> void copy(ObjectSet<T> src, Array<T> dst){
 		for(T e : src) dst.add(e);
 	}
 
