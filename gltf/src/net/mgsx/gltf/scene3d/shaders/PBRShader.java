@@ -148,9 +148,17 @@ public class PBRShader extends DefaultShader
 	
 	public final static Uniform envRotationUniform = new Uniform("u_envRotation", PBRMatrixAttribute.EnvRotation);
 	public final static Setter envRotationSetter = new LocalSetter() {
-		private final Matrix3 mat3 = new Matrix3();
+		
+		/** ClassX: thread-safety support */
+		private final ThreadLocal<Matrix3> tlMatrix3 = new ThreadLocal<>(){
+			protected Matrix3 initialValue() {
+				return new Matrix3();
+			}
+		};
+		
 		@Override
 		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final Matrix3 mat3 = tlMatrix3.get();
 			PBRMatrixAttribute attribute = combinedAttributes.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
 			shader.set(inputID, mat3.set(attribute.matrix));
 		}
