@@ -32,6 +32,8 @@ public class TransmissionSource implements Disposable {
 	private FrameBuffer fbo;
 	private int width;
 	private int height;
+	private boolean hasTransmission;
+	private Camera camera;
 	
 	/** attribute to be added to the environment in the final render pass. */
 	public final PBRTextureAttribute attribute = new PBRTextureAttribute(PBRTextureAttribute.TransmissionSourceTexture);
@@ -78,11 +80,9 @@ public class TransmissionSource implements Disposable {
 	}
 	
 	public void begin(Camera camera){
+		this.camera = camera;
 		ensureFrameBufferSize(width, height);
-		fbo.begin();
-		Gdx.gl.glClearColor(0, 0, 0, 0);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		batch.begin(camera);
+		this.hasTransmission = false;
 	}
 	
 	private void ensureFrameBufferSize(int width, int height) {
@@ -125,22 +125,30 @@ public class TransmissionSource implements Disposable {
 	}
 
 	public void end(){
-		for(Renderable renderable : selectedRenderables){
-			batch.render(renderable);
+		if(hasTransmission){
+			fbo.begin();
+			Gdx.gl.glClearColor(0, 0, 0, 0);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+			batch.begin(camera);
+			
+			for(Renderable renderable : selectedRenderables){
+				batch.render(renderable);
+			}
+			
+			batch.end();
+			fbo.end();
+			
+			// gen mipmaps for roughness simulation
+			Texture texture = fbo.getColorBufferTexture();
+			texture.bind();
+			Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
 		}
-		
-		batch.end();
-		fbo.end();
 
+		attribute.textureDescription.texture = fbo.getColorBufferTexture();
+		
 		renderablePool.flush();
 		selectedRenderables.clear();
 		allRenderables.clear();
-		
-		// gen mipmaps for roughness simulation
-		Texture texture = fbo.getColorBufferTexture();
-		texture.bind();
-		Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
-		attribute.textureDescription.texture = fbo.getColorBufferTexture();
 	}
 
 	private boolean shouldBeRendered(Renderable renderable) {
@@ -148,6 +156,7 @@ public class TransmissionSource implements Disposable {
 		boolean hasTransmission = renderable.material.has(PBRTextureAttribute.TransmissionTexture) ||
 			(renderable.material.has(PBRFloatAttribute.TransmissionFactor) 
 					&& renderable.material.get(PBRFloatAttribute.class, PBRFloatAttribute.TransmissionFactor).value > 0);
+		this.hasTransmission |= hasTransmission;
 		return !hasTransmission;
 	}
 
