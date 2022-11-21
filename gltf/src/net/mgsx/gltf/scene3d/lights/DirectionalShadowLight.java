@@ -37,7 +37,7 @@ public class DirectionalShadowLight extends DirectionalLightEx implements Shadow
 			
 	public DirectionalShadowLight(int shadowMapWidth, int shadowMapHeight, float shadowViewportWidth,
 			float shadowViewportHeight, float shadowNear, float shadowFar) {
-		fbo = new FrameBuffer(Format.RGBA8888, shadowMapWidth, shadowMapHeight, true);
+		fbo = createFrameBuffer(shadowMapWidth, shadowMapHeight);
 		cam = new OrthographicCamera(shadowViewportWidth, shadowViewportHeight);
 		cam.near = shadowNear;
 		cam.far = shadowFar;
@@ -51,9 +51,13 @@ public class DirectionalShadowLight extends DirectionalLightEx implements Shadow
 			if(fbo != null){
 				fbo.dispose();
 			}
-			fbo = new FrameBuffer(Format.RGBA8888, shadowMapWidth, shadowMapHeight, true);
+			fbo = createFrameBuffer(shadowMapWidth, shadowMapHeight);
 		}
 		return this;
+	}
+	
+	protected FrameBuffer createFrameBuffer(int width, int height){
+		return new FrameBuffer(Format.RGBA8888, width, height, true);
 	}
 	
 	public DirectionalShadowLight setViewport(float shadowViewportWidth, float shadowViewportHeight, float shadowNear, float shadowFar){
