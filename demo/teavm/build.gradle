@@ -1,0 +1,36 @@
+plugins {
+  id 'java'
+  id 'java-library'
+  id "org.gretty" version "3.0.6"
+}
+
+sourceCompatibility = 1.8
+
+gretty {
+  servletContainer = 'jetty9'
+  extraResourceBase 'webapp'
+}
+
+sourceSets.main.java.srcDirs = ["src/main/java/"]
+project.ext.mainClassName = "net.mgsx.gltf.demo.Build"
+
+dependencies {
+  implementation project(":demo:core")
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+  implementation "com.github.xpenatan.gdx-web-tools:backend-web:1.0.0-SNAPSHOT"
+  implementation "com.github.xpenatan.gdx-web-tools:backend-teavm:1.0.0-SNAPSHOT"
+  implementation "com.github.xpenatan.gdx-web-tools:backend-teavm-native:1.0.0-SNAPSHOT"
+}
+
+task buildJavaScript(dependsOn: classes, type: JavaExec) {
+  setGroup("teavm")
+  setDescription("Build demo")
+  mainClass.set(project.mainClassName)
+  setClasspath(sourceSets.main.runtimeClasspath)
+}
+
+task runTeaVMDemo(dependsOn: [':demo:teavm:buildJavaScript', ':demo:teavm:jettyRun']) {
+  setGroup("teavm")
+  setDescription("Run Demo")
+}
