@@ -108,7 +108,6 @@ gradle-app.setting
 /html/build/
 /ios/build/
 /ios-moe/build/
-/teavm/webapp/**
 /teavm/build/
 
 ## OS Specific
