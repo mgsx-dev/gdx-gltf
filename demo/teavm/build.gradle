@@ -30,8 +30,3 @@ task runTeaVMDemo(dependsOn: [':demo:teavm:buildJavaScript', ':demo:teavm:jettyR
   setGroup("teavm")
   setDescription("Run Demo")
 }
-
-configurations.all {
-  // Check for updates every build
-  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
