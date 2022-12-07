@@ -16,8 +16,7 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
 
   implementation "com.github.xpenatan.gdx-teavm:backend-web:$gdxTeaVMVersion"
-  implementation "com.github.xpenatan.gdx-teavm:backend-teavm-core:$gdxTeaVMVersion"
-  implementation "com.github.xpenatan.gdx-teavm:backend-teavm-native:$gdxTeaVMVersion"
+  implementation "com.github.xpenatan.gdx-teavm:backend-teavm:$gdxTeaVMVersion"
 }
 
 task buildJavaScript(dependsOn: classes, type: JavaExec) {
@@ -30,4 +29,9 @@ task buildJavaScript(dependsOn: classes, type: JavaExec) {
 task runTeaVMDemo(dependsOn: [':demo:teavm:buildJavaScript', ':demo:teavm:jettyRun']) {
   setGroup("teavm")
   setDescription("Run Demo")
+}
+
+configurations.all {
+  // Check for updates every build
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
