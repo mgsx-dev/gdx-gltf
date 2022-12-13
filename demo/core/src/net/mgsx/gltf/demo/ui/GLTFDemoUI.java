@@ -147,6 +147,8 @@ public class GLTFDemoUI extends Table {
 
 	public BooleanUI mirrorClip;
 
+	public SelectBox<SRGB> mirrorSRGB;
+
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
 		this.sceneManager = sceneManager;
@@ -302,7 +304,10 @@ public class GLTFDemoUI extends Table {
 		shaderOptions.optTable.add(mirrorOrigin = new FloatUI(skin, 0, null, -10, 10)).row();
 		shaderOptions.optTable.add("Mirror clip");
 		shaderOptions.optTable.add(mirrorClip = new BooleanUI(skin, true)).row();
-		
+		shaderOptions.optTable.add("Mirror SRGB");
+		shaderOptions.optTable.add(mirrorSRGB = new SelectBox<SRGB>(skin)).row();
+		mirrorSRGB.setItems(SRGB.values());
+		mirrorSRGB.setSelected(SRGB.ACCURATE);
 		
 		// Outlines
 		root.add();

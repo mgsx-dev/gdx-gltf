@@ -171,6 +171,12 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				prefix += "#define TS_SRGB_FAST_APPROXIMATION\n";
 			}
 		}
+		if(config.mirrorSRGB != SRGB.NONE){
+			prefix += "#define MS_MANUAL_SRGB\n";
+			if(config.mirrorSRGB == SRGB.FAST){
+				prefix += "#define MS_SRGB_FAST_APPROXIMATION\n";
+			}
+		}
 		return prefix;
 	}
 	

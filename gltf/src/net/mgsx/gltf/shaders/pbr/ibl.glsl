@@ -152,7 +152,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
 	mirrorCoord += p / 2.0;
 	mirrorCoord.x = 1.0 - mirrorCoord.x;
 
-    vec3 specularLight = SRGBtoLINEAR(texture2DLodEXT(u_mirrorSpecularSampler, mirrorCoord, lod)).rgb;
+    vec3 specularLight = msSRGBtoLINEAR(texture2DLodEXT(u_mirrorSpecularSampler, mirrorCoord, lod)).rgb;
 
 #else
 

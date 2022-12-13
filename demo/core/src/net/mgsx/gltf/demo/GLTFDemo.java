@@ -489,6 +489,12 @@ public class GLTFDemo extends ApplicationAdapter
 				updateMirror();
 			}
 		});
+		ui.mirrorSRGB.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				invalidateShaders();
+			}
+		});
 		
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
@@ -733,6 +739,7 @@ public class GLTFDemo extends ApplicationAdapter
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
 				config.transmissionSRGB = ui.transmissionSRGB.getSelected();
+				config.mirrorSRGB = ui.mirrorSRGB.getSelected();
 				config.numBones = maxBones;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
