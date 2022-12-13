@@ -11,6 +11,7 @@ Sometimes you want ot render scenes to a FBO (Frame buffer). You can do it but y
 
 ```java
 sceneManager.renderShadows();
+sceneManager.renderMirror();
 sceneManager.renderTransmission();
 		
 fbo.begin();
@@ -127,6 +128,19 @@ If you want better results, that is, seeing deformed objects through these mater
 `sceneManager.setTransmissionSource(new TransmissionSource(shaderProvider));`
 
 You usually give the same shader provider for both TransmissionSource and normal rendering.
+
+### Dynamic reflections
+
+You can enable dynamic reflections with a planar mirror, you need to enable mirror pre-render:
+
+`sceneManager.setMirrorSource(new MirrorSource().set(0, 1, 0, -0.833f, true));`
+
+And then apply it to your plane object(s) via its material. In this case, mirror frame buffer will be sampled instead of specular cubemap for them :
+`material.set(MirrorAttribute.createSpecular());`
+
+Note that material with mirror reflection shouldn't be double sided. It would produce artifacts in the pre-render pass and will give wrong reflections on the back side anyway.
+
+Note that you can change mirror framebuffer size (default is screen size) to improve performance but it will affect quality and will bias roughness.
 
 ## Animations
 

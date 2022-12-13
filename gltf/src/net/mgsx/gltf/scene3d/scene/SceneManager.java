@@ -44,6 +44,7 @@ public class SceneManager implements Disposable {
 	private ModelBatch depthBatch;
 	private SceneSkybox skyBox;
 	private TransmissionSource transmissionSource;
+	private MirrorSource mirrorSource;
 	
 	/** Shouldn't be null. */
 	public Environment environment = new Environment();
@@ -122,6 +123,18 @@ public class SceneManager implements Disposable {
 		if(this.transmissionSource != transmissionSource){
 			if(this.transmissionSource != null) this.transmissionSource.dispose();
 			this.transmissionSource = transmissionSource;
+		}
+	}
+	
+	/**
+	 * Enable/disable pre-rendering for mirror effect.
+	 * 
+	 * @param mirrorSource set null to disable mirror.
+	 */
+	public void setMirrorSource(MirrorSource mirrorSource) {
+		if(this.mirrorSource != mirrorSource){
+			if(this.mirrorSource != null) this.mirrorSource.dispose();
+			this.mirrorSource = mirrorSource;
 		}
 	}
 	
@@ -225,11 +238,21 @@ public class SceneManager implements Disposable {
 		
 		renderShadows();
 		
+		renderMirror();
+		
 		renderTransmission();
 		
 		renderColors();
 	}
 	
+	public void renderMirror() {
+		if(mirrorSource != null){
+			mirrorSource.begin(camera, computedEnvironement, skyBox);
+			renderColors();
+			mirrorSource.end();
+		}
+	}
+
 	public void renderTransmission() {
 		if(transmissionSource != null){
 			transmissionSource.begin(camera);
@@ -345,5 +368,6 @@ public class SceneManager implements Disposable {
 		batch.dispose();
 		depthBatch.dispose();
 		if(transmissionSource != null) transmissionSource.dispose();
+		if(mirrorSource != null) mirrorSource.dispose();
 	}
 }

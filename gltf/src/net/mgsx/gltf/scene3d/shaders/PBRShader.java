@@ -16,7 +16,9 @@ import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import net.mgsx.gltf.scene3d.attributes.ClippingPlaneAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
+import net.mgsx.gltf.scene3d.attributes.MirrorSourceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
@@ -387,12 +389,61 @@ public class PBRShader extends DefaultShader
 		}
 	};
 
+	public final static Uniform specularMirrorTextureUniform = new Uniform("u_mirrorSpecularSampler", MirrorSourceAttribute.Type);
+	public final static Setter specularMirrorTextureSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			final int unit = shader.context.textureBinder.bind(((MirrorSourceAttribute)(combinedAttributes
+				.get(MirrorSourceAttribute.Type))).textureDescription);
+			shader.set(inputID, unit);
+		}
+	};
+	public final static Uniform specularMirrorMipmapUniform = new Uniform("u_mirrorMipmapScale");
+	public final static Setter specularMirrorMipmapSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			MirrorSourceAttribute a = combinedAttributes.get(MirrorSourceAttribute.class, MirrorSourceAttribute.Type);
+			float mipmapFactor;
+			if(a != null){
+				mipmapFactor = (float)(Math.log(a.textureDescription.texture.getWidth()) / Math.log(2.0)) + 0;
+			}else{
+				mipmapFactor = 1;
+			}
+			shader.set(inputID, mipmapFactor);
+		}
+	};
+	
+	public final static Uniform mirrorNormal = new Uniform("u_mirrorNormal");
+	public final static Setter mirrorNormalSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			MirrorSourceAttribute a = combinedAttributes.get(MirrorSourceAttribute.class, MirrorSourceAttribute.Type);
+			shader.set(inputID, a.normal);
+		}
+	};
 	
 	public final static Uniform projViewTransUniform = new Uniform("u_projViewTrans");
 	public final static Setter projViewTransSetter = new LocalSetter() {
 		@Override
 		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
 			shader.set(inputID, shader.camera.combined);
+		}
+	};
+	
+	public final static Uniform viewportInvUniform = new Uniform("u_viewportInv");
+	public final static Setter viewportInvSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			shader.set(inputID, 1f / shader.camera.viewportWidth, 1f / shader.camera.viewportHeight);
+		}
+	};
+
+	public final static Uniform clippingPlaneUniform = new Uniform("u_clippingPlane");
+	public final static Setter clippingPlaneSetter = new LocalSetter() {
+		@Override
+		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
+			ClippingPlaneAttribute a = combinedAttributes.get(ClippingPlaneAttribute.class, ClippingPlaneAttribute.Type);
+			shader.set(inputID, a.plane.normal.x, a.plane.normal.y, a.plane.normal.z, a.plane.d);
 		}
 	};
 
@@ -460,7 +511,14 @@ public class PBRShader extends DefaultShader
 
 	public int u_transmissionSourceTexture;
 	public int u_transmissionSourceMipmap;
-	
+
+	public int u_specularMirrorSampler;
+	public int u_specularMirrorMipmapScale;
+	public int u_specularMirrorNormal;
+
+	public int u_viewportInv;
+	public int u_clippingPlane;
+
 	private static final Matrix3 textureTransform = new Matrix3();
 	
 	public PBRShader(Renderable renderable, Config config, String prefix) {
@@ -531,6 +589,14 @@ public class PBRShader extends DefaultShader
 		u_iridescenceThicknessMax = register(iridescenceThicknessMaxUniform, iridescenceThicknessMaxSetter);
 		u_iridescenceTexture = register(iridescenceTextureUniform, iridescenceTextureSetter);
 		u_iridescenceThicknessTexture = register(iridescenceThicknessTextureUniform, iridescenceThicknessTextureSetter);
+		
+		// specular mirror
+		u_specularMirrorSampler = register(specularMirrorTextureUniform, specularMirrorTextureSetter);
+		u_specularMirrorMipmapScale = register(specularMirrorMipmapUniform, specularMirrorMipmapSetter);
+		u_specularMirrorNormal = register(mirrorNormal, mirrorNormalSetter);
+		
+		u_viewportInv = register(viewportInvUniform, viewportInvSetter);
+		u_clippingPlane = register(clippingPlaneUniform, clippingPlaneSetter);
 	}
 
 	private int computeVertexColorLayers(Renderable renderable) {

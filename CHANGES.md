@@ -1,5 +1,9 @@
 # Changes history
 
+### 2.3.0
+
+* Added Mirror specular effect (dynamic reflections).
+
 ### 2.2.0
 
 * Added `KHR_materials_transmission` extension support.

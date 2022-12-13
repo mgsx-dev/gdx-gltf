@@ -18,7 +18,10 @@ import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import net.mgsx.gltf.scene3d.attributes.ClippingPlaneAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
+import net.mgsx.gltf.scene3d.attributes.MirrorAttribute;
+import net.mgsx.gltf.scene3d.attributes.MirrorSourceAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFlagAttribute;
@@ -250,9 +253,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			if(renderable.material.has(PBRTextureAttribute.IridescenceThicknessTexture)){
 				prefix += "#define iridescenceThicknessTextureFlag\n";
 			}
+			if(renderable.environment.has(ClippingPlaneAttribute.Type)){
+				prefix += "#define clippingPlaneFlag\n";
+			}
 			
 			// IBL options
 			PBRCubemapAttribute specualarCubemapAttribute = null;
+			MirrorAttribute specularMirrorAttribute = null;
 			if(renderable.environment != null){
 				if(renderable.environment.has(PBRTextureAttribute.TransmissionSourceTexture)){
 					prefix += "#define transmissionSourceFlag\n";
@@ -265,7 +272,13 @@ public class PBRShaderProvider extends DefaultShaderProvider
 				}else if(renderable.environment.has(PBRCubemapAttribute.EnvironmentMap)){
 					specualarCubemapAttribute = renderable.environment.get(PBRCubemapAttribute.class, PBRCubemapAttribute.EnvironmentMap);
 				}
-				if(specualarCubemapAttribute != null){
+				
+				if(renderable.environment.has(MirrorSourceAttribute.Type) && renderable.material.has(MirrorAttribute.Specular)){
+					specularMirrorAttribute = renderable.environment.get(MirrorAttribute.class, MirrorAttribute.Specular);
+					prefix += "#define mirrorSpecularFlag\n";
+				}
+				
+				if(specualarCubemapAttribute != null || specularMirrorAttribute != null){
 					prefix += "#define USE_IBL\n";
 					
 					boolean textureLodSupported;
@@ -278,9 +291,11 @@ public class PBRShaderProvider extends DefaultShaderProvider
 						textureLodSupported = false;
 					}
 					
-					TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();
-					if(textureLodSupported && textureFilter.equals(TextureFilter.MipMap)){
-						prefix += "#define USE_TEX_LOD\n";
+					if(specualarCubemapAttribute != null){
+						TextureFilter textureFilter = specualarCubemapAttribute.textureDescription.minFilter != null ? specualarCubemapAttribute.textureDescription.minFilter : specualarCubemapAttribute.textureDescription.texture.getMinFilter();
+						if(textureLodSupported && textureFilter.equals(TextureFilter.MipMap)){
+							prefix += "#define USE_TEX_LOD\n";
+						}
 					}
 					
 					if(renderable.environment.has(PBRTextureAttribute.BRDFLUTTexture)){
