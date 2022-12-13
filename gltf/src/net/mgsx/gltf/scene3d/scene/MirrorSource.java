@@ -30,7 +30,7 @@ public class MirrorSource implements Disposable
 	
 	public boolean clipScene = true;
 	
-	public final MirrorSourceAttribute mirrorAttribute = new MirrorSourceAttribute();
+	protected final MirrorSourceAttribute mirrorAttribute = new MirrorSourceAttribute();
 	
 	private ClippingPlaneAttribute clippingPlane = new ClippingPlaneAttribute(Vector3.Y, 0);
 	private Camera camera;

@@ -66,6 +66,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
+import net.mgsx.gltf.scene3d.scene.MirrorSource;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
@@ -141,6 +142,8 @@ public class GLTFDemo extends ApplicationAdapter
 	private ShaderProgram outlineShader;
 
 	private ScreenViewport viewport;
+	
+	private MirrorSource mirror;
 	
 	public GLTFDemo() {
 		this(null);
@@ -454,6 +457,39 @@ public class GLTFDemo extends ApplicationAdapter
 				invalidateShaders();
 			}
 		});
+		
+		ui.mirror.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(ui.mirror.isOn()){
+					mirror = new MirrorSource();
+					updateMirror();
+					sceneManager.setMirrorSource(mirror);
+				}else{
+					sceneManager.setMirrorSource(null);
+					mirror = null;
+				}
+			}
+		});
+		ui.mirrorClip.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				updateMirror();
+			}
+		});
+		ui.mirrorNormal.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				updateMirror();
+			}
+		});
+		ui.mirrorOrigin.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				updateMirror();
+			}
+		});
+		
 		ui.sceneSelector.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -562,6 +598,11 @@ public class GLTFDemo extends ApplicationAdapter
 				}
 			}
 		});
+	}
+	
+	private void updateMirror(){
+		Vector3 n = ui.mirrorNormal.value;
+		mirror.set(n.x,n.y,n.z, ui.mirrorOrigin.getValue(), ui.mirrorClip.isOn());
 	}
 	
 	private void save(FileHandle file) {
