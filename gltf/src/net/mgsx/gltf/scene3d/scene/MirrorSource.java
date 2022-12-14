@@ -152,7 +152,9 @@ public class MirrorSource implements Disposable
 	
 	@Override
 	public void dispose() {
-		fbo.dispose();
+		if(fbo != null){
+			fbo.dispose();
+		}
 	}
 
 }
