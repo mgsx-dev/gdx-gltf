@@ -87,7 +87,7 @@ public class TransmissionSource implements Disposable {
 	
 	private void ensureFrameBufferSize(int width, int height) {
 		if(width <= 0) width = Gdx.graphics.getBackBufferWidth();
-		if(height <= 0) height = Gdx.graphics.getBackBufferWidth();
+		if(height <= 0) height = Gdx.graphics.getBackBufferHeight();
 		
 		if(fbo == null || fbo.getWidth() != width || fbo.getHeight() != height){
 			if(fbo != null) fbo.dispose();
