@@ -607,8 +607,10 @@ public class GLTFDemo extends ApplicationAdapter
 	}
 	
 	private void updateMirror(){
-		Vector3 n = ui.mirrorNormal.value;
-		mirror.set(n.x,n.y,n.z, ui.mirrorOrigin.getValue(), ui.mirrorClip.isOn());
+		if(mirror != null){
+			Vector3 n = ui.mirrorNormal.value;
+			mirror.set(n.x,n.y,n.z, ui.mirrorOrigin.getValue(), ui.mirrorClip.isOn());
+		}
 	}
 	
 	private void save(FileHandle file) {
