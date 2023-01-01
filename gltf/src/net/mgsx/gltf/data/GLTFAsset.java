@@ -1,5 +1,9 @@
 package net.mgsx.gltf.data;
 
 public class GLTFAsset extends GLTFObject {
-	public String generator, version, copyright, minVersion;
+
+  public String generator;
+  public String version;
+  public String copyright;
+  public String minVersion;
 }

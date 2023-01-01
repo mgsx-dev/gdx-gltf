@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.TextureDescriptor;
 import com.badlogic.gdx.math.MathUtils;
-
 import net.mgsx.gltf.data.extensions.KHRMaterialsEmissiveStrength;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIOR;
 import net.mgsx.gltf.data.extensions.KHRMaterialsIridescence;
@@ -36,184 +35,171 @@ import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 
 public class PBRMaterialLoader extends MaterialLoaderBase {
 
-	public PBRMaterialLoader(TextureResolver textureResolver) {
-		super(textureResolver, new Material(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE)));
-	}
-	
-	@Override
-	public Material loadMaterial(GLTFMaterial glMaterial) 
-	{
-		Material material = new Material();
-		if(glMaterial.name != null) material.id = glMaterial.name;
-		
-		if(glMaterial.emissiveFactor != null){
-			material.set(new ColorAttribute(ColorAttribute.Emissive, GLTFTypes.mapColor(glMaterial.emissiveFactor, Color.BLACK)));
-		}
-		
-		if(glMaterial.emissiveTexture != null){
-			material.set(getTexureMap(PBRTextureAttribute.EmissiveTexture, glMaterial.emissiveTexture));
-		}
-		
-		if(glMaterial.doubleSided == Boolean.TRUE){
-			material.set(IntAttribute.createCullFace(0)); // 0 to disable culling
-		}
-		
-		if(glMaterial.normalTexture != null){
-			material.set(getTexureMap(PBRTextureAttribute.NormalTexture, glMaterial.normalTexture));
-			material.set(PBRFloatAttribute.createNormalScale(glMaterial.normalTexture.scale));
-		}
-		
-		if(glMaterial.occlusionTexture != null){
-			material.set(getTexureMap(PBRTextureAttribute.OcclusionTexture, glMaterial.occlusionTexture));
-			material.set(PBRFloatAttribute.createOcclusionStrength(glMaterial.occlusionTexture.strength));
-		}
-		
-		boolean alphaBlend = false;
-		if("OPAQUE".equals(glMaterial.alphaMode)){
-			// nothing to do
-		}else if("MASK".equals(glMaterial.alphaMode)){ 
-			float value = glMaterial.alphaCutoff == null ? 0.5f : glMaterial.alphaCutoff;
-			material.set(FloatAttribute.createAlphaTest(value));
-			material.set(new BlendingAttribute()); // necessary
-		}else if("BLEND".equals(glMaterial.alphaMode)){
-			material.set(new BlendingAttribute()); // opacity is set by pbrMetallicRoughness below
-			alphaBlend = true;
-		}else if(glMaterial.alphaMode != null){
-			throw new GLTFIllegalException("unknow alpha mode : " + glMaterial.alphaMode);
-		}
-		
-		if(glMaterial.pbrMetallicRoughness != null){
-			GLTFpbrMetallicRoughness p = glMaterial.pbrMetallicRoughness;
-			
-			Color baseColorFactor = GLTFTypes.mapColor(p.baseColorFactor, Color.WHITE);
-			
-			material.set(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, baseColorFactor));
+  public PBRMaterialLoader(TextureResolver textureResolver) {
+    super(textureResolver, new Material(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, Color.WHITE)));
+  }
 
-			material.set(PBRFloatAttribute.createMetallic(p.metallicFactor));
-			material.set(PBRFloatAttribute.createRoughness(p.roughnessFactor));
-			
-			if(p.metallicRoughnessTexture != null){
-				material.set(getTexureMap(PBRTextureAttribute.MetallicRoughnessTexture, p.metallicRoughnessTexture));
-			}
-			
-			if(p.baseColorTexture != null){
-				material.set(getTexureMap(PBRTextureAttribute.BaseColorTexture, p.baseColorTexture));
-			}
-			
-			if(alphaBlend){
-				material.get(BlendingAttribute.class, BlendingAttribute.Type).opacity = baseColorFactor.a;
-			}
-		}
-		
-		// can have both PBR base and ext
-		if(glMaterial.extensions != null){
-			{
-				KHRMaterialsPBRSpecularGlossiness ext = glMaterial.extensions.get(KHRMaterialsPBRSpecularGlossiness.class, KHRMaterialsPBRSpecularGlossiness.EXT);
-				if(ext != null){
-					Gdx.app.error("GLTF", KHRMaterialsPBRSpecularGlossiness.EXT + " extension is deprecated by glTF 2.0 specification and not fully supported.");
-					
-					material.set(new ColorAttribute(ColorAttribute.Diffuse, GLTFTypes.mapColor(ext.diffuseFactor, Color.WHITE)));
-					material.set(new ColorAttribute(ColorAttribute.Specular, GLTFTypes.mapColor(ext.specularFactor, Color.WHITE)));
-					
-					// not sure how to map normalized gloss to exponent ...
-					material.set(new FloatAttribute(FloatAttribute.Shininess, MathUtils.lerp(1, 100, ext.glossinessFactor)));
-					if(ext.diffuseTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.Diffuse, ext.diffuseTexture));
-					}
-					if(ext.specularGlossinessTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.Specular, ext.specularGlossinessTexture));
-					}
-				}
-			}
-			{
-				KHRMaterialsUnlit ext = glMaterial.extensions.get(KHRMaterialsUnlit.class, KHRMaterialsUnlit.EXT);
-				if(ext != null){
-					material.set(new PBRFlagAttribute(PBRFlagAttribute.Unlit));
-				}
-			}
-			{
-				KHRMaterialsTransmission ext = glMaterial.extensions.get(KHRMaterialsTransmission.class, KHRMaterialsTransmission.EXT);
-				if(ext != null){
-					material.set(PBRFloatAttribute.createTransmissionFactor(ext.transmissionFactor));
-					if(ext.transmissionTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.TransmissionTexture, ext.transmissionTexture));
-					}
-				}
-			}
-			{
-				KHRMaterialsVolume ext = glMaterial.extensions.get(KHRMaterialsVolume.class, KHRMaterialsVolume.EXT);
-				if(ext != null){
-					material.set(new PBRVolumeAttribute(ext.thicknessFactor, ext.attenuationDistance == null ? 0f : ext.attenuationDistance, GLTFTypes.mapColor(ext.attenuationColor, Color.WHITE)));
-					if(ext.thicknessTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.ThicknessTexture, ext.thicknessTexture));
-					}
-				}
-			}
-			{
-				KHRMaterialsIOR ext = glMaterial.extensions.get(KHRMaterialsIOR.class, KHRMaterialsIOR.EXT);
-				if(ext != null){
-					material.set(PBRFloatAttribute.createIOR(ext.ior));
-				}
-			}
-			{
-				KHRMaterialsSpecular ext = glMaterial.extensions.get(KHRMaterialsSpecular.class, KHRMaterialsSpecular.EXT);
-				if(ext != null){
-					material.set(PBRFloatAttribute.createSpecularFactor(ext.specularFactor));
-					material.set(new PBRHDRColorAttribute(PBRHDRColorAttribute.Specular, ext.specularColorFactor[0], ext.specularColorFactor[1], ext.specularColorFactor[2]));
-					if(ext.specularTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.SpecularFactorTexture, ext.specularTexture));
-					}
-					if(ext.specularColorTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.SpecularColorTexture, ext.specularColorTexture));
-					}
-				}
-			}
-			{
-				KHRMaterialsIridescence ext = glMaterial.extensions.get(KHRMaterialsIridescence.class, KHRMaterialsIridescence.EXT);
-				if(ext != null){
-					material.set(new PBRIridescenceAttribute(ext.iridescenceFactor, ext.iridescenceIor, ext.iridescenceThicknessMinimum, ext.iridescenceThicknessMaximum));
-					if(ext.iridescenceTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.IridescenceTexture, ext.iridescenceTexture));
-					}
-					if(ext.iridescenceThicknessTexture != null){
-						material.set(getTexureMap(PBRTextureAttribute.IridescenceThicknessTexture, ext.iridescenceThicknessTexture));
-					}
-				}
-			}
-			{
-				KHRMaterialsEmissiveStrength ext = glMaterial.extensions.get(KHRMaterialsEmissiveStrength.class, KHRMaterialsEmissiveStrength.EXT);
-				if(ext != null){
-					material.set(PBRFloatAttribute.createEmissiveIntensity(ext.emissiveStrength));
-				}
-			}
-		}
-		
-		return material;
-	}
+  @Override
+  public Material loadMaterial(GLTFMaterial glMaterial) {
+    Material material = new Material();
+    if (glMaterial.name != null) material.id = glMaterial.name;
 
-	private PBRTextureAttribute getTexureMap(long type, GLTFTextureInfo glMap) {
-		TextureDescriptor<Texture> textureDescriptor = textureResolver.getTexture(glMap);
-		
-		PBRTextureAttribute attribute = new PBRTextureAttribute(type, textureDescriptor);
-		attribute.uvIndex = glMap.texCoord;
-		
-		if(glMap.extensions != null){
-			{
-				KHRTextureTransform ext = glMap.extensions.get(KHRTextureTransform.class, KHRTextureTransform.EXT);
-				if(ext != null){
-					attribute.offsetU = ext.offset[0];
-					attribute.offsetV = ext.offset[1];
-					attribute.scaleU = ext.scale[0];
-					attribute.scaleV = ext.scale[1];
-					attribute.rotationUV = ext.rotation;
-					if(ext.texCoord != null){
-						attribute.uvIndex = ext.texCoord;
-					}
-				}
-			}
-		}
-		
-		return attribute;
-	}
-	
+    if (glMaterial.emissiveFactor != null) {
+      material.set(new ColorAttribute(ColorAttribute.Emissive, GLTFTypes.mapColor(glMaterial.emissiveFactor, Color.BLACK)));
+    }
+
+    if (glMaterial.emissiveTexture != null) {
+      material.set(getTexureMap(PBRTextureAttribute.EmissiveTexture, glMaterial.emissiveTexture));
+    }
+
+    if (glMaterial.doubleSided == Boolean.TRUE) {
+      material.set(IntAttribute.createCullFace(0)); // 0 to disable culling
+    }
+
+    if (glMaterial.normalTexture != null) {
+      material.set(getTexureMap(PBRTextureAttribute.NormalTexture, glMaterial.normalTexture));
+      material.set(PBRFloatAttribute.createNormalScale(glMaterial.normalTexture.scale));
+    }
+
+    if (glMaterial.occlusionTexture != null) {
+      material.set(getTexureMap(PBRTextureAttribute.OcclusionTexture, glMaterial.occlusionTexture));
+      material.set(PBRFloatAttribute.createOcclusionStrength(glMaterial.occlusionTexture.strength));
+    }
+
+    boolean alphaBlend = false;
+    if ("OPAQUE".equals(glMaterial.alphaMode)) {
+      // nothing to do
+    } else if ("MASK".equals(glMaterial.alphaMode)) {
+      float value = glMaterial.alphaCutoff == null ? 0.5f : glMaterial.alphaCutoff;
+      material.set(FloatAttribute.createAlphaTest(value));
+      material.set(new BlendingAttribute()); // necessary
+    } else if ("BLEND".equals(glMaterial.alphaMode)) {
+      material.set(new BlendingAttribute()); // opacity is set by pbrMetallicRoughness below
+      alphaBlend = true;
+    } else if (glMaterial.alphaMode != null) {
+      throw new GLTFIllegalException("unknown alpha mode : " + glMaterial.alphaMode);
+    }
+
+    if (glMaterial.pbrMetallicRoughness != null) {
+      GLTFpbrMetallicRoughness p = glMaterial.pbrMetallicRoughness;
+
+      Color baseColorFactor = GLTFTypes.mapColor(p.baseColorFactor, Color.WHITE);
+
+      material.set(new PBRColorAttribute(PBRColorAttribute.BaseColorFactor, baseColorFactor));
+
+      material.set(PBRFloatAttribute.createMetallic(p.metallicFactor));
+      material.set(PBRFloatAttribute.createRoughness(p.roughnessFactor));
+
+      if (p.metallicRoughnessTexture != null) {
+        material.set(getTexureMap(PBRTextureAttribute.MetallicRoughnessTexture, p.metallicRoughnessTexture));
+      }
+
+      if (p.baseColorTexture != null) {
+        material.set(getTexureMap(PBRTextureAttribute.BaseColorTexture, p.baseColorTexture));
+      }
+
+      if (alphaBlend) {
+        material.get(BlendingAttribute.class, BlendingAttribute.Type).opacity = baseColorFactor.a;
+      }
+    }
+
+    // can have both PBR base and ext
+    if (glMaterial.extensions != null) {
+      KHRMaterialsPBRSpecularGlossiness khrMaterialsPBRSpecularGlossiness = glMaterial.extensions.get(KHRMaterialsPBRSpecularGlossiness.class, KHRMaterialsPBRSpecularGlossiness.EXT);
+      if (khrMaterialsPBRSpecularGlossiness != null) {
+        Gdx.app.error("GLTF", KHRMaterialsPBRSpecularGlossiness.EXT + " extension is deprecated by glTF 2.0 specification and not fully supported.");
+
+        material.set(new ColorAttribute(ColorAttribute.Diffuse, GLTFTypes.mapColor(khrMaterialsPBRSpecularGlossiness.diffuseFactor, Color.WHITE)));
+        material.set(new ColorAttribute(ColorAttribute.Specular, GLTFTypes.mapColor(khrMaterialsPBRSpecularGlossiness.specularFactor, Color.WHITE)));
+
+        // not sure how to map normalized gloss to exponent ...
+        material.set(new FloatAttribute(FloatAttribute.Shininess, MathUtils.lerp(1, 100, khrMaterialsPBRSpecularGlossiness.glossinessFactor)));
+        if (khrMaterialsPBRSpecularGlossiness.diffuseTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.Diffuse, khrMaterialsPBRSpecularGlossiness.diffuseTexture));
+        }
+        if (khrMaterialsPBRSpecularGlossiness.specularGlossinessTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.Specular, khrMaterialsPBRSpecularGlossiness.specularGlossinessTexture));
+        }
+      }
+
+      KHRMaterialsUnlit khrMaterialsUnlit = glMaterial.extensions.get(KHRMaterialsUnlit.class, KHRMaterialsUnlit.EXT);
+      if (khrMaterialsUnlit != null) {
+        material.set(new PBRFlagAttribute(PBRFlagAttribute.Unlit));
+      }
+
+      KHRMaterialsTransmission khrMaterialsTransmission = glMaterial.extensions.get(KHRMaterialsTransmission.class, KHRMaterialsTransmission.EXT);
+      if (khrMaterialsTransmission != null) {
+        material.set(PBRFloatAttribute.createTransmissionFactor(khrMaterialsTransmission.transmissionFactor));
+        if (khrMaterialsTransmission.transmissionTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.TransmissionTexture, khrMaterialsTransmission.transmissionTexture));
+        }
+      }
+
+      KHRMaterialsVolume khrMaterialsVolume = glMaterial.extensions.get(KHRMaterialsVolume.class, KHRMaterialsVolume.EXT);
+      if (khrMaterialsVolume != null) {
+        material.set(new PBRVolumeAttribute(khrMaterialsVolume.thicknessFactor, khrMaterialsVolume.attenuationDistance == null ? 0f : khrMaterialsVolume.attenuationDistance, GLTFTypes.mapColor(khrMaterialsVolume.attenuationColor, Color.WHITE)));
+        if (khrMaterialsVolume.thicknessTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.ThicknessTexture, khrMaterialsVolume.thicknessTexture));
+        }
+      }
+
+      KHRMaterialsIOR khrMaterialsIOR = glMaterial.extensions.get(KHRMaterialsIOR.class, KHRMaterialsIOR.EXT);
+      if (khrMaterialsIOR != null) {
+        material.set(PBRFloatAttribute.createIOR(khrMaterialsIOR.ior));
+      }
+
+      KHRMaterialsSpecular khrMaterialsSpecular = glMaterial.extensions.get(KHRMaterialsSpecular.class, KHRMaterialsSpecular.EXT);
+      if (khrMaterialsSpecular != null) {
+        material.set(PBRFloatAttribute.createSpecularFactor(khrMaterialsSpecular.specularFactor));
+        material.set(new PBRHDRColorAttribute(PBRHDRColorAttribute.Specular, khrMaterialsSpecular.specularColorFactor[0], khrMaterialsSpecular.specularColorFactor[1], khrMaterialsSpecular.specularColorFactor[2]));
+        if (khrMaterialsSpecular.specularTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.SpecularFactorTexture, khrMaterialsSpecular.specularTexture));
+        }
+        if (khrMaterialsSpecular.specularColorTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.SpecularColorTexture, khrMaterialsSpecular.specularColorTexture));
+        }
+      }
+
+      KHRMaterialsIridescence khrMaterialsIridescence = glMaterial.extensions.get(KHRMaterialsIridescence.class, KHRMaterialsIridescence.EXT);
+      if (khrMaterialsIridescence != null) {
+        material.set(new PBRIridescenceAttribute(khrMaterialsIridescence.iridescenceFactor, khrMaterialsIridescence.iridescenceIor, khrMaterialsIridescence.iridescenceThicknessMinimum, khrMaterialsIridescence.iridescenceThicknessMaximum));
+        if (khrMaterialsIridescence.iridescenceTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.IridescenceTexture, khrMaterialsIridescence.iridescenceTexture));
+        }
+        if (khrMaterialsIridescence.iridescenceThicknessTexture != null) {
+          material.set(getTexureMap(PBRTextureAttribute.IridescenceThicknessTexture, khrMaterialsIridescence.iridescenceThicknessTexture));
+        }
+      }
+
+      KHRMaterialsEmissiveStrength khrMaterialsEmissiveStrength = glMaterial.extensions.get(KHRMaterialsEmissiveStrength.class, KHRMaterialsEmissiveStrength.EXT);
+      if (khrMaterialsEmissiveStrength != null) {
+        material.set(PBRFloatAttribute.createEmissiveIntensity(khrMaterialsEmissiveStrength.emissiveStrength));
+      }
+    }
+
+    return material;
+  }
+
+  private PBRTextureAttribute getTexureMap(long type, GLTFTextureInfo glMap) {
+    TextureDescriptor<Texture> textureDescriptor = textureResolver.getTexture(glMap);
+
+    PBRTextureAttribute attribute = new PBRTextureAttribute(type, textureDescriptor);
+    attribute.uvIndex = glMap.texCoord;
+
+    if (glMap.extensions != null) {
+      KHRTextureTransform ext = glMap.extensions.get(KHRTextureTransform.class, KHRTextureTransform.EXT);
+      if (ext != null) {
+        attribute.offsetU = ext.offset[0];
+        attribute.offsetV = ext.offset[1];
+        attribute.scaleU = ext.scale[0];
+        attribute.scaleV = ext.scale[1];
+        attribute.rotationUV = ext.rotation;
+        if (ext.texCoord != null) {
+          attribute.uvIndex = ext.texCoord;
+        }
+      }
+    }
+
+    return attribute;
+  }
 }

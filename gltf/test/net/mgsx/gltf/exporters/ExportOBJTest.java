@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 
 public class ExportOBJTest extends Game {
+
 	public static void main(String[] args) {
 		new LwjglApplication(new ExportOBJTest());
 	}

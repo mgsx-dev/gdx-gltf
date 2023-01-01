@@ -5,10 +5,9 @@ package net.mgsx.gltf.loaders.exceptions;
  */
 public class GLTFIllegalException extends GLTFRuntimeException {
 
-	private static final long serialVersionUID = 5253133784286484602L;
+  private static final long serialVersionUID = 5253133784286484602L;
 
-	public GLTFIllegalException(String message) {
-		super(message);
-	}
-	
+  public GLTFIllegalException(String message) {
+    super(message);
+  }
 }

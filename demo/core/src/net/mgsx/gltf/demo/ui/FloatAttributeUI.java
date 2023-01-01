@@ -7,27 +7,29 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
-public class FloatAttributeUI extends Table
-{
-	private Slider slider;
-	protected FloatAttribute attribute;
-	public FloatAttributeUI(Skin skin, final FloatAttribute attribute) {
-		this(skin, attribute, 0, 1);
-	}
-	public FloatAttributeUI(Skin skin, final FloatAttribute attribute, float min, float max) {
-		super(skin);
-		this.attribute = attribute;
-		slider = new Slider(min, max, .01f, false, skin);
-		if(attribute != null){
-			add(FloatAttribute.getAttributeAlias(attribute.type));
-			add(slider).row();
-			slider.setValue(attribute.value);
-			slider.addListener(new ChangeListener() {
-				@Override
-				public void changed(ChangeEvent event, Actor actor) {
-					attribute.value = slider.getValue();
-				}
-			});
-		}
-	}
+public class FloatAttributeUI extends Table {
+
+  private final Slider slider;
+  protected FloatAttribute attribute;
+
+  public FloatAttributeUI(Skin skin, final FloatAttribute attribute) {
+    this(skin, attribute, 0, 1);
+  }
+
+  public FloatAttributeUI(Skin skin, final FloatAttribute attribute, float min, float max) {
+    super(skin);
+    this.attribute = attribute;
+    slider = new Slider(min, max, .01f, false, skin);
+    if (attribute != null) {
+      add(FloatAttribute.getAttributeAlias(attribute.type));
+      add(slider).row();
+      slider.setValue(attribute.value);
+      slider.addListener(new ChangeListener() {
+        @Override
+        public void changed(ChangeEvent event, Actor actor) {
+          attribute.value = slider.getValue();
+        }
+      });
+    }
+  }
 }

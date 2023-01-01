@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-
 import net.mgsx.gltf.data.animation.GLTFAnimation;
 import net.mgsx.gltf.data.animation.GLTFAnimationChannel;
 import net.mgsx.gltf.data.animation.GLTFAnimationSampler;
@@ -25,154 +24,147 @@ import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class AnimationLoader {
-	
-	public final Array<Animation> animations = new Array<Animation>();
-	
-	public void load(Array<GLTFAnimation> glAnimations, NodeResolver nodeResolver, DataResolver dataResolver) {
-		
-		if(glAnimations != null){
-			for(int i=0 ; i<glAnimations.size ; i++){
-				GLTFAnimation glAnimation = glAnimations.get(i);
-				
-				Animation animation = load(glAnimation, nodeResolver, dataResolver);
-				animation.id = glAnimation.name == null ? "animation" + i : glAnimation.name;
-				
-				animations.add(animation);
-			}
-		}
-	}
-	
-	private Animation load(GLTFAnimation glAnimation, NodeResolver nodeResolver, DataResolver dataResolver){
-		
-		ObjectMap<Node, NodeAnimation> animMap = new ObjectMap<Node, NodeAnimation>();
-		
-		Animation animation = new Animation();
-		
-		for(GLTFAnimationChannel glChannel : glAnimation.channels){
-			GLTFAnimationSampler glSampler = glAnimation.samplers.get(glChannel.sampler);
-			Node node = nodeResolver.get(glChannel.target.node);
-			
-			NodeAnimation nodeAnimation = animMap.get(node);
-			if(nodeAnimation == null){
-				nodeAnimation = new NodeAnimationHack();
-				nodeAnimation.node = node;
-				animMap.put(node, nodeAnimation);
-				animation.nodeAnimations.add(nodeAnimation);
-			}
-			
-			float[] inputData = dataResolver.readBufferFloat(glSampler.input);
-			float[] outputData = dataResolver.readBufferFloat(glSampler.output);
 
-			final Interpolation interpolation = GLTFTypes.mapInterpolation(glSampler.interpolation);
-			
-			// case of cubic spline, we skip anchor vectors if cubic is disabled.
-			int dataOffset = 0;
-			int dataStride = 1;
-			if(interpolation == Interpolation.CUBICSPLINE){
-				dataOffset = 1;
-				dataStride = 3;
-			}
-			
-			GLTFAccessor inputAccessor = dataResolver.getAccessor(glSampler.input);
-			animation.duration = Math.max(animation.duration, inputAccessor.max[0]);
-			
-			String property = glChannel.target.path;
-			if("translation".equals(property)){
-				
-				((NodeAnimationHack)nodeAnimation).translationMode = interpolation;
-				
-				nodeAnimation.translation = new Array<NodeKeyframe<Vector3>>();
-				if(interpolation == Interpolation.CUBICSPLINE){
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						nodeAnimation.translation.add(new NodeKeyframe<Vector3>(0, GLTFTypes.map(new CubicVector3(), outputData, 0)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						nodeAnimation.translation.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new CubicVector3(), outputData, k*dataStride*3)));
-					}
-				}else{
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						nodeAnimation.translation.add(new NodeKeyframe<Vector3>(0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						nodeAnimation.translation.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new Vector3(), outputData, (dataOffset+(k*dataStride))*3)));
-					}
-				}
-			}else if("rotation".equals(property)){
-				
-				((NodeAnimationHack)nodeAnimation).rotationMode = interpolation;
-				
-				nodeAnimation.rotation = new Array<NodeKeyframe<Quaternion>>();
-				if(interpolation == Interpolation.CUBICSPLINE){
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						nodeAnimation.rotation.add(new NodeKeyframe<Quaternion>(0, GLTFTypes.map(new CubicQuaternion(), outputData, 0)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						nodeAnimation.rotation.add(new NodeKeyframe<Quaternion>(inputData[k], GLTFTypes.map(new CubicQuaternion(), outputData, k*dataStride*4)));
-					}
-				}else{
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						nodeAnimation.rotation.add(new NodeKeyframe<Quaternion>(0, GLTFTypes.map(new Quaternion(), outputData, dataOffset * 4)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						nodeAnimation.rotation.add(new NodeKeyframe<Quaternion>(inputData[k], GLTFTypes.map(new Quaternion(), outputData, (dataOffset+(k*dataStride))*4)));
-					}
-				}
-			}else if("scale".equals(property)){
-				
-				((NodeAnimationHack)nodeAnimation).scalingMode = interpolation;
-				
-				nodeAnimation.scaling = new Array<NodeKeyframe<Vector3>>();
-				if(interpolation == Interpolation.CUBICSPLINE){
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(0, GLTFTypes.map(new CubicVector3(), outputData, 0)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new CubicVector3(), outputData, k*dataStride*3)));
-					}
-				}else{
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new Vector3(), outputData, (dataOffset+(k*dataStride))*3)));
-					}
-				}
-			}else if("weights".equals(property)){
-				
-				((NodeAnimationHack)nodeAnimation).weightsMode = interpolation;
-				
-				NodeAnimationHack np = (NodeAnimationHack)nodeAnimation;
-				int nbWeights = ((NodePlus)node).weights.count;
-				np.weights = new Array<NodeKeyframe<WeightVector>>();
-				if(interpolation == Interpolation.CUBICSPLINE){
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						np.weights.add(new NodeKeyframe<WeightVector>(0, GLTFTypes.map(new CubicWeightVector(nbWeights), outputData, 0)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						np.weights.add(new NodeKeyframe<WeightVector>(inputData[k], GLTFTypes.map(new CubicWeightVector(nbWeights), outputData, k*dataStride*nbWeights)));
-					}
-				}else{
-					// copy first frame if not at zero time
-					if(inputData[0] > 0){
-						np.weights.add(new NodeKeyframe<WeightVector>(0, GLTFTypes.map(new WeightVector(nbWeights), outputData, dataOffset * nbWeights)));
-					}
-					for(int k=0 ; k<inputData.length ; k++){
-						np.weights.add(new NodeKeyframe<WeightVector>(inputData[k], GLTFTypes.map(new WeightVector(nbWeights), outputData, (dataOffset+(k*dataStride))*nbWeights)));
-					}
-				}
-			}else{
-				throw new GLTFUnsupportedException("unsupported " + property);
-			}
-		}
-		
-		return animation;
-	}
-	
+  public final Array<Animation> animations = new Array<>();
+
+  public void load(Array<GLTFAnimation> glAnimations, NodeResolver nodeResolver, DataResolver dataResolver) {
+    if (glAnimations != null) {
+      for (int i = 0; i < glAnimations.size; i++) {
+        GLTFAnimation glAnimation = glAnimations.get(i);
+
+        Animation animation = load(glAnimation, nodeResolver, dataResolver);
+        animation.id = glAnimation.name == null ? "animation" + i : glAnimation.name;
+
+        animations.add(animation);
+      }
+    }
+  }
+
+  private Animation load(GLTFAnimation glAnimation, NodeResolver nodeResolver, DataResolver dataResolver) {
+    ObjectMap<Node, NodeAnimation> animMap = new ObjectMap<>();
+
+    Animation animation = new Animation();
+
+    for (GLTFAnimationChannel glChannel : glAnimation.channels) {
+      GLTFAnimationSampler glSampler = glAnimation.samplers.get(glChannel.sampler);
+      Node node = nodeResolver.get(glChannel.target.node);
+
+      NodeAnimation nodeAnimation = animMap.get(node);
+      if (nodeAnimation == null) {
+        nodeAnimation = new NodeAnimationHack();
+        nodeAnimation.node = node;
+        animMap.put(node, nodeAnimation);
+        animation.nodeAnimations.add(nodeAnimation);
+      }
+
+      float[] inputData = dataResolver.readBufferFloat(glSampler.input);
+      float[] outputData = dataResolver.readBufferFloat(glSampler.output);
+
+      final Interpolation interpolation = GLTFTypes.mapInterpolation(glSampler.interpolation);
+
+      // case of cubic spline, we skip anchor vectors if cubic is disabled.
+      int dataOffset = 0;
+      int dataStride = 1;
+      if (interpolation == Interpolation.CUBICSPLINE) {
+        dataOffset = 1;
+        dataStride = 3;
+      }
+
+      GLTFAccessor inputAccessor = dataResolver.getAccessor(glSampler.input);
+      animation.duration = Math.max(animation.duration, inputAccessor.max[0]);
+
+      String property = glChannel.target.path;
+      if ("translation".equals(property)) {
+        ((NodeAnimationHack) nodeAnimation).translationMode = interpolation;
+
+        nodeAnimation.translation = new Array<>();
+        if (interpolation == Interpolation.CUBICSPLINE) {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            nodeAnimation.translation.add(new NodeKeyframe<Vector3>(0, GLTFTypes.map(new CubicVector3(), outputData, 0)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            nodeAnimation.translation.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new CubicVector3(), outputData, k * dataStride * 3)));
+          }
+        } else {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            nodeAnimation.translation.add(new NodeKeyframe<>(0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            nodeAnimation.translation.add(new NodeKeyframe<>(inputData[k], GLTFTypes.map(new Vector3(), outputData, (dataOffset + (k * dataStride)) * 3)));
+          }
+        }
+      } else if ("rotation".equals(property)) {
+        ((NodeAnimationHack) nodeAnimation).rotationMode = interpolation;
+
+        nodeAnimation.rotation = new Array<>();
+        if (interpolation == Interpolation.CUBICSPLINE) {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            nodeAnimation.rotation.add(new NodeKeyframe<Quaternion>(0, GLTFTypes.map(new CubicQuaternion(), outputData, 0)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            nodeAnimation.rotation.add(new NodeKeyframe<Quaternion>(inputData[k], GLTFTypes.map(new CubicQuaternion(), outputData, k * dataStride * 4)));
+          }
+        } else {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            nodeAnimation.rotation.add(new NodeKeyframe<>(0, GLTFTypes.map(new Quaternion(), outputData, dataOffset * 4)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            nodeAnimation.rotation.add(new NodeKeyframe<>(inputData[k], GLTFTypes.map(new Quaternion(), outputData, (dataOffset + (k * dataStride)) * 4)));
+          }
+        }
+      } else if ("scale".equals(property)) {
+        ((NodeAnimationHack) nodeAnimation).scalingMode = interpolation;
+
+        nodeAnimation.scaling = new Array<>();
+        if (interpolation == Interpolation.CUBICSPLINE) {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(0, GLTFTypes.map(new CubicVector3(), outputData, 0)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            nodeAnimation.scaling.add(new NodeKeyframe<Vector3>(inputData[k], GLTFTypes.map(new CubicVector3(), outputData, k * dataStride * 3)));
+          }
+        } else {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            nodeAnimation.scaling.add(new NodeKeyframe<>(0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            nodeAnimation.scaling.add(new NodeKeyframe<>(inputData[k], GLTFTypes.map(new Vector3(), outputData, (dataOffset + (k * dataStride)) * 3)));
+          }
+        }
+      } else if ("weights".equals(property)) {
+        ((NodeAnimationHack) nodeAnimation).weightsMode = interpolation;
+
+        NodeAnimationHack np = (NodeAnimationHack) nodeAnimation;
+        int nbWeights = ((NodePlus) node).weights.count;
+        np.weights = new Array<>();
+        if (interpolation == Interpolation.CUBICSPLINE) {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            np.weights.add(new NodeKeyframe<WeightVector>(0, GLTFTypes.map(new CubicWeightVector(nbWeights), outputData, 0)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            np.weights.add(new NodeKeyframe<WeightVector>(inputData[k], GLTFTypes.map(new CubicWeightVector(nbWeights), outputData, k * dataStride * nbWeights)));
+          }
+        } else {
+          // copy first frame if not at zero time
+          if (inputData[0] > 0) {
+            np.weights.add(new NodeKeyframe<>(0, GLTFTypes.map(new WeightVector(nbWeights), outputData, dataOffset * nbWeights)));
+          }
+          for (int k = 0; k < inputData.length; k++) {
+            np.weights.add(new NodeKeyframe<>(inputData[k], GLTFTypes.map(new WeightVector(nbWeights), outputData, (dataOffset + (k * dataStride)) * nbWeights)));
+          }
+        }
+      } else {
+        throw new GLTFUnsupportedException("unsupported " + property);
+      }
+    }
+
+    return animation;
+  }
 }

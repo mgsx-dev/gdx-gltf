@@ -2,17 +2,22 @@ package net.mgsx.gltf.demo.ui;
 
 import com.badlogic.gdx.files.FileHandle;
 
-abstract public class FileSelector {
+public abstract class FileSelector {
 
-	public FileHandle lastFile;
+  public FileHandle lastFile;
 
-	/** open a file */
-	abstract public void open(Runnable runnable);
-	
-	/** open a file */
-	abstract public void save(Runnable runnable);
-	
-	/** select a folder */
-	abstract public void selectFolder(Runnable runnable);
+  /**
+   * open a file
+   */
+  public abstract void open(Runnable runnable);
 
+  /**
+   * open a file
+   */
+  public abstract void save(Runnable runnable);
+
+  /**
+   * select a folder
+   */
+  public abstract void selectFolder(Runnable runnable);
 }
