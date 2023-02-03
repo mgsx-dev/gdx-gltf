@@ -38,7 +38,7 @@ public class PBRShaderProvider extends DefaultShaderProvider
 {
 	public static final String TAG = "PBRShader";
 	
-	private static final LightsInfo lightsInfo = new LightsInfo();
+	private final LightsInfo lightsInfo = new LightsInfo();
 	
 	private static String defaultVertexShader = null;
 

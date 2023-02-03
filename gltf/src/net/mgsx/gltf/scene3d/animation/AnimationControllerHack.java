@@ -96,7 +96,7 @@ public class AnimationControllerHack extends AnimationController
 			return new Transform();
 		}
 	};
-	private final static ObjectMap<Node, Transform> transforms = new ObjectMap<Node, Transform>();
+	private final ObjectMap<Node, Transform> transforms = new ObjectMap<Node, Transform>();
 	private boolean applying = false;
 	public boolean calculateTransforms = true;
 
@@ -156,7 +156,7 @@ public class AnimationControllerHack extends AnimationController
 	}
 	
 	
-	private final static Transform tmpT = new Transform();
+	private final Transform tmpT = new Transform();
 
 	private final static <T> int getFirstKeyframeIndexAtTime (final Array<NodeKeyframe<T>> arr, final float time) {
 		final int n = arr.size - 1;
@@ -219,16 +219,16 @@ public class AnimationControllerHack extends AnimationController
 		out.set(p0).scl(2*t3 - 3*t2 + 1).mulAdd(m0, t3 - 2*t2 + t).mulAdd(p1, -2*t3 + 3*t2).mulAdd(m1, t3-t2);
 	}
 
-	private static final Quaternion q1 = new Quaternion();
-	private static final Quaternion q2 = new Quaternion();
-	private static final Quaternion q3 = new Quaternion();
-	private static final Quaternion q4 = new Quaternion();
+	private final Quaternion q1 = new Quaternion();
+	private final Quaternion q2 = new Quaternion();
+	private final Quaternion q3 = new Quaternion();
+	private final Quaternion q4 = new Quaternion();
 	
 	/** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation 
 	 * 
 	 * https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6a862d2607fb47ac48f54786b04e40be2ad866a4/src/interpolator.js
 	 * */
-	private static void cubic(Quaternion out, float t, float delta, Quaternion p0, Quaternion m0, Quaternion p1, Quaternion m1){
+	private void cubic(Quaternion out, float t, float delta, Quaternion p0, Quaternion m0, Quaternion p1, Quaternion m1){
 		
 		// XXX not good, see https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/src/interpolator.js#L42
 		delta =- delta;
@@ -252,7 +252,7 @@ public class AnimationControllerHack extends AnimationController
 	}
 
 
-	private final static Quaternion getRotationAtTime (final NodeAnimation nodeAnim, final float time, final Quaternion out) {
+	private final Quaternion getRotationAtTime (final NodeAnimation nodeAnim, final float time, final Quaternion out) {
 		if (nodeAnim.rotation == null) return out.set(nodeAnim.node.rotation);
 		if (nodeAnim.rotation.size == 1) return out.set(nodeAnim.rotation.get(0).value);
 
@@ -382,7 +382,7 @@ public class AnimationControllerHack extends AnimationController
 		return out;
 	}
 
-	private final static Transform getNodeAnimationTransform (final NodeAnimation nodeAnim, final float time) {
+	private final Transform getNodeAnimationTransform (final NodeAnimation nodeAnim, final float time) {
 		final Transform transform = tmpT;
 		getTranslationAtTime(nodeAnim, time, transform.translation);
 		getRotationAtTime(nodeAnim, time, transform.rotation);
@@ -392,7 +392,7 @@ public class AnimationControllerHack extends AnimationController
 		return transform;
 	}
 
-	private final static void applyNodeAnimationDirectly (final NodeAnimation nodeAnim, final float time) {
+	private final void applyNodeAnimationDirectly (final NodeAnimation nodeAnim, final float time) {
 		final Node node = nodeAnim.node;
 		node.isAnimated = true;
 		final Transform transform = getNodeAnimationTransform(nodeAnim, time);
@@ -407,7 +407,7 @@ public class AnimationControllerHack extends AnimationController
 		}
 	}
 
-	private final static void applyNodeAnimationBlending (final NodeAnimation nodeAnim, final ObjectMap<Node, Transform> out,
+	private final void applyNodeAnimationBlending (final NodeAnimation nodeAnim, final ObjectMap<Node, Transform> out,
 		final Pool<Transform> pool, final float alpha, final float time) {
 
 		final Node node = nodeAnim.node;
@@ -429,7 +429,7 @@ public class AnimationControllerHack extends AnimationController
 	}
 
 	/** Helper method to apply one animation to either an objectmap for blending or directly to the bones. */
-	protected static void applyAnimationPlus (final ObjectMap<Node, Transform> out, final Pool<Transform> pool, final float alpha,
+	protected void applyAnimationPlus (final ObjectMap<Node, Transform> out, final Pool<Transform> pool, final float alpha,
 		final Animation animation, final float time) {
 
 		if (out == null) {
