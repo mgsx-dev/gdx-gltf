@@ -1,4 +1,4 @@
-apply plugin: 'application'
+apply plugin: 'java'
 
 dependencies {
     api project(":demo:core")
@@ -13,10 +13,20 @@ sourceSets.test.java.srcDirs = [ "test/" ]
 project.ext.mainClassName = "net.mgsx.gltf.demo.DesktopLauncher"
 project.ext.assetsDir = new File("../android/assets");
 
-run {
+//run {
+//	workingDir = '../android/assets'
+//	setIgnoreExitValue(true)
+//	setClasspath(sourceSets.main.get().runtimeClasspath)
+//}
+
+task run(dependsOn: classes, type: JavaExec) {
+	group = 'other'
+	description = 'Run'
 	workingDir = '../android/assets'
-	setIgnoreExitValue(true)
+	setMainClass(project.mainClassName)
+	classpath = sourceSets.main.runtimeClasspath
 }
+
 
 jar {
 	archiveBaseName.set("$appName-desktop")

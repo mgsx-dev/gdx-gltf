@@ -15,7 +15,6 @@ dependencies {
   implementation project(":demo:core")
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
 
-  implementation "com.github.xpenatan.gdx-teavm:backend-web:$gdxTeaVMVersion"
   implementation "com.github.xpenatan.gdx-teavm:backend-teavm:$gdxTeaVMVersion"
 }
 
