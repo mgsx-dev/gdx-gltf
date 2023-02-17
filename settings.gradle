@@ -9,19 +9,19 @@ include ":demo:teavm"
 
 include ":ibl-composer"
 
-includeBuild("D:\\Dev\\Projects\\java\\teavm") {
-    dependencySubstitution {
-        substitute module('org.teavm:teavm-tooling') with project(':tools:core')
-        substitute module('org.teavm:teavm-core') with project(':core')
-        substitute module('org.teavm:teavm-classlib') with project(':classlib')
-        substitute module('org.teavm:teavm-jso') with project(':jso:core')
-        substitute module('org.teavm:teavm-jso-apis') with project(':jso:apis')
-        substitute module('org.teavm:teavm-jso-impl') with project(':jso:impl')
-    }
-}
+//includeBuild("D:\\Dev\\Projects\\java\\teavm") {
+//    dependencySubstitution {
+//        substitute module('org.teavm:teavm-tooling') with project(':tools:core')
+//        substitute module('org.teavm:teavm-core') with project(':core')
+//        substitute module('org.teavm:teavm-classlib') with project(':classlib')
+//        substitute module('org.teavm:teavm-jso') with project(':jso:core')
+//        substitute module('org.teavm:teavm-jso-apis') with project(':jso:apis')
+//        substitute module('org.teavm:teavm-jso-impl') with project(':jso:impl')
+//    }
+//}
 
-includeBuild('D:\\Dev\\Projects\\java\\gdx-teavm') {
-    dependencySubstitution {
-        substitute module('com.github.xpenatan.gdx-teavm:backend-teavm') with project(':backends:backend-teavm')
-    }
-}
+//includeBuild('D:\\Dev\\Projects\\java\\gdx-teavm') {
+//    dependencySubstitution {
+//        substitute module('com.github.xpenatan.gdx-teavm:backend-teavm') with project(':backends:backend-teavm')
+//    }
+//}
