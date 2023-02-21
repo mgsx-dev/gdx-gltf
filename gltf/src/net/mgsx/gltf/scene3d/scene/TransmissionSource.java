@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -58,7 +58,12 @@ public class TransmissionSource implements Disposable {
 	};
 	
 	public TransmissionSource(ShaderProvider shaderProvider) {
-		batch = new ModelBatch(shaderProvider, new SceneRenderableSorter());
+		this(shaderProvider, new SceneRenderableSorter());
+		
+	}
+	
+	public TransmissionSource(ShaderProvider shaderProvider, RenderableSorter sorter) {
+		batch = new ModelBatch(shaderProvider, sorter);
 		attribute.textureDescription.minFilter = TextureFilter.MipMap;
 		attribute.textureDescription.magFilter = TextureFilter.Linear;
 		
