@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class IrradianceBaker implements Disposable {
 
-	private static final Matrix4 matrix = new Matrix4();
+	private final Matrix4 matrix = new Matrix4();
 	
 	private final ShaderProgram irrandianceShader;
 	private final Mesh boxMesh;

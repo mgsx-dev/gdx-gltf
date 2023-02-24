@@ -30,7 +30,7 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
  */
 public class AnimationControllerHack extends AnimationController
 {
-	public static class Transform implements Poolable {
+	public class Transform implements Poolable {
 		public final Vector3 translation = new Vector3();
 		public final Quaternion rotation = new Quaternion();
 		public final Vector3 scale = new Vector3(1, 1, 1);
@@ -96,7 +96,7 @@ public class AnimationControllerHack extends AnimationController
 			return new Transform();
 		}
 	};
-	private final static ObjectMap<Node, Transform> transforms = new ObjectMap<Node, Transform>();
+	private final ObjectMap<Node, Transform> transforms = new ObjectMap<Node, Transform>();
 	private boolean applying = false;
 	public boolean calculateTransforms = true;
 
@@ -155,10 +155,9 @@ public class AnimationControllerHack extends AnimationController
 		}
 	}
 	
+	private final Transform tmpT = new Transform();
 	
-	private final static Transform tmpT = new Transform();
-
-	private final static <T> int getFirstKeyframeIndexAtTime (final Array<NodeKeyframe<T>> arr, final float time) {
+	private final <T> int getFirstKeyframeIndexAtTime (final Array<NodeKeyframe<T>> arr, final float time) {
 		final int n = arr.size - 1;
 		for (int i = 0; i < n; i++) {
 			if (time >= arr.get(i).keytime && time <= arr.get(i + 1).keytime) {
@@ -168,7 +167,7 @@ public class AnimationControllerHack extends AnimationController
 		return n;
 	}
 
-	private final static Vector3 getTranslationAtTime (final NodeAnimation nodeAnim, final float time, final Vector3 out) {
+	private final Vector3 getTranslationAtTime (final NodeAnimation nodeAnim, final float time, final Vector3 out) {
 		if (nodeAnim.translation == null) return out.set(nodeAnim.node.translation);
 		if (nodeAnim.translation.size == 1) return out.set(nodeAnim.translation.get(0).value);
 
@@ -212,23 +211,23 @@ public class AnimationControllerHack extends AnimationController
 	}
 	
 	/** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation */
-	private static void cubic(Vector3 out, float t, Vector3 p0, Vector3 m0, Vector3 p1, Vector3 m1){
+	private void cubic(Vector3 out, float t, Vector3 p0, Vector3 m0, Vector3 p1, Vector3 m1) {
 		// p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
 		float t2 = t*t;
 		float t3 = t2*t;
 		out.set(p0).scl(2*t3 - 3*t2 + 1).mulAdd(m0, t3 - 2*t2 + t).mulAdd(p1, -2*t3 + 3*t2).mulAdd(m1, t3-t2);
 	}
 
-	private static final Quaternion q1 = new Quaternion();
-	private static final Quaternion q2 = new Quaternion();
-	private static final Quaternion q3 = new Quaternion();
-	private static final Quaternion q4 = new Quaternion();
+	private final Quaternion q1 = new Quaternion();
+	private final Quaternion q2 = new Quaternion();
+	private final Quaternion q3 = new Quaternion();
+	private final Quaternion q4 = new Quaternion();
 	
 	/** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation 
 	 * 
 	 * https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6a862d2607fb47ac48f54786b04e40be2ad866a4/src/interpolator.js
 	 * */
-	private static void cubic(Quaternion out, float t, float delta, Quaternion p0, Quaternion m0, Quaternion p1, Quaternion m1){
+	private void cubic(Quaternion out, float t, float delta, Quaternion p0, Quaternion m0, Quaternion p1, Quaternion m1){
 		
 		// XXX not good, see https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/src/interpolator.js#L42
 		delta =- delta;
@@ -244,15 +243,14 @@ public class AnimationControllerHack extends AnimationController
 		out.set(q1).add(q2).add(q3).add(q4).nor();
 	}
 	
-	private static void cubic(WeightVector out, float t, WeightVector p0, WeightVector m0, WeightVector p1, WeightVector m1){
+	private void cubic(WeightVector out, float t, WeightVector p0, WeightVector m0, WeightVector p1, WeightVector m1){
 		// p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
 		float t2 = t*t;
 		float t3 = t2*t;
 		out.set(p0).scl(2*t3 - 3*t2 + 1).mulAdd(m0, t3 - 2*t2 + t).mulAdd(p1, -2*t3 + 3*t2).mulAdd(m1, t3-t2);
 	}
 
-
-	private final static Quaternion getRotationAtTime (final NodeAnimation nodeAnim, final float time, final Quaternion out) {
+	private final Quaternion getRotationAtTime(final NodeAnimation nodeAnim, final float time, final Quaternion out) {
 		if (nodeAnim.rotation == null) return out.set(nodeAnim.node.rotation);
 		if (nodeAnim.rotation.size == 1) return out.set(nodeAnim.rotation.get(0).value);
 
@@ -296,7 +294,7 @@ public class AnimationControllerHack extends AnimationController
 		return out;
 	}
 
-	private final static Vector3 getScalingAtTime (final NodeAnimation nodeAnim, final float time, final Vector3 out) {
+	private final Vector3 getScalingAtTime(final NodeAnimation nodeAnim, final float time, final Vector3 out) {
 		if (nodeAnim.scaling == null) return out.set(nodeAnim.node.scale);
 		if (nodeAnim.scaling.size == 1) return out.set(nodeAnim.scaling.get(0).value);
 
@@ -339,7 +337,7 @@ public class AnimationControllerHack extends AnimationController
 		return out;
 	}
 	
-	private final static WeightVector getMorphTargetAtTime (final NodeAnimationHack nodeAnim, final float time, final WeightVector out) {
+	private final WeightVector getMorphTargetAtTime(final NodeAnimationHack nodeAnim, final float time, final WeightVector out) {
 		if (nodeAnim.weights == null) return out.set();
 		if (nodeAnim.weights.size == 1) return out.set(nodeAnim.weights.get(0).value);
 
@@ -382,7 +380,7 @@ public class AnimationControllerHack extends AnimationController
 		return out;
 	}
 
-	private final static Transform getNodeAnimationTransform (final NodeAnimation nodeAnim, final float time) {
+	private final Transform getNodeAnimationTransform(final NodeAnimation nodeAnim, final float time) {
 		final Transform transform = tmpT;
 		getTranslationAtTime(nodeAnim, time, transform.translation);
 		getRotationAtTime(nodeAnim, time, transform.rotation);
@@ -392,7 +390,7 @@ public class AnimationControllerHack extends AnimationController
 		return transform;
 	}
 
-	private final static void applyNodeAnimationDirectly (final NodeAnimation nodeAnim, final float time) {
+	private final void applyNodeAnimationDirectly(final NodeAnimation nodeAnim, final float time) {
 		final Node node = nodeAnim.node;
 		node.isAnimated = true;
 		final Transform transform = getNodeAnimationTransform(nodeAnim, time);
@@ -407,7 +405,7 @@ public class AnimationControllerHack extends AnimationController
 		}
 	}
 
-	private final static void applyNodeAnimationBlending (final NodeAnimation nodeAnim, final ObjectMap<Node, Transform> out,
+	private final void applyNodeAnimationBlending (final NodeAnimation nodeAnim, final ObjectMap<Node, Transform> out,
 		final Pool<Transform> pool, final float alpha, final float time) {
 
 		final Node node = nodeAnim.node;
@@ -429,7 +427,7 @@ public class AnimationControllerHack extends AnimationController
 	}
 
 	/** Helper method to apply one animation to either an objectmap for blending or directly to the bones. */
-	protected static void applyAnimationPlus (final ObjectMap<Node, Transform> out, final Pool<Transform> pool, final float alpha,
+	protected void applyAnimationPlus (final ObjectMap<Node, Transform> out, final Pool<Transform> pool, final float alpha,
 		final Animation animation, final float time) {
 
 		if (out == null) {

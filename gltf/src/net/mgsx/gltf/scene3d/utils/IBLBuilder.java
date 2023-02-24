@@ -248,10 +248,10 @@ public class IBLBuilder implements Disposable
 		public final Vector3 direction = new Vector3(0, -1, 0);
 		public float exponent = 30f;
 		
-		private static final Vector3 localSunDir = new Vector3();
-		private static final Vector3 localDir = new Vector3();
-		private static final Vector3 localUp = new Vector3();
-		private static final Matrix4 matrix = new Matrix4();
+		private final Vector3 localSunDir = new Vector3();
+		private final Vector3 localDir = new Vector3();
+		private final Vector3 localUp = new Vector3();
+		private final Matrix4 matrix = new Matrix4();
 		
 		private void render(CubemapSide side, ShapeRenderer shapes, ShaderProgram shader, float strength){
 			render(side, shapes, shader, strength, exponent);
