@@ -34,6 +34,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.model.NodePartPlus;
 import net.mgsx.gltf.scene3d.model.NodePlus;
 import net.mgsx.gltf.scene3d.model.WeightVector;
+import net.mgsx.gltf.scene3d.shaders.*;
 
 public class MeshLoader {
 	
@@ -236,12 +237,20 @@ public class MeshLoader {
 									normalMapUVs = attribute;
 								}
 							}
-							if(normalMapUVs == null) throw new GLTFIllegalException("UVs not found for normal map");
+							if(normalMapUVs == null) {
+								// fallback to default normal attribure and avoid npe
+								normalMapUVs = VertexAttribute.Normal();
+							}
 						}
 					}
 				}
+
+				// clamp vertex to maximum possible
+				final int maxVertexAttrs = Math.min(vertexAttributes.size, PBRCommon.getCapability(GL20.GL_MAX_VERTEX_ATTRIBS));
+				final VertexAttribute[] vertexAttributesClamp = new VertexAttribute[maxVertexAttrs];
+				System.arraycopy(vertexAttributes.items, 0, vertexAttributesClamp, 0, maxVertexAttrs);
 				
-				VertexAttributes attributesGroup = new VertexAttributes((VertexAttribute[])vertexAttributes.toArray(VertexAttribute.class));
+				VertexAttributes attributesGroup = new VertexAttributes(vertexAttributesClamp);
 				
 				int vertexFloats = attributesGroup.vertexSize/4;
 				
