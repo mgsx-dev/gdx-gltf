@@ -238,7 +238,7 @@ public class MeshLoader {
 								}
 							}
 							if(normalMapUVs == null) {
-								// fallback to default normal attribure and avoid npe
+								// fallback to default normal attribute and avoid npe
 								normalMapUVs = VertexAttribute.Normal();
 							}
 						}
