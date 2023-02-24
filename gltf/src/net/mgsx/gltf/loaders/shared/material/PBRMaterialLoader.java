@@ -195,7 +195,9 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 		TextureDescriptor<Texture> textureDescriptor = textureResolver.getTexture(glMap);
 		
 		PBRTextureAttribute attribute = new PBRTextureAttribute(type, textureDescriptor);
-		attribute.uvIndex = glMap.texCoord;
+		
+		// pbr texture attr currently supports up 2 texture coords (0, 1), clamp index to avoid loading errors
+		attribute.uvIndex = Math.min(glMap.texCoord, 1);
 		
 		if(glMap.extensions != null){
 			{
