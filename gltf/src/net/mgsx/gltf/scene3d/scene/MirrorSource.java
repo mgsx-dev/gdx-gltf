@@ -15,6 +15,15 @@ import com.badlogic.gdx.utils.Disposable;
 import net.mgsx.gltf.scene3d.attributes.ClippingPlaneAttribute;
 import net.mgsx.gltf.scene3d.attributes.MirrorSourceAttribute;
 
+/**
+ * Mirror source renders reflected scene into a framebuffer.
+ * The frame buffer can be used for the final rendering pass for dynamic reflection effect.
+ * 
+ * Mirror source replaces IBL specular cube map for all materials having a {@link net.mgsx.gltf.scene3d.attributes.MirrorAttribute}.
+ * 
+ * @author mgsx
+ *
+ */
 public class MirrorSource implements Disposable
 {
 	protected FrameBuffer fbo;
@@ -27,7 +36,9 @@ public class MirrorSource implements Disposable
 	private final Vector3 planeOrigin = new Vector3();
 	private final Vector3 planeToCamera = new Vector3();
 	
-	
+	/**
+	 * enable/disable scene clipping. When enabled, objects behind mirror are not rendered.
+	 */
 	public boolean clipScene = true;
 	
 	protected final MirrorSourceAttribute mirrorAttribute = new MirrorSourceAttribute();
@@ -58,12 +69,27 @@ public class MirrorSource implements Disposable
 		this.height = height;
 	}
 	
+	/**
+	 * set mirror plane
+	 * @param nx normal x
+	 * @param ny normal y
+	 * @param nz normal z
+	 * @param d plan origin
+	 */
 	public void setPlane(float nx, float ny, float nz, float d) {
 		clippingPlane.plane.normal.set(nx, ny, nz).nor();
 		clippingPlane.plane.d = d;
 		mirrorAttribute.normal.set(clippingPlane.plane.normal);
 	}
 	
+	/**
+	 * set mirror source
+	 * @param nx normal x
+	 * @param ny normal y
+	 * @param nz normal z
+	 * @param d plan origin
+	 * @param clipScene if objects behind the plane should be clipped.
+	 */
 	public MirrorSource set(float nx, float ny, float nz, float d, boolean clipScene) {
 		setPlane(nx, ny, nz, d);
 		this.clipScene = clipScene;

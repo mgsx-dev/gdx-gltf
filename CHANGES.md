@@ -1,9 +1,5 @@
 # Changes history
 
-### 2.3.0
-
-* Added Mirror specular effect (dynamic reflections).
-
 ### 2.2.0
 
 * Added `KHR_materials_transmission` extension support.
@@ -17,6 +13,7 @@
 * Added HDR/RGBE subformat support
 * Added USHORT and UBYTE support for bone weights
 * Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
+* Added Mirror specular effect (dynamic reflections).
 
 ### 2.1.0
 
