@@ -866,9 +866,9 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		setShadow(ui.lightShadow.isOn());
 		
-		DirectionalLight light = sceneManager.getFirstDirectionalLight();
-		if(light instanceof DirectionalShadowLight){
-			((DirectionalShadowLight)light).setBounds(sceneBox);
+		DirectionalShadowLight light = sceneManager.getFirstDirectionalShadowLight();
+		if(light != null){
+			light.setBounds(sceneBox);
 		}
 		
 		invalidateShaders();

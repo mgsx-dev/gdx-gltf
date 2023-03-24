@@ -269,9 +269,8 @@ public class SceneManager implements Disposable {
 	 */
 	@SuppressWarnings("deprecation")
 	public void renderShadows(){
-		DirectionalLight light = getFirstDirectionalLight();
-		if(light instanceof DirectionalShadowLight){
-			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
+		DirectionalShadowLight shadowLight = getFirstDirectionalShadowLight();
+		if(shadowLight != null){
 			shadowLight.begin();
 			renderDepth(shadowLight.getCamera());
 			shadowLight.end();
@@ -291,7 +290,11 @@ public class SceneManager implements Disposable {
 		renderDepth(camera);
 	}
 	
-	private void renderDepth(Camera camera){
+	/**
+	 * Render only depth (packed 32 bits) with custom camera.
+	 * Useful to render shadow maps.
+	 */
+	public void renderDepth(Camera camera){
 		depthBatch.begin(camera);
 		depthBatch.render(renderableProviders);
 		depthBatch.end();
@@ -314,6 +317,18 @@ public class SceneManager implements Disposable {
 			for(DirectionalLight dl : dla.lights){
 				if(dl instanceof DirectionalLight){
 					return (DirectionalLight)dl;
+				}
+			}
+		}
+		return null;
+	}
+
+	public DirectionalShadowLight getFirstDirectionalShadowLight(){
+		DirectionalLightsAttribute dla = environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+		if(dla != null){
+			for(DirectionalLight dl : dla.lights){
+				if(dl instanceof DirectionalShadowLight){
+					return (DirectionalShadowLight)dl;
 				}
 			}
 		}
