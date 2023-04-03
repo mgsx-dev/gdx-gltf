@@ -1,4 +1,4 @@
-apply plugin: 'application'
+apply plugin: 'java'
 
 ext {
     appName = "gdx-gltf-ibl-composer"
@@ -8,16 +8,13 @@ eclipse.project.name = appName
 
 
 dependencies {
-    api project(":gltf")
-
-    api "com.badlogicgames.gdx:gdx:$gdxVersion"
-
+	implementation project(":gltf")
+	implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     
 }
 
-sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["src"]
 sourceSets.test.java.srcDirs = [ "test/" ]
@@ -26,54 +23,40 @@ project.ext.mainClassName = "net.mgsx.gltf.ibl.IBLComposerLauncher"
 project.ext.assetsDir = new File("assets");
 
 
-run {
-	workingDir = 'assets'
-	setIgnoreExitValue(true)
+task run(dependsOn: classes, type: JavaExec) {
+	main = project.mainClassName
+	classpath = sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	workingDir = project.assetsDir
+	ignoreExitValue = true
 }
 
-jar {
-	archiveBaseName.set('IBL-Composer')
-	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-	dependsOn configurations.runtimeClasspath
-	from 'assets'
-	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-	exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-	dependencies {
-		exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
-	}
+task debug(dependsOn: classes, type: JavaExec) {
+	main = project.mainClassName
+	classpath = sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	workingDir = project.assetsDir
+	ignoreExitValue = true
+	debug = true
+}
+
+task distIBL(type: Jar, dependsOn: [classes]) {
+	from files(sourceSets.main.output.classesDirs)
+	from files(sourceSets.main.output.resourcesDir)
+	from {configurations.compile.collect {zipTree(it)}}
+	from files(project.assetsDir)
+
+	// additional files could be added like this :
+	// from file("$projectDir/LICENSE");
+
 	manifest {
 		attributes 'Main-Class': project.mainClassName
 	}
 	doLast {
-		file(archiveFile).setExecutable(true, false)
+		file(archivePath).setExecutable(true, false)
 	}
 }
-
-task distIBL(dependsOn: [jar]) {
-}
-
-task sourcesJar(type: Jar) {
-    duplicatesStrategy = 'exclude'
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-javadoc {
-    failOnError = false
-}
-
 java {
-	withSourcesJar()
-	withJavadocJar()
-}
-
-publishing {
-	publications {
-		maven(MavenPublication) {
-			groupId project.group
-			artifactId project.name
-			version project.version
-			from components.java
-		}
-	}
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
 }

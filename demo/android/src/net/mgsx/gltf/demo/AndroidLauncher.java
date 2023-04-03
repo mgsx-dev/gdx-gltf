@@ -12,6 +12,6 @@ public class AndroidLauncher extends AndroidApplication {
 		GLTFDemo.AUTOLOAD_ENTRY = "BoomBox";
 		GLTFDemo.AUTOLOAD_VARIANT = "glTF";
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new GLTFDemo(), config);
+		initialize(new GLTFDemo("models"), config);
 	}
 }
