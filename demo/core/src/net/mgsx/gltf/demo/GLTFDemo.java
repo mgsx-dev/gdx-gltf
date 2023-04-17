@@ -66,6 +66,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
+import net.mgsx.gltf.scene3d.scene.CascadeShadowMap;
 import net.mgsx.gltf.scene3d.scene.MirrorSource;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
@@ -93,6 +94,8 @@ public class GLTFDemo extends ApplicationAdapter
 	public static int defaultUIScale = 1;
 	
 	private static final String TAG = "GLTFDemo";
+
+	private static final int SHADOW_MAP_SIZE = 2048;
 	
 	public static enum ShaderMode{
 		GOURAUD,	// https://en.wikipedia.org/wiki/Gouraud_shading#Comparison_with_other_shading_techniques
@@ -144,6 +147,7 @@ public class GLTFDemo extends ApplicationAdapter
 	private ScreenViewport viewport;
 	
 	private MirrorSource mirror;
+	private CascadeShadowMap csm;
 	
 	public GLTFDemo() {
 		this(null);
@@ -509,6 +513,17 @@ public class GLTFDemo extends ApplicationAdapter
 				setShadow(ui.lightShadow.isOn());
 			}
 		});
+		ui.shadowCascade.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if(ui.shadowCascade.isOn()){
+					sceneManager.setCascadeShadowMap(csm = new CascadeShadowMap(2));
+				}else{
+					sceneManager.setCascadeShadowMap(csm = null);
+				}
+				invalidateShaders();
+			}
+		});
 		
 		ui.btAllAnimations.addListener(new ChangeListener() {
 			@Override
@@ -625,7 +640,7 @@ public class GLTFDemo extends ApplicationAdapter
 			// change first direction light to shadow light (1 only supported for now)
 			DirectionalLight oldLight = sceneManager.getFirstDirectionalLight();
 			if(oldLight != null && !(oldLight instanceof DirectionalShadowLight)){
-				DirectionalLight newLight = new DirectionalShadowLight().setBounds(sceneBox).set(oldLight);
+				DirectionalLight newLight = new DirectionalShadowLight(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).setBounds(sceneBox).set(oldLight);
 				sceneManager.environment.remove(oldLight);
 				sceneManager.environment.add(newLight);
 				if(oldLight == defaultLight){
@@ -949,6 +964,16 @@ public class GLTFDemo extends ApplicationAdapter
 			sceneManager.environment.set(PBRFloatAttribute.createEmissiveIntensity(ui.emissiveSlider.getValue()));
 		}else{
 			emissive.value = ui.emissiveSlider.getValue();
+		}
+		
+		DirectionalShadowLight shadowLight = sceneManager.getFirstDirectionalShadowLight();
+		if(shadowLight != null){
+			if(csm != null){
+				shadowLight.setCenter(sceneManager.camera.position);
+				csm.setCascade(shadowLight, 4f);
+			}else{
+				shadowLight.setBounds(sceneBox);
+			}
 		}
 		
 		sceneManager.update(delta);

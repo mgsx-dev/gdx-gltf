@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import net.mgsx.gltf.scene3d.attributes.CascadeShadowMapAttribute;
 import net.mgsx.gltf.scene3d.attributes.ClippingPlaneAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.MirrorAttribute;
@@ -261,6 +262,10 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			}
 			if(renderable.environment.has(ClippingPlaneAttribute.Type)){
 				prefix += "#define clippingPlaneFlag\n";
+			}
+			CascadeShadowMapAttribute csm = renderable.environment.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
+			if(csm != null){
+				prefix += "#define numCSM " + csm.cascadeShadowMap.lights.size + "\n";
 			}
 			
 			// IBL options

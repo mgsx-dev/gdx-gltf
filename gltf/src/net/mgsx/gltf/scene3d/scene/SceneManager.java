@@ -45,6 +45,7 @@ public class SceneManager implements Disposable {
 	private SceneSkybox skyBox;
 	private TransmissionSource transmissionSource;
 	private MirrorSource mirrorSource;
+	private CascadeShadowMap cascadeShadowMap;
 	
 	/** Shouldn't be null. */
 	public Environment environment = new Environment();
@@ -135,6 +136,17 @@ public class SceneManager implements Disposable {
 		if(this.mirrorSource != mirrorSource){
 			if(this.mirrorSource != null) this.mirrorSource.dispose();
 			this.mirrorSource = mirrorSource;
+		}
+	}
+	
+	/**
+	 * Enable/disable pre-rendering for cascade shadow map.
+	 * @param cascadeShadowMap set null to disable.
+	 */
+	public void setCascadeShadowMap(CascadeShadowMap cascadeShadowMap) {
+		if(this.cascadeShadowMap != cascadeShadowMap){
+			if(this.cascadeShadowMap != null) this.cascadeShadowMap.dispose();
+			this.cascadeShadowMap = cascadeShadowMap;
 		}
 	}
 	
@@ -280,6 +292,15 @@ public class SceneManager implements Disposable {
 			environment.shadowMap = null;
 		}
 		computedEnvironement.shadowMap = environment.shadowMap;
+		
+		if(cascadeShadowMap != null){
+			for(DirectionalShadowLight light : cascadeShadowMap.lights){
+				light.begin();
+				renderDepth(light.getCamera());
+				light.end();
+			}
+			computedEnvironement.set(cascadeShadowMap.attribute);
+		}
 	}
 	
 	/**

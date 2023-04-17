@@ -149,6 +149,8 @@ public class GLTFDemoUI extends Table {
 
 	public SelectBox<SRGB> mirrorSRGB;
 
+	public BooleanUI shadowCascade;
+
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
 		this.sceneManager = sceneManager;
@@ -355,6 +357,9 @@ public class GLTFDemoUI extends Table {
 		
 		lightOptions.optTable.add("Shadow Bias");
 		lightOptions.optTable.add(shadowBias = new FloatUI(skin, 0)).row();
+		
+		lightOptions.optTable.add("Cascade Shadow Map");
+		lightOptions.optTable.add(shadowCascade = new BooleanUI(skin, false)).row();
 		
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
 		ambiantSlider.setValue(1f);

@@ -15,7 +15,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
+import net.mgsx.gltf.scene3d.attributes.CascadeShadowMapAttribute;
 import net.mgsx.gltf.scene3d.attributes.ClippingPlaneAttribute;
 import net.mgsx.gltf.scene3d.attributes.FogAttribute;
 import net.mgsx.gltf.scene3d.attributes.MirrorSourceAttribute;
@@ -29,6 +31,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.attributes.PBRVolumeAttribute;
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.lights.DirectionalShadowLight;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class PBRShader extends DefaultShader
@@ -518,6 +521,10 @@ public class PBRShader extends DefaultShader
 
 	public int u_viewportInv;
 	public int u_clippingPlane;
+	
+	public int u_csmSamplers;
+	public int u_csmPCFClip;
+	public int u_csmTransforms;
 
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -684,6 +691,10 @@ public class PBRShader extends DefaultShader
 		u_morphTargets2 = program.fetchUniformLocation("u_morphTargets2", false);
 		
 		u_ambientLight = program.fetchUniformLocation("u_ambientLight", false);
+		
+		u_csmSamplers = program.fetchUniformLocation("u_csmSamplers", false);
+		u_csmPCFClip = program.fetchUniformLocation("u_csmPCFClip", false);
+		u_csmTransforms = program.fetchUniformLocation("u_csmTransforms", false);
 	}
 	
 	@Override
@@ -780,6 +791,22 @@ public class PBRShader extends DefaultShader
 		ColorAttribute ambiantLight = attributes.get(ColorAttribute.class, ColorAttribute.AmbientLight);
 		if(ambiantLight != null){
 			program.setUniformf(u_ambientLight, ambiantLight.color.r, ambiantLight.color.g, ambiantLight.color.b);
+		}
+		
+		CascadeShadowMapAttribute csmAttrib = attributes.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
+		if(csmAttrib != null){
+			Array<DirectionalShadowLight> lights = csmAttrib.cascadeShadowMap.lights;
+			for(int i=0 ; i<lights.size ; i++){
+				DirectionalShadowLight light = lights.get(i);
+				float mapSize = light.getDepthMap().texture.getWidth();
+				float pcf = 1.f / (2 * mapSize);
+				float clip = 3.f / (2 * mapSize);
+				
+				int unit = context.textureBinder.bind(light.getDepthMap());
+				program.setUniformi(u_csmSamplers + i, unit);
+				program.setUniformMatrix(u_csmTransforms + i, light.getProjViewTrans());
+				program.setUniformf(u_csmPCFClip + i, pcf, clip);
+			}
 		}
 	}
 	

@@ -104,7 +104,38 @@ You can use default shader provider to be used with scene manager.
 
 ### Shadows
 
-TODO explain provided shadow light, only one dir light, how to enable, etc...
+PBR shader supports one directional shadow light (just like default libgdx 3D).
+However, it's necessary to use the DirectionalShadowLight class included in this library instead of the libgdx one
+(`net.mgsx.gltf.scene3d.lights.DirectionalShadowLight`).
+
+PBR shader also supports shadow light bias in order to reduce "acne" artifacts. You can configure it by adding
+an attribute to the environment (PBRFloatAttribute.ShadowBias). A value of 1.0/256.0 is fine most of the time.
+
+### Cascade shadow map
+
+Additionally, PBR shader support cascade shadow maps. It provides better shadow quality without using huge
+depth map. Cascade shadow map only work if there is a DirectionalShadowLight in the environment.
+This DirectionalShadowLight is typically big and cover the whole scene while cascades covers a smaller part of the scene.
+
+Here is a basic setup with 2 cascades :
+
+```java
+csm = new CascadeShadowMap(2);
+sceneManager.setCascadeShadowMap(csm);
+```
+
+Before rendering the scene, you should configure these cascades. You could do it manually or use a convenient method
+as in this example. It's necessary to configure the default DirectionalShadowLight first. Cascades will be computed
+from its view box. In the example below, shadow light is following camera, which is what you want most of the time.
+
+```java
+shadowLight = sceneManager.getFirstDirectionalShadowLight();
+shadowLight.setCenter(sceneManager.camera.position);
+csm.setCascade(shadowLight, 4f);
+...
+sceneManager.update(delta);
+sceneManager.render();
+```
 
 ### directional lights intensity
 
