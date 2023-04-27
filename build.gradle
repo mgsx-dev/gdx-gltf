@@ -1,37 +1,38 @@
 buildscript {
-	repositories {
-		gradlePluginPortal()
-		google()
-		mavenLocal()
-		mavenCentral()
-		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-	}
-	dependencies {
-		classpath 'com.android.tools.build:gradle:7.4.2'
-	}
+  repositories {
+    gradlePluginPortal()
+    google()
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  }
+  dependencies {
+    classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
+    classpath 'com.android.tools.build:gradle:7.4.2'
+  }
 }
 
 allprojects {
-	group = 'com.github.mgsx-dev.gdx-gltf'
-	version = '2.1.0'
+  group = 'com.github.mgsx-dev.gdx-gltf'
+  version = '2.1.0'
 
-	ext {
-		gdxVersion = '1.11.0'
-		junitVersion = '4.13.2'
-	}
+  ext {
+    gdxVersion = '1.11.0'
+    junitVersion = '4.13.2'
+  }
 
-	repositories {
-		gradlePluginPortal()
-		google()
-		mavenLocal()
-		mavenCentral()
-		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-		maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-		maven { url "https://jitpack.io" }
-	}
+  repositories {
+    gradlePluginPortal()
+    google()
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    maven { url "https://jitpack.io" }
+  }
 
-	apply plugin: "eclipse"
-	apply plugin: "idea"
+  apply plugin: "eclipse"
+  apply plugin: "idea"
 }
 
 eclipse.project.name = "gltf-root"

@@ -3,34 +3,36 @@ eclipse.project.name = "gdx-gltf"
 apply plugin: "java"
 
 dependencies {
-	implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    testImplementation "junit:junit:$junitVersion"
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+  testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  testImplementation "junit:junit:$junitVersion"
 }
 
-sourceSets.main.java.srcDirs = [ "src" ]
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+sourceSets.main.java.srcDirs = ["src"]
 sourceSets.main.resources.srcDirs = ["src"]
-sourceSets.test.java.srcDirs = [ "test" ]
+sourceSets.test.java.srcDirs = ["test"]
 sourceSets.test.resources.srcDirs = ["testRes"]
 
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
 task sourcesJar(type: Jar) {
-    duplicatesStrategy = 'exclude'
-    from sourceSets.main.allSource
+  duplicatesStrategy = 'exclude'
+  classifier = 'sources'
+  from sourceSets.main.allSource
 }
 
 javadoc {
-    failOnError = false
+  failOnError = false
 }
 
-java {
-	withSourcesJar()
-	withJavadocJar()
-}
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  withSourcesJar()
+  withJavadocJar()
 }

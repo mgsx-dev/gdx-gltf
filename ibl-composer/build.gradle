@@ -1,62 +1,67 @@
-apply plugin: 'java'
+apply plugin: 'application'
 
 ext {
-    appName = "gdx-gltf-ibl-composer"
+  appName = "gdx-gltf-ibl-composer"
 }
 
 eclipse.project.name = appName
 
-
 dependencies {
-	implementation project(":gltf")
-	implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    
+  implementation project(":gltf")
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
 
-sourceSets.main.java.srcDirs = [ "src/" ]
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src"]
-sourceSets.test.java.srcDirs = [ "test/" ]
+sourceSets.test.java.srcDirs = ["test/"]
 
 project.ext.mainClassName = "net.mgsx.gltf.ibl.IBLComposerLauncher"
 project.ext.assetsDir = new File("assets");
 
-
-task run(dependsOn: classes, type: JavaExec) {
-	main = project.mainClassName
-	classpath = sourceSets.main.runtimeClasspath
-	standardInput = System.in
-	workingDir = project.assetsDir
-	ignoreExitValue = true
+run {
+  workingDir = 'assets'
+  setIgnoreExitValue(true)
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
-	main = project.mainClassName
-	classpath = sourceSets.main.runtimeClasspath
-	standardInput = System.in
-	workingDir = project.assetsDir
-	ignoreExitValue = true
-	debug = true
+jar {
+  archiveBaseName.set('IBL-Composer')
+  duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+  dependsOn configurations.runtimeClasspath
+  from 'assets'
+  from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+  exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+  dependencies {
+    exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+  }
+  manifest {
+    attributes 'Main-Class': project.mainClassName
+  }
+  doLast {
+    file(archiveFile).setExecutable(true, false)
+  }
 }
 
-task distIBL(type: Jar, dependsOn: [classes]) {
-	from files(sourceSets.main.output.classesDirs)
-	from files(sourceSets.main.output.resourcesDir)
-	from {configurations.compile.collect {zipTree(it)}}
-	from files(project.assetsDir)
-
-	// additional files could be added like this :
-	// from file("$projectDir/LICENSE");
-
-	manifest {
-		attributes 'Main-Class': project.mainClassName
-	}
-	doLast {
-		file(archivePath).setExecutable(true, false)
-	}
+task distIBL(dependsOn: [jar]) {
 }
+
+task sourcesJar(type: Jar) {
+  duplicatesStrategy = 'exclude'
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+javadoc {
+  failOnError = false
+}
+
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+  withSourcesJar()
+  withJavadocJar()
 }

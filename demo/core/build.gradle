@@ -1,18 +1,23 @@
 apply plugin: "java"
 
 dependencies {
-	implementation project(":gltf")
-	implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation project(":gltf")
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+  testImplementation "junit:junit:$junitVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["src"]
-sourceSets.test.java.srcDirs = [ "test/" ]
-
+sourceSets.test.java.srcDirs = ["test/"]
 
 eclipse.project.name = appName + "-core"
