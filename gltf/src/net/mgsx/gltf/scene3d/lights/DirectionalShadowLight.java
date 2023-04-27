@@ -72,6 +72,9 @@ public class DirectionalShadowLight extends DirectionalLightEx implements Shadow
 		this.center.set(center);
 		return this;
 	}
+	public Vector3 getCenter(Vector3 center){
+		return center.set(this.center);
+	}
 	
 	public DirectionalShadowLight setCenter(float x, float y, float z) {
 		this.center.set(x, y, z);

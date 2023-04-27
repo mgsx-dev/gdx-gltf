@@ -145,8 +145,7 @@ public class GLTFLoaderBase implements Disposable {
 				imageResolver.dispose();
 			}
 			
-			materialLoader = new PBRMaterialLoader(textureResolver);
-			// materialLoader = new DefaultMaterialLoader(textureResolver);
+			materialLoader = createMaterialLoader(textureResolver);
 			materialLoader.loadMaterials(glModel.materials);
 			
 			loadCameras();
@@ -177,6 +176,10 @@ public class GLTFLoaderBase implements Disposable {
 			dispose();
 			throw e;
 		}
+	}
+	
+	protected MaterialLoader createMaterialLoader(TextureResolver textureResolver) {
+		return new PBRMaterialLoader(textureResolver);
 	}
 	
 	private void loadLights() {

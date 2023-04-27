@@ -20,6 +20,13 @@ public class PBRShaderConfig extends DefaultShader.Config
 	public SRGB transmissionSRGB = SRGB.ACCURATE;
 
 	/**
+	 * Enable conversion of SRGB space frame buffer into linear space in shader for mirror source.
+	 * Should be {@link SRGB#NONE} if the mirror frame buffer is already in linear space.
+	 * By default, mirror source is considered rendered with gamma correction (sRGB space).
+	 */
+	public SRGB mirrorSRGB = SRGB.ACCURATE;
+
+	/**
 	 * Enable/Disable gamma correction.
 	 * Since gamma correction should only be done once as a final step,
 	 * this should be disabled when you want to apply it later (eg. in case of post process lighting calculation).

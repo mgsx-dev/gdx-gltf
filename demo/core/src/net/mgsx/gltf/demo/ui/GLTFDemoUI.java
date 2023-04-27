@@ -36,6 +36,7 @@ import net.mgsx.gltf.demo.events.IBLFolderChangeEvent;
 import net.mgsx.gltf.demo.events.ModelSelectedEvent;
 import net.mgsx.gltf.demo.model.IBLStudio;
 import net.mgsx.gltf.demo.model.IBLStudio.IBLPreset;
+import net.mgsx.gltf.scene3d.attributes.MirrorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRColorAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRHDRColorAttribute;
@@ -137,6 +138,18 @@ public class GLTFDemoUI extends Table {
 	public final Slider emissiveSlider;
 
 	public final SelectBox<SRGB> transmissionSRGB;
+
+	public BooleanUI mirror;
+
+	public Vector3UI mirrorNormal;
+
+	public FloatUI mirrorOrigin;
+
+	public BooleanUI mirrorClip;
+
+	public SelectBox<SRGB> mirrorSRGB;
+
+	public BooleanUI shadowCascade;
 
 	public GLTFDemoUI(SceneManager sceneManager, Skin skin, final FileHandle rootFolder) {
 		super(skin);
@@ -284,6 +297,20 @@ public class GLTFDemoUI extends Table {
 		transmissionSRGB.setItems(SRGB.values());
 		transmissionSRGB.setSelected(SRGB.ACCURATE);
 
+		// Mirror
+		shaderOptions.optTable.add("Mirror");
+		shaderOptions.optTable.add(mirror = new BooleanUI(skin, false)).row();
+		shaderOptions.optTable.add("Mirror normal");
+		shaderOptions.optTable.add(mirrorNormal = new Vector3UI(skin, new Vector3(0,1,0))).row();
+		shaderOptions.optTable.add("Mirror origin");
+		shaderOptions.optTable.add(mirrorOrigin = new FloatUI(skin, 0, null, -10, 10)).row();
+		shaderOptions.optTable.add("Mirror clip");
+		shaderOptions.optTable.add(mirrorClip = new BooleanUI(skin, true)).row();
+		shaderOptions.optTable.add("Mirror SRGB");
+		shaderOptions.optTable.add(mirrorSRGB = new SelectBox<SRGB>(skin)).row();
+		mirrorSRGB.setItems(SRGB.values());
+		mirrorSRGB.setSelected(SRGB.ACCURATE);
+		
 		// Outlines
 		root.add();
 		root.add(outlineOptions = new CollapsableUI(skin, "Outline Options", false)).row();
@@ -330,6 +357,9 @@ public class GLTFDemoUI extends Table {
 		
 		lightOptions.optTable.add("Shadow Bias");
 		lightOptions.optTable.add(shadowBias = new FloatUI(skin, 0)).row();
+		
+		lightOptions.optTable.add("Cascade Shadow Map");
+		lightOptions.optTable.add(shadowCascade = new BooleanUI(skin, false)).row();
 		
 		ambiantSlider = new Slider(0, 1, .01f, false, skin);
 		ambiantSlider.setValue(1f);
@@ -583,6 +613,25 @@ public class GLTFDemoUI extends Table {
 					iridescence.factor = value;
 				}
 			}).row();
+		}
+		
+		// Mirror
+		final BooleanUI mirrorSwitch = new BooleanUI(getSkin(), material.has(MirrorAttribute.Specular));
+		{
+			Table t = new Table(getSkin());
+			t.add("Mirror");
+			t.add(mirrorSwitch);
+			materialTable.add(t).row();
+			mirrorSwitch.addListener(new ChangeListener() {
+				@Override
+				public void changed(ChangeEvent event, Actor actor) {
+					if(mirrorSwitch.isOn()){
+						material.set(MirrorAttribute.createSpecular());
+					}else{
+						material.remove(MirrorAttribute.Specular);
+					}
+				}
+			});
 		}
 	}
 	

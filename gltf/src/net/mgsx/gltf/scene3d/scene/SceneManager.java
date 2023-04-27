@@ -44,6 +44,8 @@ public class SceneManager implements Disposable {
 	private ModelBatch depthBatch;
 	private SceneSkybox skyBox;
 	private TransmissionSource transmissionSource;
+	private MirrorSource mirrorSource;
+	private CascadeShadowMap cascadeShadowMap;
 	
 	/** Shouldn't be null. */
 	public Environment environment = new Environment();
@@ -122,6 +124,29 @@ public class SceneManager implements Disposable {
 		if(this.transmissionSource != transmissionSource){
 			if(this.transmissionSource != null) this.transmissionSource.dispose();
 			this.transmissionSource = transmissionSource;
+		}
+	}
+	
+	/**
+	 * Enable/disable pre-rendering for mirror effect.
+	 * 
+	 * @param mirrorSource set null to disable mirror.
+	 */
+	public void setMirrorSource(MirrorSource mirrorSource) {
+		if(this.mirrorSource != mirrorSource){
+			if(this.mirrorSource != null) this.mirrorSource.dispose();
+			this.mirrorSource = mirrorSource;
+		}
+	}
+	
+	/**
+	 * Enable/disable pre-rendering for cascade shadow map.
+	 * @param cascadeShadowMap set null to disable.
+	 */
+	public void setCascadeShadowMap(CascadeShadowMap cascadeShadowMap) {
+		if(this.cascadeShadowMap != cascadeShadowMap){
+			if(this.cascadeShadowMap != null) this.cascadeShadowMap.dispose();
+			this.cascadeShadowMap = cascadeShadowMap;
 		}
 	}
 	
@@ -225,11 +250,21 @@ public class SceneManager implements Disposable {
 		
 		renderShadows();
 		
+		renderMirror();
+		
 		renderTransmission();
 		
 		renderColors();
 	}
 	
+	public void renderMirror() {
+		if(mirrorSource != null){
+			mirrorSource.begin(camera, computedEnvironement, skyBox);
+			renderColors();
+			mirrorSource.end();
+		}
+	}
+
 	public void renderTransmission() {
 		if(transmissionSource != null){
 			transmissionSource.begin(camera);
@@ -246,9 +281,8 @@ public class SceneManager implements Disposable {
 	 */
 	@SuppressWarnings("deprecation")
 	public void renderShadows(){
-		DirectionalLight light = getFirstDirectionalLight();
-		if(light instanceof DirectionalShadowLight){
-			DirectionalShadowLight shadowLight = (DirectionalShadowLight)light;
+		DirectionalShadowLight shadowLight = getFirstDirectionalShadowLight();
+		if(shadowLight != null){
 			shadowLight.begin();
 			renderDepth(shadowLight.getCamera());
 			shadowLight.end();
@@ -258,6 +292,15 @@ public class SceneManager implements Disposable {
 			environment.shadowMap = null;
 		}
 		computedEnvironement.shadowMap = environment.shadowMap;
+		
+		if(cascadeShadowMap != null){
+			for(DirectionalShadowLight light : cascadeShadowMap.lights){
+				light.begin();
+				renderDepth(light.getCamera());
+				light.end();
+			}
+			computedEnvironement.set(cascadeShadowMap.attribute);
+		}
 	}
 	
 	/**
@@ -268,7 +311,11 @@ public class SceneManager implements Disposable {
 		renderDepth(camera);
 	}
 	
-	private void renderDepth(Camera camera){
+	/**
+	 * Render only depth (packed 32 bits) with custom camera.
+	 * Useful to render shadow maps.
+	 */
+	public void renderDepth(Camera camera){
 		depthBatch.begin(camera);
 		depthBatch.render(renderableProviders);
 		depthBatch.end();
@@ -291,6 +338,18 @@ public class SceneManager implements Disposable {
 			for(DirectionalLight dl : dla.lights){
 				if(dl instanceof DirectionalLight){
 					return (DirectionalLight)dl;
+				}
+			}
+		}
+		return null;
+	}
+
+	public DirectionalShadowLight getFirstDirectionalShadowLight(){
+		DirectionalLightsAttribute dla = environment.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
+		if(dla != null){
+			for(DirectionalLight dl : dla.lights){
+				if(dl instanceof DirectionalShadowLight){
+					return (DirectionalShadowLight)dl;
 				}
 			}
 		}
@@ -345,5 +404,6 @@ public class SceneManager implements Disposable {
 		batch.dispose();
 		depthBatch.dispose();
 		if(transmissionSource != null) transmissionSource.dispose();
+		if(mirrorSource != null) mirrorSource.dispose();
 	}
 }

@@ -11,6 +11,7 @@ Sometimes you want ot render scenes to a FBO (Frame buffer). You can do it but y
 
 ```java
 sceneManager.renderShadows();
+sceneManager.renderMirror();
 sceneManager.renderTransmission();
 		
 fbo.begin();
@@ -103,7 +104,38 @@ You can use default shader provider to be used with scene manager.
 
 ### Shadows
 
-TODO explain provided shadow light, only one dir light, how to enable, etc...
+PBR shader supports one directional shadow light (just like default libgdx 3D).
+However, it's necessary to use the DirectionalShadowLight class included in this library instead of the libgdx one
+(`net.mgsx.gltf.scene3d.lights.DirectionalShadowLight`).
+
+PBR shader also supports shadow light bias in order to reduce "acne" artifacts. You can configure it by adding
+an attribute to the environment (PBRFloatAttribute.ShadowBias). A value of 1.0/256.0 is fine most of the time.
+
+### Cascade shadow map
+
+Additionally, PBR shader support cascade shadow maps. It provides better shadow quality without using huge
+depth map. Cascade shadow map only work if there is a DirectionalShadowLight in the environment.
+This DirectionalShadowLight is typically big and cover the whole scene while cascades covers a smaller part of the scene.
+
+Here is a basic setup with 2 cascades :
+
+```java
+csm = new CascadeShadowMap(2);
+sceneManager.setCascadeShadowMap(csm);
+```
+
+Before rendering the scene, you should configure these cascades. You could do it manually or use a convenient method
+as in this example. It's necessary to configure the default DirectionalShadowLight first. Cascades will be computed
+from its view box. In the example below, shadow light is following camera, which is what you want most of the time.
+
+```java
+shadowLight = sceneManager.getFirstDirectionalShadowLight();
+shadowLight.setCenter(sceneManager.camera.position);
+csm.setCascade(shadowLight, 4f);
+...
+sceneManager.update(delta);
+sceneManager.render();
+```
 
 ### directional lights intensity
 
@@ -127,6 +159,19 @@ If you want better results, that is, seeing deformed objects through these mater
 `sceneManager.setTransmissionSource(new TransmissionSource(shaderProvider));`
 
 You usually give the same shader provider for both TransmissionSource and normal rendering.
+
+### Dynamic reflections
+
+You can enable dynamic reflections with a planar mirror, you need to enable mirror pre-render:
+
+`sceneManager.setMirrorSource(new MirrorSource().set(0, 1, 0, -0.833f, true));`
+
+And then apply it to your plane object(s) via its material. In this case, mirror frame buffer will be sampled instead of specular cubemap for them :
+`material.set(MirrorAttribute.createSpecular());`
+
+Note that material with mirror reflection shouldn't be double sided. It would produce artifacts in the pre-render pass and will give wrong reflections on the back side anyway.
+
+Note that you can change mirror framebuffer size (default is screen size) to improve performance but it will affect quality and will bias roughness.
 
 ## Animations
 

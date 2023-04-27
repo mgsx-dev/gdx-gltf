@@ -36,3 +36,19 @@ vec4 tsSRGBtoLINEAR(vec4 srgbIn)
     return srgbIn;
     #endif
 }
+
+// sRGB conversions for mirror source
+vec4 msSRGBtoLINEAR(vec4 srgbIn)
+{
+    #ifdef MS_MANUAL_SRGB
+    #ifdef MS_SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else
+    vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+    vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+    #endif
+    return vec4(linOut,srgbIn.w);;
+    #else
+    return srgbIn;
+    #endif
+}
