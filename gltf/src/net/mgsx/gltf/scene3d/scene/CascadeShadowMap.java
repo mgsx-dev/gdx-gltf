@@ -57,10 +57,10 @@ public class CascadeShadowMap implements Disposable {
 				if(light.getFrameBuffer().getWidth() != w ||
 						light.getFrameBuffer().getHeight() != h){
 					light.dispose();
-					lights.set(i, new DirectionalShadowLight(w,h));
+					lights.set(i, createLight(w, h));
 				}
 			}else{
-				lights.add(new DirectionalShadowLight(w,h));
+				lights.add(createLight(w, h));
 			}
 		}
 		float scale = downscale;
@@ -85,5 +85,15 @@ public class CascadeShadowMap implements Disposable {
 			cam.update();
 			scale *= scale;
 		}
+	}
+
+	/**
+	 * Allow subclass to use their own shadow light implementation.
+	 * @param width
+	 * @param height
+	 * @return a new directional shadow light.
+	 */
+	protected DirectionalShadowLight createLight(int width, int height) {
+		return new DirectionalShadowLight(width, height);
 	}
 }
