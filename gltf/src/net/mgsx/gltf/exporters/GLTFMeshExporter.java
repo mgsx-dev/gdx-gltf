@@ -60,7 +60,7 @@ class GLTFMeshExporter {
 			
 			GLTFAccessor accessor = base.obtainAccessor();
 			accessor.type = GLTFTypes.TYPE_SCALAR;
-			accessor.componentType = GLTFTypes.C_SHORT;
+			accessor.componentType = GLTFTypes.C_USHORT;
 			accessor.count = meshPart.size;
 			accessor.bufferView = base.binManager.end();
 			
@@ -84,6 +84,8 @@ class GLTFMeshExporter {
 		Array<FloatBuffer> boneWeightsBuffers = new Array<FloatBuffer>();
 		Array<ShortBuffer> boneJointsBuffers = new Array<ShortBuffer>(); // TODO short or byte (for small amount of bones)
 		
+		boolean shouldComputeBounds = false;
+		
 		// split vertices individual attributes
 		int stride = mesh.getVertexAttributes().vertexSize / 4;
 		int numVertices = mesh.getNumVertices();
@@ -95,6 +97,7 @@ class GLTFMeshExporter {
 			if(a.usage == Usage.Position){
 				attributeKey = "POSITION";
 				accessorType = GLTFTypes.TYPE_VEC3;
+				shouldComputeBounds = true;
 			}else if(a.usage == Usage.Normal){
 				attributeKey = "NORMAL";
 				accessorType = GLTFTypes.TYPE_VEC3;
@@ -161,6 +164,9 @@ class GLTFMeshExporter {
 			accessor.type = accessorType;
 			accessor.componentType = accessorComponentType;
 			accessor.count = numVertices;
+			if(shouldComputeBounds){
+				computeBounds(accessor, vertices, a, numVertices, stride);
+			}
 			
 			if(useTargets){
 				if(primitive.targets == null) primitive.targets = new Array<GLTFMorphTarget>();
@@ -237,6 +243,26 @@ class GLTFMeshExporter {
 		}
 	}
 	
+	private void computeBounds(GLTFAccessor accessor, FloatBuffer vertices, VertexAttribute attribute, int numVertices, int stride) {
+		accessor.min = new float[attribute.numComponents];
+		accessor.max = new float[attribute.numComponents];
+		int offset = attribute.offset / 4;
+		for(int i=0 ; i<numVertices ; i++){
+			for(int j=0 ; j<attribute.numComponents ; j++){
+				int index = i * stride + offset + j;
+				float value = vertices.get(index);
+				if(i == 0){
+					accessor.min[j] = value;
+					accessor.max[j] = value;
+				}else{
+					accessor.min[j] = Math.min(accessor.min[j], value);
+					accessor.max[j] = Math.max(accessor.max[j], value);
+				}
+			}
+		}
+		
+	}
+
 	public static Integer mapPrimitiveMode(int type){
 		switch(type){
 		case GL20.GL_POINTS: return 0;
