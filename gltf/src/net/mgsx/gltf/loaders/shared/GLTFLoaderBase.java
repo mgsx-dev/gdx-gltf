@@ -142,7 +142,7 @@ public class GLTFLoaderBase implements Disposable {
 				imageResolver.load(glModel.images);
 				textureResolver = new TextureResolver();
 				textureResolver.loadTextures(glModel.textures, glModel.samplers, imageResolver);
-				imageResolver.dispose();
+				imageResolver.clear();
 			}
 			
 			materialLoader = createMaterialLoader(textureResolver);

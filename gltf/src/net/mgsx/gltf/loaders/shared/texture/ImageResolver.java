@@ -39,4 +39,8 @@ public class ImageResolver implements Disposable {
 		}
 		pixmaps.clear();
 	}
+
+	public void clear() {
+		pixmaps.clear();
+	}
 }
