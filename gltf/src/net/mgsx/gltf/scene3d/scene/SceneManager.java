@@ -413,5 +413,6 @@ public class SceneManager implements Disposable {
 		depthBatch.dispose();
 		if(transmissionSource != null) transmissionSource.dispose();
 		if(mirrorSource != null) mirrorSource.dispose();
+		if(cascadeShadowMap != null) cascadeShadowMap.dispose();
 	}
 }
