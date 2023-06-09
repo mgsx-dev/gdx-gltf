@@ -3,6 +3,7 @@ package net.mgsx.gltf.loaders.shared;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -142,7 +143,6 @@ public class GLTFLoaderBase implements Disposable {
 				imageResolver.load(glModel.images);
 				textureResolver = new TextureResolver();
 				textureResolver.loadTextures(glModel.textures, glModel.samplers, imageResolver);
-				imageResolver.clear();
 			}
 			
 			materialLoader = createMaterialLoader(textureResolver);
@@ -162,6 +162,10 @@ public class GLTFLoaderBase implements Disposable {
 			model.scene = scenes.get(glModel.scene);
 			model.maxBones = skinLoader.getMaxBones();
 			model.textures = textureResolver.getTextures(new Array<Texture>());
+			if(imageResolver != null){
+				model.pixmaps = imageResolver.getPixmaps(new Array<Pixmap>());
+				imageResolver.clear();
+			}
 			model.animations = animationLoader.animations;
 			// XXX don't know where the animation are ...
 			for(SceneModel scene : model.scenes){
