@@ -517,7 +517,7 @@ public class GLTFDemo extends ApplicationAdapter
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				if(ui.shadowCascade.isOn()){
-					sceneManager.setCascadeShadowMap(csm = new CascadeShadowMap(2));
+					sceneManager.setCascadeShadowMap(csm = new CascadeShadowMap(3));
 				}else{
 					sceneManager.setCascadeShadowMap(csm = null);
 				}
@@ -916,7 +916,7 @@ public class GLTFDemo extends ApplicationAdapter
 			
 			float size = Math.max(bb.getWidth(), Math.max(bb.getHeight(), bb.getDepth()));
 			camera.near = size / 1000f;
-			camera.far = size * 30f;
+			camera.far = size * 10f;
 			
 			camera.update(true);
 			
@@ -966,11 +966,15 @@ public class GLTFDemo extends ApplicationAdapter
 			emissive.value = ui.emissiveSlider.getValue();
 		}
 		
+		if(cameraControl != null){
+			cameraControl.update();
+		}
+		
 		DirectionalShadowLight shadowLight = sceneManager.getFirstDirectionalShadowLight();
 		if(shadowLight != null){
 			if(csm != null){
-				shadowLight.setCenter(sceneManager.camera.position);
-				csm.setCascade(shadowLight, 4f);
+				float depth = Math.max(sceneBox.getWidth(), Math.max(sceneBox.getHeight(), sceneBox.getDepth()));
+				csm.setCascades(cameraControl.camera, shadowLight, depth, 4f);
 			}else{
 				shadowLight.setBounds(sceneBox);
 			}
@@ -978,9 +982,6 @@ public class GLTFDemo extends ApplicationAdapter
 		
 		sceneManager.update(delta);
 		
-		if(cameraControl != null){
-			cameraControl.update();
-		}
 		
 		Gdx.gl.glClearColor(ui.fogColor.value.r, ui.fogColor.value.g, ui.fogColor.value.b, 0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);

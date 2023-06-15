@@ -114,10 +114,11 @@ an attribute to the environment (PBRFloatAttribute.ShadowBias). A value of 1.0/2
 ### Cascade shadow map
 
 Additionally, PBR shader support cascade shadow maps. It provides better shadow quality without using huge
-depth map. Cascade shadow map only work if there is a DirectionalShadowLight in the environment.
-This DirectionalShadowLight is typically big and cover the whole scene while cascades covers a smaller part of the scene.
+depth map. Scene camera frustum is split by distance. A depth map is renderer for each area (sub frustum).
+Cascade shadow map only works if there is a DirectionalShadowLight in the environment.
+This DirectionalShadowLight is used to cover far scene area. Other extra cascades are used to cover closer scene areas.
 
-Here is a basic setup with 2 cascades :
+Here is a basic setup for 3 cascades (2 extra cascades) :
 
 ```java
 csm = new CascadeShadowMap(2);
@@ -125,13 +126,15 @@ sceneManager.setCascadeShadowMap(csm);
 ```
 
 Before rendering the scene, you should configure these cascades. You could do it manually or use a convenient method
-as in this example. It's necessary to configure the default DirectionalShadowLight first. Cascades will be computed
-from its view box. In the example below, shadow light is following camera, which is what you want most of the time.
+as in this example. We use a minimum depth of 1000, this value should be adjusted depending on the scene.
+You may want to increase this value in order to have far object out of the scene camera to be shadow casted.
+The split factor is set to 4 which gives good transitions between cascades.
+This value is tighly coupled to the cascade count and camera far plane distance.
+All of these and also depth maps resolution have to be tuned depending the quality and performance you want. 
 
 ```java
 shadowLight = sceneManager.getFirstDirectionalShadowLight();
-shadowLight.setCenter(sceneManager.camera.position);
-csm.setCascade(shadowLight, 4f);
+csm.setCascades(sceneManager, shadowLight, 1000f, 4f);
 ...
 sceneManager.update(delta);
 sceneManager.render();
