@@ -134,7 +134,7 @@ All of these and also depth maps resolution have to be tuned depending the quali
 
 ```java
 shadowLight = sceneManager.getFirstDirectionalShadowLight();
-csm.setCascades(sceneManager, shadowLight, 1000f, 4f);
+csm.setCascades(sceneManager.camera, shadowLight, 1000f, 4f);
 ...
 sceneManager.update(delta);
 sceneManager.render();
