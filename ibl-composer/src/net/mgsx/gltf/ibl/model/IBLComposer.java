@@ -149,6 +149,21 @@ public class IBLComposer implements Disposable {
 		return radianceBaker.createPixmaps(cubemap, size);
 	}
 	
+	public Cubemap getSeparateRadianceMap(int size, float exposure){
+		getHDRTexture();
+		EnvironmentBaker environmentBaker = new EnvironmentBaker();
+		Cubemap cubemap = environmentBaker.getEnvMap(textureRaw, size, exposure);
+		if(radianceMap != null) radianceMap.dispose();
+		try{
+			radianceMap = radianceBaker.createRadiance(cubemap, size);
+		}catch(IllegalStateException e){
+			radianceMap = new Cubemap(1, 1, 1, Format.RGB888);
+			throw new FrameBufferError(e);
+		}
+		environmentBaker.dispose();
+		return radianceMap;	
+	}	
+	
 	public Cubemap getRadianceMap(int size){
 		Cubemap cubemap = environmentBaker.getLastMap(); // getEnvMap(size, exposure);
 		if(radianceMap != null) radianceMap.dispose();
