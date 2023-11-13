@@ -272,7 +272,7 @@ PBRSurfaceInfo getIridescenceInfo(PBRSurfaceInfo info){
 	info.iridescenceFactor *= texture2D(u_iridescenceSampler, v_iridescenceUV).r;
 #endif
 
-#ifdef iridescenceTextureFlag
+#ifdef iridescenceThicknessTextureFlag
 	float thicknessFactor = texture2D(u_iridescenceThicknessSampler, v_iridescenceThicknessUV).g;
 	info.iridescenceThickness = mix(u_iridescenceThicknessMin, u_iridescenceThicknessMax, thicknessFactor);
 #endif
