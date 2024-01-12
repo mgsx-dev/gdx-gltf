@@ -87,7 +87,7 @@ Here is the list and status about [Khronos models examples](https://github.com/K
 | SimpleMeshes				|
 | SimpleMorph				| Morph Targets
 | SimpleSkin				| Skinning
-| SimpleSparseAccessor		| Sparse Accessor		| ~ | Not supported
+| SimpleSparseAccessor		| Sparse Accessor
 | SpecGlossVsMetalRough		| Specular Gloss EXT
 | SpecularTest				| Specular EXT
 | Sponza					| PBR
