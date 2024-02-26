@@ -19,13 +19,13 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 
 import net.mgsx.gltf.data.data.GLTFAccessor;
-import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.geometry.GLTFMesh;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
 import net.mgsx.gltf.loaders.blender.BlenderShapeKeys;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
+import net.mgsx.gltf.loaders.shared.data.AccessorBuffer;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -263,18 +263,15 @@ public class MeshLoader {
 					
 					if(glAccessor == null) continue;
 					
-					if(glAccessor.bufferView == null){
-						throw new GLTFIllegalException("bufferView is null (mesh compression ?)");
-					}
+					AccessorBuffer buffer = dataResolver.getAccessorBuffer(glAccessor);
+					ByteBuffer data = buffer.prepareForReading();
+
+					FloatBuffer floatBuffer = data.asFloatBuffer();
 					
-					GLTFBufferView glBufferView = dataResolver.getBufferView(glAccessor.bufferView);
-					
-					FloatBuffer floatBuffer = dataResolver.getBufferFloat(glAccessor);
-					
-					int attributeFloats = GLTFTypes.accessorStrideSize(glAccessor) / 4;
+					int attributeFloats = GLTFTypes.accessorTypeSize(glAccessor);
 
 					// buffer can be interleaved, so vertex stride may be different than vertex size 
-					int floatStride = glBufferView.byteStride == null ? attributeFloats : glBufferView.byteStride / 4;
+					int floatStride = buffer.getByteStride() / 4;
 					
 					for(int j=0 ; j<glAccessor.count ; j++){
 						
