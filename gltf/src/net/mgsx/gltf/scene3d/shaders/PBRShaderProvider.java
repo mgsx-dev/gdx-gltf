@@ -265,7 +265,11 @@ public class PBRShaderProvider extends DefaultShaderProvider
 			}
 			CascadeShadowMapAttribute csm = renderable.environment.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
 			if(csm != null){
-				prefix += "#define numCSM " + csm.cascadeShadowMap.lights.size + "\n";
+				int numCSM = csm.cascadeShadowMap.lights.size;
+				if(numCSM > 8) {
+					throw new GdxRuntimeException("more than 8 cascade shadow textures not supported");
+				}
+				prefix += "#define numCSM " + numCSM + "\n";
 			}
 			
 			// IBL options

@@ -32,7 +32,32 @@ float getShadow()
 		if(uv.x >= clip && uv.x <= 1.0 - clip &&
 			uv.y >= clip && uv.y <= 1.0 - clip &&
 			uv.z >= 0.0 && uv.z <= 1.0){
-			return getCSMShadow(u_csmSamplers[i], uv, pcf);
+			
+			#if numCSM > 0
+			if(i == 0) return getCSMShadow(u_csmSamplers[0], uv, pcf);
+			#endif
+			#if numCSM > 1
+			if(i == 1) return getCSMShadow(u_csmSamplers[1], uv, pcf);
+			#endif
+			#if numCSM > 2
+			if(i == 2) return getCSMShadow(u_csmSamplers[2], uv, pcf);
+			#endif
+			#if numCSM > 3
+			if(i == 3) return getCSMShadow(u_csmSamplers[3], uv, pcf);
+			#endif
+			#if numCSM > 4
+			if(i == 4) return getCSMShadow(u_csmSamplers[4], uv, pcf);
+			#endif
+			#if numCSM > 5
+			if(i == 5) return getCSMShadow(u_csmSamplers[5], uv, pcf);
+			#endif
+			#if numCSM > 6
+			if(i == 6) return getCSMShadow(u_csmSamplers[6], uv, pcf);
+			#endif
+			#if numCSM > 7
+			if(i == 7) return getCSMShadow(u_csmSamplers[7], uv, pcf);
+			#endif			
+
 		}
 	}
 	// default map
