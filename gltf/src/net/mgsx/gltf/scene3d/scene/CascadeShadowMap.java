@@ -32,6 +32,7 @@ public class CascadeShadowMap implements Disposable {
 	private final Matrix4 lightMatrix = new Matrix4();
 	private final BoundingBox box = new BoundingBox();
 	private final Vector3 center = new Vector3();
+	private final Vector3 offset = new Vector3();
 	
 	/**
 	 * @param cascadeCount how many extra cascades
@@ -94,20 +95,41 @@ public class CascadeShadowMap implements Disposable {
 		}
 		
 		syncExtraCascades(base);
+			
+		setBaseLightBounds(base, sceneCamera, minLlightDepth);
 		
-		for(int i=0 ; i<cascadeCount+1 ; i++){
+		for(int i=0 ; i<cascadeCount; i++){
 			float splitNear = splitRates.get(i);
 			float splitFar = splitRates.get(i+1);
-			DirectionalShadowLight light = i < cascadeCount ? lights.get(i) : base;
-			if(light != base) {
-				light.direction.set(base.direction);
-				light.getCamera().up.set(base.getCamera().up);
-			}
-			setCascades(light, sceneCamera, splitNear, splitFar, minLlightDepth);
+			DirectionalShadowLight light = lights.get(i);
+			setCascades(light, base, sceneCamera, splitNear, splitFar, minLlightDepth);
 		}
 	}
 	
-	private void setCascades(DirectionalShadowLight shadowLight, Camera cam, float splitNear, float splitFar, float minLlightDepth){
+	/** sub classes could optimize base lights bounds depending on the scene.
+	 * By default, base light bounds takes the full scene camera frustum. 
+	 * */
+	protected void setBaseLightBounds(DirectionalShadowLight shadowLight, Camera cam, float minLlightDepth) {
+		lightMatrix.setToLookAt(shadowLight.direction, shadowLight.getCamera().up);
+		
+		box.inf();
+		for(int i=0 ; i<splitPoints.length; i++){
+			Vector3 v = splitPoints[i].set(cam.frustum.planePoints[i]).mul(lightMatrix);
+			box.ext(v);
+		}
+		box.getCenter(center);
+		center.mul(lightMatrix.tra());
+		
+		float halfFrustumDepth = box.getDepth() / 2;
+		
+		centerLight(shadowLight, center, 
+				box.getWidth(),
+				box.getHeight(),
+				- halfFrustumDepth - minLlightDepth, 
+				halfFrustumDepth);
+	}
+	
+	private void setCascades(DirectionalShadowLight shadowLight, DirectionalShadowLight base, Camera cam, float splitNear, float splitFar, float minLlightDepth){
 		
 		for(int i=0 ; i<4 ; i++){
 			Vector3 a = cam.frustum.planePoints[i];
@@ -123,16 +145,28 @@ public class CascadeShadowMap implements Disposable {
 			Vector3 v = splitPoints[i].mul(lightMatrix);
 			box.ext(v);
 		}
-		float halfFrustumDepth = box.getDepth() / 2;
-		
-		float lightDepth = Math.max(minLlightDepth, box.getDepth());
-		
 		box.getCenter(center);
 		center.mul(lightMatrix.tra());
-		center.mulAdd(shadowLight.direction, halfFrustumDepth  - lightDepth/2);
 		
-		shadowLight.setCenter(center);
-		shadowLight.setViewport(box.getWidth(), box.getHeight(), 0, lightDepth);
+		// offset cascade light to match base shadow light near plane
+		// objects behind lights will be culled on the same plane for every cascades
+		float dot = -offset.set(center).sub(base.getCamera().position).dot(base.direction);
+		float near = base.getCamera().near + dot;
+		// clip far plane to sub-frustum back plane (no need to render object behind visible volume)
+		float far = box.getDepth()/2;
+		
+		centerLight(shadowLight, center, 
+				box.getWidth(), 
+				box.getHeight(), 
+				near,
+				far);
+	}
+	
+	private void centerLight(DirectionalShadowLight shadowLight, Vector3 position, float w, float h, float n, float f) {
+		// center camera at half depth
+		float hd = (f-n)/2;
+		shadowLight.setCenter(position.mulAdd(shadowLight.direction, n+hd));
+		shadowLight.setViewport(w,h,-hd,hd);
 	}
 	
 	/**
