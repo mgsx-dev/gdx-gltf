@@ -30,7 +30,7 @@ public class NodePartPlus extends NodePart{
 	protected NodePart set(NodePart other) {
 		super.set(other);
 		if(other instanceof NodePartPlus){
-			morphTargets = ((NodePartPlus) other).morphTargets;
+			morphTargets = ((NodePartPlus) other).morphTargets.cpy();
 		}
 		return this;
 	}
