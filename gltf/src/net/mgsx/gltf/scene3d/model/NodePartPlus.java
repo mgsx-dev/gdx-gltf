@@ -30,7 +30,8 @@ public class NodePartPlus extends NodePart{
 	protected NodePart set(NodePart other) {
 		super.set(other);
 		if(other instanceof NodePartPlus){
-			morphTargets = ((NodePartPlus) other).morphTargets.cpy();
+			final WeightVector otherMorphTargets = ((NodePartPlus) other).morphTargets;
+			morphTargets = otherMorphTargets != null ? otherMorphTargets.cpy() : null;
 		}
 		return this;
 	}
