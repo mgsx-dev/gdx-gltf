@@ -1,43 +1,38 @@
 eclipse.project.name = "gdx-gltf"
 
+apply plugin: "java"
+
 dependencies {
-    api "com.badlogicgames.gdx:gdx:$gdxVersion"
-    
-    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-    testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    testImplementation "junit:junit:$junitVersion"
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+  testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  testImplementation "junit:junit:$junitVersion"
 }
 
-sourceCompatibility = 1.7
-sourceSets.main.java.srcDirs = [ "src" ]
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+sourceSets.main.java.srcDirs = ["src"]
 sourceSets.main.resources.srcDirs = ["src"]
-sourceSets.test.java.srcDirs = [ "test" ]
+sourceSets.test.java.srcDirs = ["test"]
 sourceSets.test.resources.srcDirs = ["testRes"]
 
 task sourcesJar(type: Jar) {
-    duplicatesStrategy = 'exclude'
-    classifier = 'sources'
-    from sourceSets.main.allSource
+  duplicatesStrategy = 'exclude'
+  classifier = 'sources'
+  from sourceSets.main.allSource
 }
 
 javadoc {
-    failOnError = false
+  failOnError = false
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 java {
-	withSourcesJar()
-	withJavadocJar()
-}
-
-publishing {
-	publications {
-		maven(MavenPublication) {
-			groupId project.group
-			artifactId project.name
-			version project.version
-			from components.java
-		}
-	}
+  withSourcesJar()
+  withJavadocJar()
 }
