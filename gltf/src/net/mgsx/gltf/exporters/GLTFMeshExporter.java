@@ -84,8 +84,6 @@ class GLTFMeshExporter {
 		Array<FloatBuffer> boneWeightsBuffers = new Array<FloatBuffer>();
 		Array<ShortBuffer> boneJointsBuffers = new Array<ShortBuffer>(); // TODO short or byte (for small amount of bones)
 		
-		boolean shouldComputeBounds = false;
-		
 		// split vertices individual attributes
 		int stride = mesh.getVertexAttributes().vertexSize / 4;
 		int numVertices = mesh.getNumVertices();
@@ -93,6 +91,7 @@ class GLTFMeshExporter {
 			String accessorType;
 			int accessorComponentType = GLTFTypes.C_FLOAT;
 			boolean useTargets = false;
+			boolean shouldComputeBounds = false;
 			final String attributeKey;
 			if(a.usage == Usage.Position){
 				attributeKey = "POSITION";
