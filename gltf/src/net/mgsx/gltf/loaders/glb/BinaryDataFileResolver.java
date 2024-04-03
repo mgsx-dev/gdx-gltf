@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.LittleEndianInputStream;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.StreamUtils;
 
 import net.mgsx.gltf.data.GLTF;
 import net.mgsx.gltf.data.data.GLTFBufferView;
@@ -46,6 +47,8 @@ public class BinaryDataFileResolver implements DataFileResolver
 			
 		} catch (IOException e) {
 			throw new GLTFRuntimeException(e);
+		} finally {
+			StreamUtils.closeQuietly(stream);
 		}
 	}
 	

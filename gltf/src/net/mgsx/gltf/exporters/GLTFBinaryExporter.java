@@ -115,6 +115,7 @@ class GLTFBinaryExporter {
 			b.get(bytes);
 			folder.child(buffer.uri).writeBytes(bytes, false);
 			out.add(buffer);
+			count++;
 		}
 		return out;
 	}

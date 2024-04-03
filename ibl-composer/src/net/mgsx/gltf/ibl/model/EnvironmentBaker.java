@@ -36,7 +36,7 @@ public class EnvironmentBaker implements Disposable {
 	public void dispose() {
 		rectToCubeShader.dispose();
 		rectToCubeRenderer.dispose();
-		fboEnv.dispose();
+		if(fboEnv != null) fboEnv.dispose();
 	}
 	
 	private static ShaderProgram loadShader(String name){

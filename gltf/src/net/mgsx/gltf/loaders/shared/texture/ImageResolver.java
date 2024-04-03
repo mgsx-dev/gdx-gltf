@@ -39,4 +39,13 @@ public class ImageResolver implements Disposable {
 		}
 		pixmaps.clear();
 	}
+
+	public void clear() {
+		pixmaps.clear();
+	}
+
+	public Array<Pixmap> getPixmaps(Array<Pixmap> array) {
+		array.addAll(pixmaps);
+		return array;
+	}
 }

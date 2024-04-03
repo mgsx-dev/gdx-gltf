@@ -30,7 +30,6 @@ to classic cubemap with multi texture support. As well as auto gen feature ?
 # FEATURES
 
 * AssetManager loader utilities
-* sparse accessors
 * emulate default shader based on some PBR information
 
 ## Morph Targets full implementation

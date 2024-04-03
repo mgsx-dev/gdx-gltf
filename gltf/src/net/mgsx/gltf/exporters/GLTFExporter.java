@@ -39,6 +39,8 @@ public class GLTFExporter {
 	
 	/** current texture file index */
 	protected int textureFileIndex;
+	/** current file handle name without extension */
+	protected String fileHandleName = "";
 	
 	private final GLTFExporterConfig config;
 
@@ -61,7 +63,7 @@ public class GLTFExporter {
 	 * @return a unique name for the texture
 	 */
 	protected String getImageName(Texture texture) {
-		String name = "texture" + textureFileIndex;
+		String name = fileHandleName + "texture" + textureFileIndex;
 		textureFileIndex++;
 		return name;
 	}
@@ -87,7 +89,7 @@ public class GLTFExporter {
 	 * */
 	public void export(Mesh mesh, int primitiveType, FileHandle file){
 		GLTFScene scene = beginSingleScene(file);
-		
+
 		GLTFNode glNode = obtainNode();
 		scene.nodes = new Array<Integer>();
 		scene.nodes.add(root.nodes.size-1);
@@ -112,7 +114,7 @@ public class GLTFExporter {
 	public void export(Model model, FileHandle file)
 	{
 		GLTFScene scene = beginSingleScene(file);
-		
+
 		new GLTFMaterialExporter(this).export(model.nodes);
 
 		scene.nodes = exportNodes(scene, model.nodes);
@@ -133,7 +135,7 @@ public class GLTFExporter {
 	/** convenient method to export a single scene */
 	public void export(SceneModel scene, FileHandle file) {
 		GLTFScene glScene = beginSingleScene(file);
-		
+
 		exportScene(glScene, scene);
 		
 		end(file);
@@ -205,6 +207,9 @@ public class GLTFExporter {
 	}
 	
 	private void beginMultiScene(FileHandle file){
+		// get fileHandleName without the extension
+		fileHandleName = file.nameWithoutExtension() + "_";
+
 		binManager = new GLTFBinaryExporter(file.parent(), config);
 		
 		root = new GLTF();

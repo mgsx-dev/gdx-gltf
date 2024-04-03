@@ -1,6 +1,7 @@
 package net.mgsx.gltf.scene3d.scene;
 
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.utils.Array;
@@ -25,6 +26,9 @@ public class SceneAsset implements Disposable
 	/** Keep track of loaded texture in order to dispose them. Textures handled by AssetManager are excluded. */
 	public Array<Texture> textures;
 	
+	/** Keep track of loaded pixmaps in order to dispose them. Pixmaps handled by AssetManager are excluded. */
+	public Array<Pixmap> pixmaps;
+	
 	/** Keep track of loaded meshes in order to dispose them. */
 	public Array<Mesh> meshes;
 	
@@ -38,6 +42,11 @@ public class SceneAsset implements Disposable
 		if(textures != null){
 			for(Texture texture : textures){
 				texture.dispose();
+			}
+		}
+		if(pixmaps != null){
+			for(Pixmap pixmap : pixmaps){
+				pixmap.dispose();
 			}
 		}
 		if(meshes != null){

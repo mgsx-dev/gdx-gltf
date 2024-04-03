@@ -191,7 +191,7 @@ public class PBRMaterialLoader extends MaterialLoaderBase {
 		return material;
 	}
 
-	private PBRTextureAttribute getTexureMap(long type, GLTFTextureInfo glMap) {
+	protected PBRTextureAttribute getTexureMap(long type, GLTFTextureInfo glMap) {
 		TextureDescriptor<Texture> textureDescriptor = textureResolver.getTexture(glMap);
 		
 		PBRTextureAttribute attribute = new PBRTextureAttribute(type, textureDescriptor);

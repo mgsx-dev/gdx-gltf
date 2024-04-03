@@ -13,6 +13,8 @@
 * Added HDR/RGBE subformat support
 * Added USHORT and UBYTE support for bone weights
 * Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
+* Added Mirror specular effect (dynamic reflections).
+* Added cascade shadow map.
 
 ### 2.1.0
 

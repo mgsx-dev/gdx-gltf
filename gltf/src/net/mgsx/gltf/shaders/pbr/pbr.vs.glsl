@@ -202,6 +202,10 @@ uniform mat4 u_bones[numBones];
 #ifdef shadowMapFlag
 uniform mat4 u_shadowMapProjViewTrans;
 varying vec3 v_shadowMapUv;
+#ifdef numCSM
+uniform mat4 u_csmTransforms[numCSM];
+varying vec3 v_csmUVs[numCSM];
+#endif
 #endif //shadowMapFlag
 
 void main() {
@@ -289,6 +293,12 @@ void main() {
 		vec4 spos = u_shadowMapProjViewTrans * pos;
 		v_shadowMapUv.xyz = (spos.xyz / spos.w) * 0.5 + 0.5;
 		v_shadowMapUv.z = min(v_shadowMapUv.z, 0.998);
+		#ifdef numCSM
+		for(int i=0 ; i<numCSM ; i++){
+			vec4 csmPos = u_csmTransforms[i] * pos;
+			v_csmUVs[i].xyz = (csmPos.xyz / csmPos.w) * 0.5 + 0.5;
+		}
+		#endif
 	#endif //shadowMapFlag
 	
 	#if defined(normalFlag)

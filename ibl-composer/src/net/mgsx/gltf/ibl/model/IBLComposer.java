@@ -63,6 +63,8 @@ public class IBLComposer implements Disposable {
 		if(pixmapRaw != null) pixmapRaw.dispose();
 		if(textureRaw != null) textureRaw.dispose();
 		if(irradianceMap != null) irradianceMap.dispose();
+		if(radianceMap != null) radianceMap.dispose();
+		if(builtinBRDF != null) builtinBRDF.dispose();
 		environmentBaker.dispose();
 		irradianceBaker.dispose();
 		radianceBaker.dispose();

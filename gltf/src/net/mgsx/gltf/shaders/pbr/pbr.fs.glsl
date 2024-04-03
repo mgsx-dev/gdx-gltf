@@ -39,6 +39,7 @@ void main() {
 #else
 	out_FragColor.a = 1.0;
 #endif
+	applyClippingPlane();
 }
 
 #else
@@ -262,6 +263,8 @@ void main() {
 #else
 	out_FragColor.a = 1.0;
 #endif
+
+	applyClippingPlane();
 
 }
 

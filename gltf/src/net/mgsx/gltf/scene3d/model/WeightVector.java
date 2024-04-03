@@ -18,7 +18,7 @@ public class WeightVector {
 
 	public WeightVector(int count, int max) {
 		this.count = count;
-		values = new float[max];
+		values = new float[Math.max(count, max)];
 	}
 
 	public WeightVector set(WeightVector weights) {

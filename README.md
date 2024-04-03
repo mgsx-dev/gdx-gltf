@@ -302,3 +302,21 @@ You may encounter this warning when loading a model :
 This extension is [now archived and no longer recommended](https://github.com/KhronosGroup/glTF/tree/main/extensions#archived-extensions-for-gltf-20) by glTF 2.0 specification.
 
 It was never really supported by this this library and won't be, use it at your own risks.
+
+## Issues with ProGuard and such
+
+This library requires reflection in order to import/export GLTF files. Some classes should be filtered for tools like ProGuard. You could simply exclude all libgdx and gdx-gltf code : 
+
+```
+keep 'class com.badlogic.gdx.** { *; }'
+keep 'class net.mgsx.gltf.** { *; }'
+keepattributes 'Signature'
+```
+
+Or only exclude gdx-gltf data package :
+
+```
+-keep class net.mgsx.gltf.data.** {
+	public *;
+}
+```

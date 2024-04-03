@@ -27,3 +27,13 @@ uniform float u_transmissionSourceMipmapScale;
 #endif
 
 uniform mat4 u_projViewTrans;
+
+uniform vec4 u_clippingPlane;
+
+void applyClippingPlane(){
+#ifdef clippingPlaneFlag
+	if(dot(v_position - u_clippingPlane.xyz * u_clippingPlane.w, u_clippingPlane.xyz) < 0.0){
+		discard;
+	}
+#endif
+}

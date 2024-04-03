@@ -2,6 +2,7 @@ package net.mgsx.gltf.loaders.shared.geometry;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -17,16 +18,16 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectSet;
 
 import net.mgsx.gltf.data.data.GLTFAccessor;
-import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.geometry.GLTFMesh;
 import net.mgsx.gltf.data.geometry.GLTFPrimitive;
 import net.mgsx.gltf.loaders.blender.BlenderShapeKeys;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
-import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
 import net.mgsx.gltf.loaders.exceptions.GLTFUnsupportedException;
 import net.mgsx.gltf.loaders.shared.GLTFTypes;
+import net.mgsx.gltf.loaders.shared.data.AccessorBuffer;
 import net.mgsx.gltf.loaders.shared.data.DataResolver;
 import net.mgsx.gltf.loaders.shared.material.MaterialLoader;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
@@ -63,6 +64,7 @@ public class MeshLoader {
 				// vertices
 				Array<VertexAttribute> vertexAttributes = new Array<VertexAttribute>();
 				Array<GLTFAccessor> glAccessors = new Array<GLTFAccessor>();
+				ObjectSet<VertexAttribute> rgbOddAttributes = new ObjectSet<VertexAttribute>();
 				
 				Array<int[]> bonesIndices = new Array<int[]>();
 				Array<float[]> bonesWeights = new Array<float[]>();
@@ -114,11 +116,16 @@ public class MeshLoader {
 							if(GLTFTypes.C_FLOAT == accessor.componentType){
 								vertexAttributes.add(new VertexAttribute(Usage.ColorUnpacked, 3, GL20.GL_FLOAT, false, alias));
 							}
+							// LibGDX requires attribute to be multiple of 4 so RGB short (6 bytes) and RGB bytes (3 bytes) data needs to be converted to RGBA. 
 							else if(GLTFTypes.C_USHORT == accessor.componentType){
-								throw new GLTFUnsupportedException("RGB unsigned short color attribute not supported");
+								VertexAttribute a = new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_UNSIGNED_SHORT, true, alias);
+								rgbOddAttributes.add(a);
+								vertexAttributes.add(a);
 							}
 							else if(GLTFTypes.C_UBYTE == accessor.componentType){
-								throw new GLTFUnsupportedException("RGB unsigned byte color attribute not supported");
+								VertexAttribute a = new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_UNSIGNED_BYTE, true, alias);
+								rgbOddAttributes.add(a);
+								vertexAttributes.add(a);
 							}else{
 								throw new GLTFIllegalException("illegal color attribute component type: " + accessor.type);
 							}
@@ -264,35 +271,60 @@ public class MeshLoader {
 					
 					if(glAccessor == null) continue;
 					
-					if(glAccessor.bufferView == null){
-						throw new GLTFIllegalException("bufferView is null (mesh compression ?)");
-					}
-					
-					GLTFBufferView glBufferView = dataResolver.getBufferView(glAccessor.bufferView);
-					
-					// not used for now : used for direct mesh ....
-					if(glBufferView.target != null){
-						if(glBufferView.target == 34963){ // ELEMENT_ARRAY_BUFFER
-						}else if(glBufferView.target == 34962){ // ARRAY_BUFFER
-						}else{
-							throw new GLTFRuntimeException("bufferView target unknown : " + glBufferView.target);
-						}
-					}
-					
-					FloatBuffer floatBuffer = dataResolver.getBufferFloat(glAccessor);
-					
-					int attributeFloats = GLTFTypes.accessorStrideSize(glAccessor) / 4;
+					AccessorBuffer buffer = dataResolver.getAccessorBuffer(glAccessor);
+					ByteBuffer data = buffer.prepareForReading();
 
 					// buffer can be interleaved, so vertex stride may be different than vertex size 
-					int floatStride = glBufferView.byteStride == null ? attributeFloats : glBufferView.byteStride / 4;
+					int byteStride = buffer.getByteStride();
+					int floatStride = byteStride / 4;
+					int attributeFloats = attribute.getSizeInBytes() / 4;
 					
-					for(int j=0 ; j<glAccessor.count ; j++){
-						
-						floatBuffer.position(j * floatStride);
-						
-						int vIndex = j * vertexFloats + attribute.offset/4;
-						
-						floatBuffer.get(vertices, vIndex, attributeFloats);
+					// libGDX requires attribute size to be multiple of 4 bytes.
+					// RGB short and RGB bytes need to be converted to RGBA.
+					if(rgbOddAttributes.contains(attribute)) {
+						if(attribute.type == GL20.GL_UNSIGNED_SHORT) {
+							ShortBuffer shortBuffer = data.asShortBuffer();
+							for(int j=0 ; j<glAccessor.count ; j++){
+								shortBuffer.position(j * 3);
+								int vIndex = j * vertexFloats + attribute.offset/4;
+								int r = shortBuffer.get() & 0xFFFF;
+								int g = shortBuffer.get() & 0xFFFF;
+								int b = shortBuffer.get() & 0xFFFF;
+								int a = 0xFFFF;
+								vertices[vIndex] = Float.intBitsToFloat((r << 16) | g);
+								vertices[vIndex+1] = Float.intBitsToFloat((b << 16) | a);
+							}
+						}
+						else if(attribute.type == GL20.GL_UNSIGNED_BYTE) {
+							for(int j=0 ; j<glAccessor.count ; j++){
+								data.position(j * 3);
+								int vIndex = j * vertexFloats + attribute.offset/4;
+								int r = data.get() & 0xFF;
+								int g = data.get() & 0xFF;
+								int b = data.get() & 0xFF;
+								int a = 0xFF;
+								vertices[vIndex] = Float.intBitsToFloat((r << 24) | (g << 16) | (b << 8) | a );
+							}
+						}
+					}
+					// if vertex stride is not multiple of 4 bytes, we have to read float from byte buffer
+					else if(byteStride % 4 != 0){
+						for(int j=0 ; j<glAccessor.count ; j++){
+							int vIndex = j * vertexFloats + attribute.offset/4;
+							int dIndex = j * byteStride;
+							for(int k=0 ; k<attributeFloats ; k++) {
+								vertices[vIndex+k] = data.getFloat(dIndex + k * 4);
+							}
+						}
+					}
+					// optimized copy when vertex stride is multiple of 4 bytes 
+					else {
+						FloatBuffer floatBuffer = data.asFloatBuffer();
+						for(int j=0 ; j<glAccessor.count ; j++){
+							floatBuffer.position(j * floatStride);
+							int vIndex = j * vertexFloats + attribute.offset/4;
+							floatBuffer.get(vertices, vIndex, attributeFloats);
+						}
 					}
 				}
 				
