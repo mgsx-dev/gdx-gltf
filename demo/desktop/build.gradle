@@ -16,6 +16,7 @@ project.ext.assetsDir = new File("../android/assets");
 run {
 	workingDir = '../android/assets'
 	setIgnoreExitValue(true)
+	setMainClass(project.ext.mainClassName)
 }
 
 jar {
