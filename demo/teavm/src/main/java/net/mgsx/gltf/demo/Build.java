@@ -1,9 +1,9 @@
 package net.mgsx.gltf.demo;
 
-import com.github.xpenatan.gdx.backends.teavm.TeaBuildConfiguration;
-import com.github.xpenatan.gdx.backends.teavm.TeaBuilder;
+import com.github.xpenatan.gdx.backends.teavm.config.TeaBuildConfiguration;
+import com.github.xpenatan.gdx.backends.teavm.config.TeaBuilder;
+import com.github.xpenatan.gdx.backends.teavm.config.plugins.TeaReflectionSupplier;
 import com.github.xpenatan.gdx.backends.teavm.gen.SkipClass;
-import com.github.xpenatan.gdx.backends.teavm.plugins.TeaReflectionSupplier;
 import java.io.File;
 import java.io.IOException;
 import org.teavm.tooling.TeaVMTool;

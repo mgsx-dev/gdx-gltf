@@ -156,7 +156,7 @@ public class GLTFDemo extends ApplicationAdapter
 	public GLTFDemo(String samplesPath) {
 		this.samplesPath = samplesPath;
 	}
-	
+
 	@Override
 	public void create() {
 		
@@ -797,7 +797,7 @@ public class GLTFDemo extends ApplicationAdapter
 		sceneManager.environment.remove(defaultLight);
 	}
 	
-	private void load(FileHandle glFile){
+	public void load(FileHandle glFile){
 		
 		clearScene();		
 		if(rootModel != null){

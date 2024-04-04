@@ -28,8 +28,8 @@ configure(subprojects) {
 }
 subprojects {
     ext {
-    	gdxVersion = '1.11.0'
-    	gdxTeaVMVersion = '1.0.0-b4'
+    	gdxVersion = '1.12.1'
+    	gdxTeaVMVersion = '1.0.0-b9'
     	junitVersion = '4.12'
     }
     
