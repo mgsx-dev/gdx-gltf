@@ -697,7 +697,7 @@ public class GLTFDemo extends ApplicationAdapter
 		if(rootModel != null){
 			if(!shadersValid){
 				shadersValid = true;
-				ShaderProvider colorShader = createShaderProvider(shaderMode, rootModel.maxBones);
+				ShaderProvider colorShader = createShaderProvider(shaderMode, rootModel.maxBones, 8);
 				sceneManager.setShaderProvider(colorShader);
 				sceneManager.setDepthShaderProvider(PBRShaderProvider.createDefaultDepth(rootModel.maxBones));
 				sceneManager.setTransmissionSource(ui.transmissionPassEnabled.isOn() ? new TransmissionSource(colorShader) : null);
@@ -724,7 +724,7 @@ public class GLTFDemo extends ApplicationAdapter
 		invalidateShaders();
 	}
 	
-	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones){
+	private ShaderProvider createShaderProvider(ShaderMode shaderMode, int maxBones, int maxBoneWeights){
 		
 		// fit lights and bones to current scene.
 		LightsInfo info = LightUtils.getLightsInfo(new LightsInfo(), sceneManager.environment);
@@ -736,6 +736,7 @@ public class GLTFDemo extends ApplicationAdapter
 			{
 				Config config = new DefaultShader.Config();
 				config.numBones = maxBones;
+				config.numBoneWeights = maxBoneWeights;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
 				config.numSpotLights = info.spotLights;
@@ -758,6 +759,7 @@ public class GLTFDemo extends ApplicationAdapter
 				config.transmissionSRGB = ui.transmissionSRGB.getSelected();
 				config.mirrorSRGB = ui.mirrorSRGB.getSelected();
 				config.numBones = maxBones;
+				config.numBoneWeights = maxBoneWeights;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
 				config.numSpotLights = info.spotLights;
@@ -771,6 +773,7 @@ public class GLTFDemo extends ApplicationAdapter
 				config.manualSRGB = ui.shaderSRGB.getSelected();
 				config.manualGammaCorrection = ui.shaderGammaCorrection.isOn();
 				config.numBones = maxBones;
+				config.numBoneWeights = maxBoneWeights;
 				config.numDirectionalLights = info.dirLights;
 				config.numPointLights = info.pointLights;
 				config.numSpotLights = info.spotLights;
