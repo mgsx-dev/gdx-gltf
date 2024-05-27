@@ -36,6 +36,8 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class PBRShader extends DefaultShader
 {
+	private static final int MAX_CASCADES = 8;
+
 	private static final Vector2 v2 = new Vector2();
 	
 	public final static Uniform baseColorTextureUniform = new Uniform("u_diffuseTexture", PBRTextureAttribute.BaseColorTexture);
@@ -521,10 +523,11 @@ public class PBRShader extends DefaultShader
 
 	public int u_viewportInv;
 	public int u_clippingPlane;
-	
-	public int u_csmSamplers;
-	public int u_csmPCFClip;
-	public int u_csmTransforms;
+
+	protected int numCSM = 0;
+	protected int[] u_csmSamplers = new int[MAX_CASCADES];
+	protected int[] u_csmPCFClip = new int[MAX_CASCADES];
+	protected int[] u_csmTransforms = new int[MAX_CASCADES];
 
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -536,6 +539,8 @@ public class PBRShader extends DefaultShader
 		morphTargetsMask = computeMorphTargetsMask(renderable);
 		
 		vertexColorLayers = computeVertexColorLayers(renderable);
+
+		numCSM = computeNumberOfShadowCascades(renderable);
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
@@ -617,6 +622,13 @@ public class PBRShader extends DefaultShader
 		return num;
 	}
 
+	private int computeNumberOfShadowCascades(Renderable renderable ){
+		CascadeShadowMapAttribute csm = renderable.environment.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
+		if(csm == null)
+			return 0;
+		return csm.cascadeShadowMap.lights.size;
+	}
+
 	@Override
 	public boolean canRender(Renderable renderable) {
 		// TODO properly determine if current shader can render this renderable.
@@ -632,7 +644,10 @@ public class PBRShader extends DefaultShader
 		
 		// compare vertex colors count
 		if(this.vertexColorLayers != computeVertexColorLayers(renderable)) return false;
-		
+
+		// compare number of shadow map cascades
+		if(this.numCSM != computeNumberOfShadowCascades(renderable)) return false;
+
 		return super.canRender(renderable);
 	}
 	
@@ -691,10 +706,12 @@ public class PBRShader extends DefaultShader
 		u_morphTargets2 = program.fetchUniformLocation("u_morphTargets2", false);
 		
 		u_ambientLight = program.fetchUniformLocation("u_ambientLight", false);
-		
-		u_csmSamplers = program.fetchUniformLocation("u_csmSamplers", false);
-		u_csmPCFClip = program.fetchUniformLocation("u_csmPCFClip", false);
-		u_csmTransforms = program.fetchUniformLocation("u_csmTransforms", false);
+
+		for (int i = 0; i < numCSM; i++) {
+			u_csmSamplers[i] = program.fetchUniformLocation("u_csmSamplers" + i, false);
+			u_csmTransforms[i] = program.fetchUniformLocation("u_csmTransforms[" + i + "]", false);
+			u_csmPCFClip[i] = program.fetchUniformLocation("u_csmPCFClip[" + i + "]", false);
+		}
 	}
 	
 	@Override
@@ -794,7 +811,7 @@ public class PBRShader extends DefaultShader
 		}
 		
 		CascadeShadowMapAttribute csmAttrib = attributes.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
-		if(csmAttrib != null && u_csmSamplers >= 0){
+		if(csmAttrib != null && u_csmSamplers[0] >= 0){
 			Array<DirectionalShadowLight> lights = csmAttrib.cascadeShadowMap.lights;
 			for(int i=0 ; i<lights.size ; i++){
 				DirectionalShadowLight light = lights.get(i);
@@ -803,9 +820,9 @@ public class PBRShader extends DefaultShader
 				float clip = 3.f / (2 * mapSize);
 				
 				int unit = context.textureBinder.bind(light.getDepthMap());
-				program.setUniformi(u_csmSamplers + i, unit);
-				program.setUniformMatrix(u_csmTransforms + i, light.getProjViewTrans());
-				program.setUniformf(u_csmPCFClip + i, pcf, clip);
+				program.setUniformi(u_csmSamplers[i], unit);
+				program.setUniformMatrix(u_csmTransforms[i], light.getProjViewTrans());
+				program.setUniformf(u_csmPCFClip[i], pcf, clip);
 			}
 		}
 	}
