@@ -1,9 +1,7 @@
 package net.mgsx.gltf.demo;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-
-import net.mgsx.gltf.demo.GLTFTest;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 public class DesktopBatchTestLauncher {
 	public static void main (String[] arg) {
@@ -11,9 +9,8 @@ public class DesktopBatchTestLauncher {
 		// required for HTTPS requests
 		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
 
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 1024;
-		config.height = 768;
-		new LwjglApplication(arg.length > 0 ? new GLTFTest(arg[0]) : new GLTFTest(), config);
+		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setWindowedMode(1024, 768);
+		new Lwjgl3Application(arg.length > 0 ? new GLTFTest(arg[0]) : new GLTFTest(), config);
 	}
 }

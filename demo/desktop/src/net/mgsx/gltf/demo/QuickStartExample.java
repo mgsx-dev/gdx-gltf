@@ -1,13 +1,13 @@
 package net.mgsx.gltf.demo;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 import net.mgsx.gltf.examples.GLTFQuickStartExample;
 
 public class QuickStartExample {
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new GLTFQuickStartExample(), config);
+		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		new Lwjgl3Application(new GLTFQuickStartExample(), config);
 	}
 }
