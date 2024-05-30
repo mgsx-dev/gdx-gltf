@@ -1,5 +1,6 @@
 package net.mgsx.gltf.scene3d.shaders;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -526,6 +527,11 @@ public class PBRShader extends DefaultShader
 	public int u_csmPCFClip;
 	public int u_csmTransforms;
 
+	private static final int MAX_CSM = 8;
+	private int [] csmSamplers = new int[MAX_CSM];
+	private float [] csmTransforms = new float[MAX_CSM * 16];
+	private float [] csmPCFClip = new float[MAX_CSM * 2];
+
 	private static final Matrix3 textureTransform = new Matrix3();
 	
 	public PBRShader(Renderable renderable, Config config, String prefix) {
@@ -803,10 +809,14 @@ public class PBRShader extends DefaultShader
 				float clip = 3.f / (2 * mapSize);
 				
 				int unit = context.textureBinder.bind(light.getDepthMap());
-				program.setUniformi(u_csmSamplers + i, unit);
-				program.setUniformMatrix(u_csmTransforms + i, light.getProjViewTrans());
-				program.setUniformf(u_csmPCFClip + i, pcf, clip);
+				csmSamplers[i] = unit;
+				System.arraycopy(light.getProjViewTrans().val, 0, csmTransforms, i*16, 16);
+				csmPCFClip[i*2] = pcf;
+				csmPCFClip[i*2+1] = clip;
 			}
+			Gdx.gl.glUniform1iv(u_csmSamplers, lights.size, csmSamplers, 0);
+			Gdx.gl.glUniformMatrix4fv(u_csmTransforms, lights.size, false, csmTransforms, 0);
+			Gdx.gl.glUniform2fv(u_csmPCFClip, lights.size, csmPCFClip, 0);
 		}
 	}
 	
