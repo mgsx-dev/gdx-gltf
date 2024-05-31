@@ -15,7 +15,7 @@ buildscript {
 allprojects {
 
     group = 'com.github.mgsx-dev.gdx-gltf'
-    version = '2.1.0.1'
+    version = '2.1.0'
     
     apply plugin: "eclipse"
 	apply plugin: "idea"
