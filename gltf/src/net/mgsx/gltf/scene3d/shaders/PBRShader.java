@@ -37,8 +37,6 @@ import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class PBRShader extends DefaultShader
 {
-//	private static final int MAX_CASCADES = 8;
-
 	private static final Vector2 v2 = new Vector2();
 	
 	public final static Uniform baseColorTextureUniform = new Uniform("u_diffuseTexture", PBRTextureAttribute.BaseColorTexture);
@@ -488,6 +486,8 @@ public class PBRShader extends DefaultShader
 	
 	private int vertexColorLayers;
 
+	private int cascadeCount;
+
 	public int u_emissive;
 
 	public int u_transmissionFactor;
@@ -525,19 +525,14 @@ public class PBRShader extends DefaultShader
 	public int u_viewportInv;
 	public int u_clippingPlane;
 
-	public int u_csmSamplers;
+	private static final int MAX_CSM = 8;
+	
+	public int [] u_csmSamplers = new int[MAX_CSM];
 	public int u_csmPCFClip;
 	public int u_csmTransforms;
 
-	private static final int MAX_CSM = 8;
-	private int [] csmSamplers = new int[MAX_CSM];
 	private float [] csmTransforms = new float[MAX_CSM * 16];
 	private float [] csmPCFClip = new float[MAX_CSM * 2];
-
-//	protected int numCSM = 0;
-protected int[] u_csmSamplersArray = new int[MAX_CSM];
-//	protected int[] u_csmPCFClip = new int[MAX_CASCADES];
-//	protected int[] u_csmTransforms = new int[MAX_CASCADES];
 
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -550,7 +545,7 @@ protected int[] u_csmSamplersArray = new int[MAX_CSM];
 		
 		vertexColorLayers = computeVertexColorLayers(renderable);
 
-//		numCSM = computeNumberOfShadowCascades(renderable);
+		cascadeCount = countShadowCascades(renderable);
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
@@ -632,7 +627,7 @@ protected int[] u_csmSamplersArray = new int[MAX_CSM];
 		return num;
 	}
 
-	private int computeNumberOfShadowCascades(Renderable renderable ){
+	private int countShadowCascades(Renderable renderable ){
 		CascadeShadowMapAttribute csm = renderable.environment.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
 		if(csm == null)
 			return 0;
@@ -656,7 +651,7 @@ protected int[] u_csmSamplersArray = new int[MAX_CSM];
 		if(this.vertexColorLayers != computeVertexColorLayers(renderable)) return false;
 
 		// compare number of shadow map cascades
-//		if(this.numCSM != computeNumberOfShadowCascades(renderable)) return false;
+		if(this.cascadeCount != countShadowCascades(renderable)) return false;
 
 		return super.canRender(renderable);
 	}
@@ -717,15 +712,11 @@ protected int[] u_csmSamplersArray = new int[MAX_CSM];
 		
 		u_ambientLight = program.fetchUniformLocation("u_ambientLight", false);
 
-		u_csmSamplers = program.fetchUniformLocation("u_csmSamplers[0]", false);
 		u_csmPCFClip = program.fetchUniformLocation("u_csmPCFClip", false);
 		u_csmTransforms = program.fetchUniformLocation("u_csmTransforms", false);
 
-		int numCSM = computeNumberOfShadowCascades(renderable);
-		for (int i = 0; i < numCSM; i++) {
-			u_csmSamplersArray[i] = program.fetchUniformLocation("u_csmSamplers" + i, false);
-//			u_csmTransforms[i] = program.fetchUniformLocation("u_csmTransforms[" + i + "]", false);
-//			u_csmPCFClip[i] = program.fetchUniformLocation("u_csmPCFClip[" + i + "]", false);
+		for (int i = 0; i < cascadeCount; i++) {
+			u_csmSamplers[i] = program.fetchUniformLocation("u_csmSamplers" + i, false);
 		}
 	}
 	
@@ -826,7 +817,7 @@ protected int[] u_csmSamplersArray = new int[MAX_CSM];
 		}
 		
 		CascadeShadowMapAttribute csmAttrib = attributes.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
-		if(csmAttrib != null && u_csmSamplersArray[0] >= 0){
+		if(csmAttrib != null && u_csmSamplers[0] >= 0){
 			Array<DirectionalShadowLight> lights = csmAttrib.cascadeShadowMap.lights;
 			for(int i=0 ; i<lights.size ; i++){
 				DirectionalShadowLight light = lights.get(i);
@@ -835,15 +826,11 @@ protected int[] u_csmSamplersArray = new int[MAX_CSM];
 				float clip = 3.f / (2 * mapSize);
 				
 				int unit = context.textureBinder.bind(light.getDepthMap());
-				program.setUniformi(u_csmSamplersArray[i], unit);
-//				program.setUniformMatrix(u_csmTransforms[i], light.getProjViewTrans());
-//				program.setUniformf(u_csmPCFClip[i], pcf, clip);
-				csmSamplers[i] = unit;
+				program.setUniformi(u_csmSamplers[i], unit);
 				System.arraycopy(light.getProjViewTrans().val, 0, csmTransforms, i*16, 16);
 				csmPCFClip[i*2] = pcf;
 				csmPCFClip[i*2+1] = clip;
 			}
-			//Gdx.gl.glUniform1iv(u_csmSamplers, lights.size, csmSamplers, 0);
 			Gdx.gl.glUniformMatrix4fv(u_csmTransforms, lights.size, false, csmTransforms, 0);
 			Gdx.gl.glUniform2fv(u_csmPCFClip, lights.size, csmPCFClip, 0);
 		}
