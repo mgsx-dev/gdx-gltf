@@ -831,8 +831,8 @@ public class PBRShader extends DefaultShader
 				csmPCFClip[i*2] = pcf;
 				csmPCFClip[i*2+1] = clip;
 			}
-			Gdx.gl.glUniformMatrix4fv(u_csmTransforms, lights.size, false, csmTransforms, 0);
-			Gdx.gl.glUniform2fv(u_csmPCFClip, lights.size, csmPCFClip, 0);
+			program.setUniformMatrix4fv(u_csmTransforms, csmTransforms, 0, lights.size);
+			program.setUniform2fv(u_csmPCFClip, csmPCFClip, 0, lights.size); 
 		}
 	}
 	
