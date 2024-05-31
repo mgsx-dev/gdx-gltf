@@ -525,14 +525,12 @@ public class PBRShader extends DefaultShader
 	public int u_viewportInv;
 	public int u_clippingPlane;
 
-	private static final int MAX_CSM = 8;
-	
-	public int [] u_csmSamplers = new int[MAX_CSM];
+	public int [] u_csmSamplers;
 	public int u_csmPCFClip;
 	public int u_csmTransforms;
 
-	private float [] csmTransforms = new float[MAX_CSM * 16];
-	private float [] csmPCFClip = new float[MAX_CSM * 2];
+	private float [] csmTransforms;
+	private float [] csmPCFClip;
 
 	private static final Matrix3 textureTransform = new Matrix3();
 	
@@ -546,6 +544,10 @@ public class PBRShader extends DefaultShader
 		vertexColorLayers = computeVertexColorLayers(renderable);
 
 		cascadeCount = countShadowCascades(renderable);
+
+		u_csmSamplers = new int[cascadeCount];
+		csmTransforms = new float[cascadeCount * 16];
+		csmPCFClip = new float[cascadeCount * 2];
 		
 		// base color
 		u_BaseColorTexture = register(baseColorTextureUniform, baseColorTextureSetter);
