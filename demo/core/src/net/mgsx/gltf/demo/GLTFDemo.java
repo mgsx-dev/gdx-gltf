@@ -686,7 +686,7 @@ public class GLTFDemo extends ApplicationAdapter
 		if(!skyboxValid){
 			skyboxValid = true;
 			skybox.dispose();
-			skybox = new SceneSkybox(environmentCubemap, ui.skyboxSRGB.getSelected(), ui.skyboxGammaCorrection.isOn());
+			skybox = new SceneSkybox(environmentCubemap, ui.skyboxSRGB.getSelected(), ui.skyboxGammaCorrection.isOn(), false);
 			if(ui.skyBoxEnabled.isOn()){
 				sceneManager.setSkyBox(skybox);
 			}

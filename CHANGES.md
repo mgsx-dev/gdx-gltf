@@ -15,6 +15,9 @@
 * Fix PBR shader: Ambient occlusion texture is now applied to IBL only instead of all lights.
 * Added Mirror specular effect (dynamic reflections).
 * Added cascade shadow map.
+* Changed Skybox implementation using screen quad instead of literal box (fixing artifacts at far distance)
+* Added Skybox LoD capability (see SceneSkybox.lodBias).
+* Added Skybox alpha support.
 
 ### 2.1.0
 

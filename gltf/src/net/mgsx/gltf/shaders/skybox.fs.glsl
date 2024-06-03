@@ -1,15 +1,43 @@
-#ifdef GL_ES 
+// Compatibility copied from PBR shader compat.fs.glsl
+
+// Extensions required for WebGL and some Android versions
+
+#ifdef GLSL3
+#define textureCubeLodEXT textureLod
+#define texture2DLodEXT textureLod
+#else
+#ifdef USE_TEXTURE_LOD_EXT
+#extension GL_EXT_shader_texture_lod: enable
+#else
+// Note : "textureCubeLod" is used for compatibility but should be "textureLod" for GLSL #version 130 (OpenGL 3.0+)
+#define textureCubeLodEXT textureCubeLod
+#define texture2DLodEXT texture2DLod
+#endif
+#endif
+
+// required to have same precision in both shader for light structure
+#ifdef GL_ES
 #define LOWP lowp
 #define MED mediump
 #define HIGH highp
-precision mediump float;
+precision highp float;
 #else
 #define MED
 #define LOWP
 #define HIGH
 #endif
 
-varying vec3 v_position;
+// translate GLSL 120 to 130
+#ifdef GLSL3
+#define varying in
+out vec4 out_FragColor;
+#define textureCube texture
+#define texture2D texture
+#else
+#define out_FragColor gl_FragColor
+#endif
+
+varying vec4 v_position;
 
 uniform samplerCube u_environmentCubemap;
 
@@ -19,6 +47,10 @@ uniform vec4 u_diffuseColor;
 
 #ifdef ENV_ROTATION
 uniform mat3 u_envRotation;
+#endif
+
+#ifdef ENV_LOD
+uniform float u_lod;
 #endif
 
 vec4 SRGBtoLINEAR(vec4 srgbIn)
@@ -36,20 +68,27 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
     #endif //MANUAL_SRGB
 }
 
+uniform mat4 u_worldTrans;
+
 void main() {
+	vec4 tr = u_worldTrans * v_position;
+	vec3 dir = normalize(tr.xyz);
 #ifdef ENV_ROTATION
-	vec3 direction = u_envRotation * v_position;
-#else
-	vec3 direction = v_position;
+	dir = u_envRotation * dir;
 #endif
 
-	vec4 color = SRGBtoLINEAR(textureCube(u_environmentCubemap, direction));
+#ifdef ENV_LOD
+	vec4 color = SRGBtoLINEAR(textureCubeLodEXT(u_environmentCubemap, dir, u_lod));
+#else
+	vec4 color = SRGBtoLINEAR(textureCube(u_environmentCubemap, dir));
+#endif
+
 #ifdef diffuseColorFlag
 	color *= u_diffuseColor;
 #endif
 #ifdef GAMMA_CORRECTION
-	gl_FragColor = vec4(pow(color.rgb, vec3(1.0/GAMMA_CORRECTION)), 1.0);
+	out_FragColor = vec4(pow(color.rgb, vec3(1.0/GAMMA_CORRECTION)), color.a);
 #else
-	gl_FragColor = vec4(color.rgb, 1.0);
+	out_FragColor = vec4(color.rgb, color.a);
 #endif
 }
