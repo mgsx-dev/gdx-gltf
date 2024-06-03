@@ -6,7 +6,15 @@ varying vec3 v_shadowMapUv;
 
 #ifdef numCSM
 
-uniform sampler2D u_csmSamplers[numCSM];
+// arrays of samplers don't seem to work well with ANGLE/DXD11 on Windows so use invididual uniforms instead
+uniform sampler2D u_csmSamplers0;
+uniform sampler2D u_csmSamplers1;
+uniform sampler2D u_csmSamplers2;
+uniform sampler2D u_csmSamplers3;
+uniform sampler2D u_csmSamplers4;
+uniform sampler2D u_csmSamplers5;
+uniform sampler2D u_csmSamplers6;
+uniform sampler2D u_csmSamplers7;
 uniform vec2 u_csmPCFClip[numCSM];
 varying vec3 v_csmUVs[numCSM];
 
@@ -34,30 +42,29 @@ float getShadow()
 			uv.z >= 0.0 && uv.z <= 1.0){
 			
 			#if numCSM > 0
-			if(i == 0) return getCSMShadow(u_csmSamplers[0], uv, pcf);
+			if(i == 0) return getCSMShadow(u_csmSamplers0, uv, pcf);
 			#endif
 			#if numCSM > 1
-			if(i == 1) return getCSMShadow(u_csmSamplers[1], uv, pcf);
+			if(i == 1) return getCSMShadow(u_csmSamplers1, uv, pcf);
 			#endif
 			#if numCSM > 2
-			if(i == 2) return getCSMShadow(u_csmSamplers[2], uv, pcf);
+			if(i == 2) return getCSMShadow(u_csmSamplers2, uv, pcf);
 			#endif
 			#if numCSM > 3
-			if(i == 3) return getCSMShadow(u_csmSamplers[3], uv, pcf);
+			if(i == 3) return getCSMShadow(u_csmSamplers3, uv, pcf);
 			#endif
 			#if numCSM > 4
-			if(i == 4) return getCSMShadow(u_csmSamplers[4], uv, pcf);
+			if(i == 4) return getCSMShadow(u_csmSamplers4, uv, pcf);
 			#endif
 			#if numCSM > 5
-			if(i == 5) return getCSMShadow(u_csmSamplers[5], uv, pcf);
+			if(i == 5) return getCSMShadow(u_csmSamplers5, uv, pcf);
 			#endif
 			#if numCSM > 6
-			if(i == 6) return getCSMShadow(u_csmSamplers[6], uv, pcf);
+			if(i == 6) return getCSMShadow(u_csmSamplers6, uv, pcf);
 			#endif
 			#if numCSM > 7
-			if(i == 7) return getCSMShadow(u_csmSamplers[7], uv, pcf);
-			#endif			
-
+			if(i == 7) return getCSMShadow(u_csmSamplers7, uv, pcf);
+			#endif
 		}
 	}
 	// default map
