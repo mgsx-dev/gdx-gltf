@@ -819,7 +819,7 @@ public class PBRShader extends DefaultShader
 		}
 		
 		CascadeShadowMapAttribute csmAttrib = attributes.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
-		if(csmAttrib != null && u_csmSamplers[0] >= 0){
+		if(csmAttrib != null && u_csmSamplers.length > 0 && u_csmSamplers[0] >= 0){
 			Array<DirectionalShadowLight> lights = csmAttrib.cascadeShadowMap.lights;
 			for(int i=0 ; i<lights.size ; i++){
 				DirectionalShadowLight light = lights.get(i);
