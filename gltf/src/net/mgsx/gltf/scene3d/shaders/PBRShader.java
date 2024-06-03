@@ -1,6 +1,5 @@
 package net.mgsx.gltf.scene3d.shaders;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -630,10 +629,11 @@ public class PBRShader extends DefaultShader
 	}
 
 	private int countShadowCascades(Renderable renderable ){
-		CascadeShadowMapAttribute csm = renderable.environment.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
-		if(csm == null)
-			return 0;
-		return csm.cascadeShadowMap.lights.size;
+		if(renderable.environment != null) {
+			CascadeShadowMapAttribute csm = renderable.environment.get(CascadeShadowMapAttribute.class, CascadeShadowMapAttribute.Type);
+			if(csm != null) return csm.cascadeShadowMap.lights.size;
+		}
+		return 0;
 	}
 
 	@Override
