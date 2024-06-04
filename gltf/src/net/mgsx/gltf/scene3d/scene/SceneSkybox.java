@@ -30,7 +30,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool;
 
 import net.mgsx.gltf.scene3d.attributes.PBRMatrixAttribute;
-import net.mgsx.gltf.scene3d.shaders.PBRShader;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig.SRGB;
 
@@ -58,6 +57,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	public final Environment environment = new Environment();
 
 	private final Matrix4 directionInverse = new Matrix4();
+	private final Matrix4 envRotationInverse = new Matrix4();
 	private boolean lodEnabled;
 	private Model quadModel;
 	private Renderable quad;
@@ -183,8 +183,7 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 		private int u_lod;
 		
 		public SkyboxShader(Renderable renderable, Config config) {
-			super(renderable, config, createPrefix(renderable, config) + createSkyBoxPrefix(renderable));
-			register(PBRShader.envRotationUniform, PBRShader.envRotationSetter);
+			super(renderable, config);
 		}
 		
 		@Override
@@ -199,14 +198,6 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 			if(u_lod >= 0) program.setUniformf(u_lod, lodBias);
 		}
 		
-	}
-	
-	private static String createSkyBoxPrefix(Renderable renderable) {
-		String prefix = "";
-		if(renderable.environment.has(PBRMatrixAttribute.EnvRotation)){
-			prefix += "#define ENV_ROTATION\n";
-		}
-		return prefix;
 	}
 	
 	private class SkyboxShaderProvider extends DefaultShaderProvider {
@@ -239,8 +230,15 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	
 	@Override
 	public void update(Camera camera, float delta){
+		
 		directionInverse.set(camera.view);
 		directionInverse.setTranslation(0, 0, 0);
+		
+		PBRMatrixAttribute a = quad.environment.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
+		if(a != null) {
+			directionInverse.mul(envRotationInverse.set(a.matrix).tra());
+		}
+		
 		quad.worldTransform.set(camera.projection).mul(directionInverse).inv();
 		quad.worldTransform.val[Matrix4.M22] = 1f;
 	}
