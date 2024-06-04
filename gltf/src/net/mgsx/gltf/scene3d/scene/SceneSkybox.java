@@ -240,8 +240,9 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	@Override
 	public void update(Camera camera, float delta){
 		directionInverse.set(camera.view);
-		directionInverse.setTranslation(0, 0, 1e-30f);
+		directionInverse.setTranslation(0, 0, 0);
 		quad.worldTransform.set(camera.projection).mul(directionInverse).inv();
+		quad.worldTransform.val[Matrix4.M22] = 1f;
 	}
 	
 	@Override
