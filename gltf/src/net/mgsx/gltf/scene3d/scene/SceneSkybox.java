@@ -232,15 +232,13 @@ public class SceneSkybox implements RenderableProvider, Updatable, Disposable {
 	public void update(Camera camera, float delta){
 		
 		directionInverse.set(camera.view);
-		directionInverse.setTranslation(0, 0, 0);
+		directionInverse.setTranslation(0, 0, 1e-30f);
 		
 		PBRMatrixAttribute a = quad.environment.get(PBRMatrixAttribute.class, PBRMatrixAttribute.EnvRotation);
 		if(a != null) {
 			directionInverse.mul(envRotationInverse.set(a.matrix).tra());
 		}
-		
 		quad.worldTransform.set(camera.projection).mul(directionInverse).inv();
-		quad.worldTransform.val[Matrix4.M22] = 1f;
 	}
 	
 	@Override
