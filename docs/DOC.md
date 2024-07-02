@@ -5,6 +5,35 @@
 
 ## Rendering options
 
+### Configure necessary lights
+
+By default, PBR shader is configured with a maximum set of lights as below : 
+
+```java
+numDirectionalLights = 2;
+numPointLights = 5;
+numSpotLights = 0;
+```
+
+Even if there are not some many lights in your scene, shader will still render them with zero intensity. So if you don't need so many, it's a good idea to properly configure them (depending on your game). These lights have significant impact on performances. A typical configuration is only one directional light. It's also a good idea to configure maximum bones per renderable as well. Here is a configuration exemple :
+
+```java
+PBRShaderConfig colorConfig = new PBRShaderConfig();
+
+colorConfig.numDirectionalLights = 1;
+colorConfig.numPointLights = 0;
+colorConfig.numSpotLights = 0;
+colorConfig.maxBones = 12;
+
+DepthShader.Config depthConfig= new DepthShader.Config();
+depthConfig.maxBones = 12;
+
+SceneManager sceneManager = new SceneManager(
+	new PBRShaderProvider(colorConfig),
+	new	PBRDepthShaderProvider(depthConfig)
+);
+```
+
 ### Rendering to frame buffer
 
 Sometimes you want ot render scenes to a FBO (Frame buffer). You can do it but you have to take some cautions: SceneManager is using FBOs internally to render shadows and transmission. So, instead of calling sceneManager.render(), you have to do something like this:
