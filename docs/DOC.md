@@ -30,7 +30,7 @@ depthConfig.maxBones = 12;
 
 SceneManager sceneManager = new SceneManager(
 	new PBRShaderProvider(colorConfig),
-	new	PBRDepthShaderProvider(depthConfig)
+	new PBRDepthShaderProvider(depthConfig)
 );
 ```
 
