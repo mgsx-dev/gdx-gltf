@@ -89,8 +89,9 @@ public class BinaryDataFileResolver implements DataFileResolver
 			}
 			i += chunkLen;
 		}
-		
-		glModel = new Json().fromJson(GLTF.class, jsonData);
+		Json json = new Json();
+		json.setIgnoreUnknownFields(true);
+		glModel = json.fromJson(GLTF.class, jsonData);
 	}
 	
 	@Override
