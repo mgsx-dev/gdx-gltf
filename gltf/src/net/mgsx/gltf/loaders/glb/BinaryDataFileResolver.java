@@ -19,6 +19,7 @@ import net.mgsx.gltf.data.data.GLTFBufferView;
 import net.mgsx.gltf.data.texture.GLTFImage;
 import net.mgsx.gltf.loaders.exceptions.GLTFIllegalException;
 import net.mgsx.gltf.loaders.exceptions.GLTFRuntimeException;
+import net.mgsx.gltf.loaders.gltf.SeparatedDataFileResolver;
 import net.mgsx.gltf.loaders.shared.GLTFLoaderBase;
 import net.mgsx.gltf.loaders.shared.data.DataFileResolver;
 import net.mgsx.gltf.loaders.shared.texture.PixmapBinaryLoaderHack;
@@ -27,9 +28,11 @@ public class BinaryDataFileResolver implements DataFileResolver
 {
 	private ObjectMap<Integer, ByteBuffer> bufferMap = new ObjectMap<Integer, ByteBuffer>();
 	private GLTF glModel;
+	private FileHandle path;
 	
 	@Override
 	public void load(FileHandle file) {
+		path = file.parent();
 		load(file.read());
 	}
 	
@@ -112,8 +115,10 @@ public class BinaryDataFileResolver implements DataFileResolver
 			byte [] data = new byte[bufferView.byteLength];
 			buffer.get(data);
 			return PixmapBinaryLoaderHack.load(data, 0, data.length);
-		}else{
-			throw new GLTFIllegalException("GLB image should have bufferView");
+		} else if(glImage.uri != null) {
+			return new Pixmap(path.child(SeparatedDataFileResolver.decodePath(glImage.uri)));
+		} else {
+			throw new GLTFIllegalException("GLB image should have bufferView or uri");
 		}
 	}
 }
