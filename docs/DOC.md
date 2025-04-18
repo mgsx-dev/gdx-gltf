@@ -311,12 +311,17 @@ GLTF data structure is not kept in memory beyond loading by default to save memo
 you need to enable it either by direct loading :
 
 `new GLTFLoader.load(myFile, true)`
+`new GLBLoader.load(myFile, true)`
 
-or via AssetLoader parameters:
+or when using AssetManager :
 
-`assetManager.load("myFile.gltf", new GLTFLoaderParameter(true));`
+```
+SceneAssetLoaderParameters parameters = new SceneAssetLoaderParameters();
+parameters.withData = true;
+assetManager.load("myFile.gltf", parameters);
+```
 
-For instance Blender GLTF exporter may save some of its own settings, you can retreive them like this:
+For instance Blender GLTF exporter may save some of its own settings, you can retrieve them like this:
 
 `sceneAsset.data.extras.get("glTF2ExportSettings")`
 
