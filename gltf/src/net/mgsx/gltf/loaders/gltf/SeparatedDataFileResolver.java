@@ -60,7 +60,7 @@ public class SeparatedDataFileResolver implements DataFileResolver
 		return bufferMap;
 	}
 
-	private String decodePath(String uri) {
+	public static String decodePath(String uri) {
 		byte [] src = uri.getBytes();
 		byte [] bytes = new byte[src.length];
 		int pos = 0;
