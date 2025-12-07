@@ -192,30 +192,33 @@ public class MeshTangentSpaceGenerator {
 					(du1 * dy2 - du2 * dy1) * r,
 	                (du1 * dz2 - du2 * dz1) * r);
 			
-			tan1[vIndexA].add(vu);
-			tan2[vIndexA].add(vv);
+		 if(vIndexA<=tan1.length-1)tan1[vIndexA].add(vu);
+	     if(vIndexA<=tan2.length-1)tan2[vIndexA].add(vv);
 			
-			tan1[vIndexB].add(vu);
-			tan2[vIndexB].add(vv);
+		 if(vIndexB<=tan1.length-1)tan1[vIndexB].add(vu);
+	     if(vIndexB<=tan2.length-1)tan2[vIndexB].add(vv);
 			
-			tan1[vIndexC].add(vu);
-			tan2[vIndexC].add(vv);
+		 if(vIndexC<=tan1.length-1)tan1[vIndexC].add(vu);
+	     if(vIndexC<=tan2.length-1)tan2[vIndexC].add(vv);
 		}
 		
 		Vector3 tangent = new Vector3();
 		Vector3 normal = new Vector3();
 		Vector3 biNormal = new Vector3();
+		Vector3 t1 = new Vector3();
+		Vector3 t2 = new Vector3();
 		for(int i=0 ; i<vertexCount ; i++){
 			
 			float nx = vertices[i * stride + normalOffset];
 			float ny = vertices[i * stride + normalOffset+1];
 			float nz = vertices[i * stride + normalOffset+2];
 			normal.set(nx, ny, nz);
-			
-			Vector3 t1 = tan1[i];
+		    t1.set(0,0,0);
+			if(i<=tan1.length-1) t1 = tan1[i];
 			tangent.set(t1).mulAdd(normal, -normal.dot(t1)).nor();
 			
-			Vector3 t2 = tan2[i];
+		    t2.set(0,0,0);
+			if(i<=tan2.length-1) t2 = tan2[i];
 			biNormal.set(normal).crs(tangent);
 			float tangentW = biNormal.dot(t2) < 0 ? -1 : 1;
 			
