@@ -173,6 +173,7 @@ public class MeshLoader {
 					}
 					else if(attributeName.startsWith("_")){
 						Gdx.app.error("GLTF", "skip unsupported custom attribute: " + attributeName);
+						rawAttribute = false;
 					}else{
 						throw new GLTFIllegalException("illegal attribute type " + attributeName);
 					}
@@ -343,7 +344,7 @@ public class MeshLoader {
 					case GLTFTypes.C_UINT:
 						{
 							Gdx.app.error("GLTF", "integer indices partially supported, mesh will be split");
-							Gdx.app.error("GLTF", "splitting mesh: " + maxVertices + " vertices, " + maxIndices + " indices.");
+							Gdx.app.error("GLTF", "splitting mesh: '" + String.valueOf(glMesh.name) + "', " + maxVertices + " vertices, " + maxIndices + " indices.");
 
 							int verticesPerPrimitive;
 							if(glPrimitiveType == GL20.GL_TRIANGLES){

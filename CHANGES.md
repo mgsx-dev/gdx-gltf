@@ -1,5 +1,9 @@
 # Changes history
 
+### 2.2.1
+
+* Fix incorrect ambient lighting when no IBL is used, now it's modulates base color instead or adding to it.
+
 ### 2.2.0
 
 * Added `KHR_materials_transmission` extension support.
