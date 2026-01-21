@@ -5,21 +5,58 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
+import com.badlogic.gdx.math.*;
 
+import net.mgsx.gltf.scene3d.attributes.*;
 import net.mgsx.gltf.scene3d.attributes.PBRVertexAttributes;
 import net.mgsx.gltf.scene3d.model.WeightVector;
 
 public class PBRDepthShader extends DepthShader
 {
+	private final Matrix3 textureTransform = new Matrix3();
+	private PBRTextureAttribute transformTexture = null;
+	
 	public final long morphTargetsMask;
 	
 	// morph targets
 	private int u_morphTargets1;
 	private int u_morphTargets2;
 	
+	// texture transform
+	private int u_texCoordTransform;	
+	
 	public PBRDepthShader(Renderable renderable, Config config, String prefix) {
 		super(renderable, config, prefix);
 		this.morphTargetsMask = computeMorphTargetsMask(renderable);
+	}
+	
+	/*
+	 * @see com.badlogic.gdx.graphics.g3d.shaders.DefaultShader#bindMaterial(com.badlogic.gdx.graphics.g3d.Attributes)
+	 */
+	@Override
+	protected void bindMaterial(Attributes attributes)
+	{
+		super.bindMaterial(attributes);
+		
+		transformTexture = null;
+		
+		PBRTextureAttribute attr = attributes.get(PBRTextureAttribute.class, PBRTextureAttribute.BaseColorTexture);
+		if(attr != null){
+			transformTexture = attr;
+		}
+		
+		if(u_texCoordTransform >= 0){
+			if(transformTexture != null){
+				PBRTextureAttribute attribute = transformTexture;
+				textureTransform.idt();
+				textureTransform.translate(attribute.offsetU, attribute.offsetV);
+				textureTransform.rotateRad(-attribute.rotationUV);
+				textureTransform.scale(attribute.scaleU, attribute.scaleV);
+			}else{
+				textureTransform.idt();
+			}
+			program.setUniformMatrix(u_texCoordTransform, textureTransform);
+		}
 	}
 	
 	protected long computeMorphTargetsMask(Renderable renderable){
@@ -47,6 +84,7 @@ public class PBRDepthShader extends DepthShader
 		
 		u_morphTargets1 = program.fetchUniformLocation("u_morphTargets1", false);
 		u_morphTargets2 = program.fetchUniformLocation("u_morphTargets2", false);
+		u_texCoordTransform = program.fetchUniformLocation("u_texCoordTransform", false);
 
 	}
 	

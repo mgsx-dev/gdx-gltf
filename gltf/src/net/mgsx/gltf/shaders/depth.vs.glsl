@@ -50,6 +50,7 @@ uniform vec4 u_morphTargets2;
 #define blendedTextureFlag
 attribute vec2 a_texCoord0;
 varying vec2 v_texCoords0;
+uniform mat3 u_texCoordTransform;
 #endif
 
 
@@ -125,7 +126,7 @@ varying float v_depth;
 
 void main() {
 	#ifdef blendedTextureFlag
-		v_texCoords0 = a_texCoord0;
+		v_texCoords0 = (u_texCoordTransform * vec3(a_texCoord0, 1.0)).xy;
 	#endif // blendedTextureFlag
 
 	#ifdef skinningFlag
